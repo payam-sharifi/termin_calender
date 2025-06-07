@@ -9,10 +9,7 @@ const api = axios.create({
 });
 
 
-export const getAllUser = async () => {
-    const response = await api.get(`user`);
-    return response.data;
-  };
+
 
 
 

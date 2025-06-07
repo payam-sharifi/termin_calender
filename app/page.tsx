@@ -1,10 +1,10 @@
-'use client'
-import { useGetUsers } from "@/hooks/hooksOfServices/useGetUsers";
-import DnDCalender from "./components/DnDCalender";
+"use client";
+import { useGetUsers } from "@/hooks/user/useGetUsers";
+import DnDCalender from "./calender/components/DnDCalender";
+
 export default function Home() {
   const { data, isLoading, error } = useGetUsers();
 
-  console.log(data, "data");
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
   return (

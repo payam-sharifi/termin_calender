@@ -11,11 +11,20 @@ import { parse } from "date-fns/parse";
 import { startOfWeek } from "date-fns/startOfWeek";
 
 import { getDay } from "date-fns/getDay";
+import { CalenderType } from "@/services/timeSlotsApi/TimeSlots.types";
 const formatName = (name: any, count: any) => `${name} ID ${count}`;
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-export default function DnDCalender() {
-  const [myEvents, setMyEvents] = useState<CustomEvent[]>(adjEvents);
+export default function DnDCalender(events:CalenderType[]) {
+
+
+   const adjEvents1 = events.map((it:any, ind:any) => ({
+    ...it,
+    isDraggable: ind % 2 === 0,
+  }))
+
+
+  const [myEvents, setMyEvents] = useState<CustomEvent[]>(adjEvents1);
   const [draggedEvent, setDraggedEvent] = useState<
     DraggedEventType | "undroppable" | undefined
   >();
