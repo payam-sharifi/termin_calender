@@ -9,21 +9,18 @@ import { stringOrDate } from "react-big-calendar";
 import { format } from "date-fns/format";
 import { parse } from "date-fns/parse";
 import { startOfWeek } from "date-fns/startOfWeek";
-
 import { getDay } from "date-fns/getDay";
-import { CalenderType } from "@/services/timeSlotsApi/TimeSlots.types";
+
 const formatName = (name: any, count: any) => `${name} ID ${count}`;
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-export default function DnDCalender(events:CalenderType[]) {
+export default function DnDCalender({ data }: any) {
 
-
-   const adjEvents1 = events.map((it:any, ind:any) => ({
+  const adjEvents1 = data.map((it: any, ind: any) => ({
     ...it,
     isDraggable: ind % 2 === 0,
-  }))
-
-
+  }));
+ 
   const [myEvents, setMyEvents] = useState<CustomEvent[]>(adjEvents1);
   const [draggedEvent, setDraggedEvent] = useState<
     DraggedEventType | "undroppable" | undefined
@@ -65,9 +62,12 @@ export default function DnDCalender(events:CalenderType[]) {
       setMyEvents((prev: any) => {
         const existing = prev.find((ev: any) => ev.id === event.id) ?? {};
         const filtered = prev.filter((ev: any) => ev.id !== event.id);
+        console.log([...filtered, { ...existing, start, end, allDay }], "setMyEvents");
         return [...filtered, { ...existing, start, end, allDay }];
       });
+      
     },
+
     [setMyEvents]
   );
 
@@ -76,8 +76,10 @@ export default function DnDCalender(events:CalenderType[]) {
       setMyEvents((prev) => {
         const idList = prev.map((item) => item.id);
         const newId = Math.max(...idList) + 1;
+        console.log([...prev, { ...event, id: newId }], "newEvent");
         return [...prev, { ...event, id: newId }];
       });
+      
     },
     [setMyEvents]
   );
@@ -100,8 +102,6 @@ export default function DnDCalender(events:CalenderType[]) {
         isDraggable: true,
       };
 
-
-
       setDraggedEvent(undefined);
       setCounters((prev) => {
         const count = prev[name as keyof typeof prev];
@@ -120,9 +120,12 @@ export default function DnDCalender(events:CalenderType[]) {
       setMyEvents((prev: any) => {
         const existing = prev.find((ev: any) => ev.id === event.id) ?? {};
         const filtered = prev.filter((ev: any) => ev.id !== event.id);
+        console.log([...filtered, { ...existing, start, end }], "resizeEvent");
         return [...filtered, { ...existing, start, end }];
       });
+    
     },
+
     [setMyEvents]
   );
 

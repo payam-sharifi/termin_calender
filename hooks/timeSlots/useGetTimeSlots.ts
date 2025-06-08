@@ -1,8 +1,8 @@
-import { getTimeSlotsByDate } from "@/services/timeSlotsApi";
-import { TimeSlotsRqDataType } from "@/services/timeSlotsApi/TimeSlots.types";
+import { getTimeSlotsByDate } from "@/services/scheduleApi";
+import { ScheduleRqDataType } from "@/services/scheduleApi/TimeSlots.types";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetTimeSlotsByDate = (queryParams: TimeSlotsRqDataType) => {
+export const useGetTimeSlotsByDate = (queryParams: ScheduleRqDataType) => {
   return useQuery({
     queryKey: ["getTimeSlots"],
     queryFn: () => getTimeSlotsByDate(queryParams),
@@ -10,6 +10,6 @@ export const useGetTimeSlotsByDate = (queryParams: TimeSlotsRqDataType) => {
       !!queryParams.start_time &&
       !!queryParams.end_time &&
       !!queryParams.status,
-    refetchInterval: 10_000, // هر ۱۰ ثانیه چک کند
+    refetchInterval: 60_000, // هر ۱۰ ثانیه چک کند
   });
 };
