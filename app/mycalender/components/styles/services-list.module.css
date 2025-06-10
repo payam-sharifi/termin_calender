@@ -1,0 +1,137 @@
+.servicesListContainer {
+  padding: 1rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.servicesListHeading {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.3rem;
+}
+
+.serviceItem {
+  padding: 6px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 200px;
+  max-height: 100px;
+  margin: 0 auto 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.serviceItem:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.serviceItemSelected {
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.serviceItemDragging {
+  opacity: 0.7;
+}
+
+.serviceContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+}
+
+.serviceName {
+  font-size: 12px;
+  margin-bottom: 5px;
+  margin-right: 8px;
+  text-align: left;
+}
+
+.serviceDetails {
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.detailLabel {
+  font-weight: bold;
+  margin-right: 4px;
+  text-align: left;
+}
+
+.detailValue {
+  color: #666;
+  text-align: left;
+}
+
+.serviceDetail {
+  margin-bottom: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .servicesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.2rem;
+  }
+
+  .serviceItem {
+    max-width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .serviceName {
+    font-size: 10px;
+  }
+
+  .serviceDetails {
+    font-size: 8px;
+  }
+
+  .rbc-calendar {
+    margin-top: 3rem; /* Further increased margin to separate calendar from services */
+  }
+
+  .rbc-toolbar {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .rbc-btn-group {
+    margin-top: 0.5rem;
+  }
+
+  .rbc-month-view,
+  .rbc-time-view,
+  .rbc-agenda-view {
+    margin-top: 1rem; /* Add margin to the calendar views */
+  }
+}
+
+@media (max-width: 480px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .servicesListHeading {
+    font-size: 1.3rem;
+  }
+}

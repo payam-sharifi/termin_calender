@@ -6,8 +6,9 @@ import {
   TimeSlotsRsDataType,
 } from "@/services/scheduleApi/TimeSlots.types";
 import { useSearchParams } from "next/navigation";
-import MyCalendarClient from "./mycalender/components/MyCalendarClient";
+
 import { Container } from "react-bootstrap";
+import MyCalendarClient from "./components/MyCalendarClient";
 const today = new Date();
 const startDefault = new Date(
   today.getFullYear(),
@@ -57,9 +58,9 @@ export default function Home() {
   return (
     <main className="p-4">
       {/*  // <h1 className="text-2xl font-bold mb-4">ٍCalendar</h1> */}
-      <Container className="m-4" >
+     
         <MyCalendarClient eventsObj={adjEvents1} />
-      </Container>
+    
     </main>
   );
 }

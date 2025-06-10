@@ -1,0 +1,232 @@
+/* General Container for Google Calendar-like appearance */
+.my-calendar-container {
+  font-family: 'Google Sans', Arial, sans-serif;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  padding: 16px;
+}
+
+.my-calendar-container h1 {
+  margin-bottom: 24px;
+  font-size: 2rem;
+  text-align: left;
+  padding-left: 16px;
+}
+
+/* React Big Calendar Overrides - Minimal layout changes */
+.rbc-calendar {
+  direction: ltr;
+}
+
+/* Toolbar (Header) Styling */
+.rbc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.rbc-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.rbc-toolbar button {
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: #fff;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f6f9fe;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #1a73e8;
+  color: white;
+  border-color: #1a73e8;
+}
+
+/* Center month/year label */
+.rbc-toolbar .rbc-toolbar-label {
+  flex-grow: 1;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+/* Calendar Grid (minimal layout overrides) */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  border: none;
+  border-radius: 8px;
+  /* Let RBL handle overflow and other layout properties */
+}
+
+.rbc-month-row {
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 100px; /* Ensure sufficient height for rows */
+}
+
+.rbc-month-row:last-child {
+  border-bottom: none;
+}
+
+.rbc-row-content {
+  /* Let RBL handle layout */
+  position: relative; /* Keep if RBL uses absolute children */
+}
+
+.rbc-day-bg {
+  border-left: 1px solid #e0e0e0;
+  position: relative; /* Keep if RBL uses absolute children */
+}
+
+.rbc-day-bg:first-child {
+  border-left: none;
+}
+
+.rbc-header {
+  padding: 12px 3px;
+  font-weight: 500;
+  color: #3c4043;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid #e0e0e0;
+}
+
+.rbc-date-cell {
+  padding: 4px;
+  color: #3c4043;
+  text-align: right;
+  height: 20px;
+  z-index: 1;
+  position: relative;
+}
+
+.rbc-date-cell.rbc-current {
+  font-weight: bold;
+}
+
+/* Events */
+.rbc-events-container {
+  /* Let RBL handle layout */
+  padding: 0 5px;
+}
+
+.rbc-event {
+  background-color: #1a73e8;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 12px;
+  color: white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-align: right;
+  direction: rtl;
+  margin-bottom: 2px;
+  /* Let RBL handle layout properties like height, width, position */
+}
+
+.rbc-event-content,
+.rbc-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rbc-event:hover {
+  background-color: #1557b0;
+}
+
+/* Today's date */
+.rbc-today {
+  background-color: #f8f9fa;
+}
+
+/* Selected day (Day 8 in the image has a light blue background) */
+.rbc-day-bg.rbc-selected-cell,
+.rbc-day-bg.rbc-selected {
+  background-color: #e8f0fe;
+}
+
+/* Selected slot (for new event creation) */
+.rbc-slot-selection {
+  background-color: rgba(26, 115, 232, 0.2);
+}
+
+/* Time slots (for week/day view) */
+.rbc-time-view {
+  border: 1px solid #e0e0e0;
+}
+
+.rbc-time-header,
+.rbc-time-header-content {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.rbc-time-content {
+  border-top: 1px solid #e0e0e0;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+/* Current time indicator */
+.rbc-current-time-indicator {
+  background-color: #ea4335;
+  height: 2px;
+}
+
+/* Agenda View */
+.rbc-agenda-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rbc-agenda-view table th,
+.rbc-agenda-view table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: right;
+  direction: rtl;
+}
+
+.rbc-agenda-event-cell {
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .rbc-btn-group {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .rbc-toolbar button {
+    width: 100%;
+  }
+
+  .rbc-toolbar .rbc-toolbar-label {
+    order: -1;
+    margin-bottom: 8px;
+  }
+} 

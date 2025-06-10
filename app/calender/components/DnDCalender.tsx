@@ -10,6 +10,7 @@ import { format } from "date-fns/format";
 import { parse } from "date-fns/parse";
 import { startOfWeek } from "date-fns/startOfWeek";
 import { getDay } from "date-fns/getDay";
+//import "@/resources/calendar.css";
 
 const formatName = (name: any, count: any) => `${name} ID ${count}`;
 const DragAndDropCalendar = withDragAndDrop(Calendar);
@@ -143,7 +144,7 @@ export default function DnDCalender({ data }: any) {
   });
 
   return (
-    <>
+    <div className="calendar-container">
       <Card className="dndOutsideSourceExample">
         <div className="inner">
           <h4>Outside Drag Sources</h4>
@@ -195,8 +196,9 @@ export default function DnDCalender({ data }: any) {
           resizable
           selectable
           onDropFromOutside={onDropFromOutside}
+          style={{ height: '100%' }}
         />
       </div>
-    </>
+    </div>
   );
 }

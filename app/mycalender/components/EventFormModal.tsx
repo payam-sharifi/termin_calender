@@ -1,0 +1,269 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Modal, Form, Button, Row, Col } from "react-bootstrap";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
+
+interface Service {
+  id: number;
+  name: string;
+  color: string;
+  duration: number;
+  price: number;
+  providerName: string;
+}
+
+interface Event {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  service: Service;
+  customerName: string;
+  customerFamily: string;
+  customerEmail: string;
+  customerPhone: string;
+  description?: string;
+}
+
+interface EventFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (eventData: any) => void;
+  selectedSlot?: {
+    start: Date;
+    end: Date;
+  };
+  selectedService?: Service;
+  services: Service[];
+  initialData?: Event;
+}
+
+export default function EventFormModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  selectedSlot,
+  selectedService,
+  services,
+  initialData,
+}: EventFormModalProps) {
+  const [formData, setFormData] = useState({
+    title: initialData?.title || "",
+    description: initialData?.description || "",
+    start: initialData?.start || selectedSlot?.start || new Date(),
+    end: initialData?.end || selectedSlot?.end || new Date(),
+    service: initialData?.service || selectedService || null,
+    customerName: initialData?.customerName || "",
+    customerFamily: initialData?.customerFamily || "",
+    customerEmail: initialData?.customerEmail || "",
+    customerPhone: initialData?.customerPhone || "",
+  });
+
+  useEffect(() => {
+    if (selectedSlot) {
+      setFormData(prev => ({
+        ...prev,
+        start: selectedSlot.start,
+        end: selectedSlot.end
+      }));
+    }
+    if (selectedService) {
+      setFormData(prev => ({
+        ...prev,
+        service: selectedService,
+        title: selectedService.name
+      }));
+    }
+  }, [selectedSlot, selectedService]);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title,
+        description: initialData.description || "",
+        start: new Date(initialData.start),
+        end: new Date(initialData.end),
+        service: initialData.service,
+        customerName: initialData.customerName,
+        customerFamily: initialData.customerFamily,
+        customerEmail: initialData.customerEmail,
+        customerPhone: initialData.customerPhone,
+      });
+    }
+  }, [initialData]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+    onClose();
+  };
+
+  const handleServiceChange = (serviceId: string) => {
+    const service = services.find(s => s.id === parseInt(serviceId));
+    if (service) {
+      setFormData(prev => ({
+        ...prev,
+        service,
+        title: service.name,
+        end: new Date(prev.start.getTime() + service.duration * 60000)
+      }));
+    }
+  };
+
+  return (
+    <Modal show={isOpen} onHide={onClose} size="lg" centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Neuer Termin</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={handleSubmit}>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Service</Form.Label>
+                <Form.Select
+                  value={formData.service?.id || ""}
+                  onChange={(e) => handleServiceChange(e.target.value)}
+                  required
+                >
+                  <option value="">Service auswählen</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name} - {service.providerName} ({service.price}€)
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Titel</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Startzeit</Form.Label>
+                <DatePicker
+                  selected={formData.start}
+                  onChange={(date: Date | null) =>
+                    date && setFormData({ ...formData, start: date })
+                  }
+                  showTimeSelect
+                  dateFormat="Pp"
+                  className="form-control"
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Endzeit</Form.Label>
+                <DatePicker
+                  selected={formData.end}
+                  onChange={(date: Date | null) =>
+                    date && setFormData({ ...formData, end: date })
+                  }
+                  showTimeSelect
+                  dateFormat="Pp"
+                  className="form-control"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Vorname</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={formData.customerName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerName: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Nachname</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={formData.customerFamily}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerFamily: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>E-Mail</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={formData.customerEmail}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerEmail: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Telefon</Form.Label>
+                <Form.Control
+                  type="tel"
+                  value={formData.customerPhone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerPhone: e.target.value })
+                  }
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Beschreibung</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+            />
+          </Form.Group>
+
+          <div className="d-flex justify-content-end gap-2">
+            <Button variant="secondary" onClick={onClose}>
+              Abbrechen
+            </Button>
+            <Button variant="primary" type="submit">
+              Speichern
+            </Button>
+          </div>
+        </Form>
+      </Modal.Body>
+    </Modal>
+  );
+}
