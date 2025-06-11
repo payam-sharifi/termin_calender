@@ -14,6 +14,8 @@ import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
 import { seviceType, ServiceRsDataType } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
+import { useCreateTimeSlot } from "@/hooks/timeSlots/useCreateTimeSlot";
+import { TimeSlotsRqType } from "@/services/timeSlotsApi/TimeSlots.types";
 
 // interface Service {
 //   id: string;
@@ -59,7 +61,7 @@ export default function MyCalendarClient({ eventsObj,services }: {eventsObj:any,
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-
+  const { mutate:CreateSlotApi,  isError, isSuccess } = useCreateTimeSlot();
   useEffect(() => {
     console.log('Updating events from eventsObj:', eventsObj);
     setEvents(eventsObj || []);
@@ -77,9 +79,7 @@ export default function MyCalendarClient({ eventsObj,services }: {eventsObj:any,
     []
   );
 
-  const handleServiceSelect = useCallback((service: seviceType) => {
-    setSelectedService(service);
-  }, []);
+
 
   const handleDeleteEvent = useCallback((eventId: number) => {
     setEvents((prev) => prev.filter((event) => event.id !== eventId));
@@ -109,6 +109,15 @@ export default function MyCalendarClient({ eventsObj,services }: {eventsObj:any,
           return updatedEvents;
         } else {
           // Create new event
+     
+        console.log(eventData,"eventData")
+          CreateSlotApi(
+        {    start_time: eventData.start,
+            end_time: eventData.end,
+            service_id: eventData.service[0].id,
+            status:"Available",}
+          );
+
           const newEvent = {
             id: prev.length + 1,
             ...eventData,

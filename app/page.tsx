@@ -24,11 +24,11 @@ const endDefault = new Date(
   today.getDate() + 1
 );
 export default function Home() {
-  const searchParams = useSearchParams();
-  const start_time =
-    searchParams.get("start_time") || startDefault.toISOString();
-  const end_time = searchParams.get("end_time") || endDefault.toISOString();
-  const status = searchParams.get("status") || "true";
+  // const searchParams = useSearchParams();
+  // const start_time =
+  //   searchParams.get("start_time") || startDefault.toISOString();
+  // const end_time = searchParams.get("end_time") || endDefault.toISOString();
+  // const status = searchParams.get("status") || "true";
 //const [serviceData,setServiceData]=useState<ServiceRsDataType>()
   //const { data: userData,isLoading:userisLoading,error:userError} = useGetOneUser({id:"123e9fae-4825-4e11-9d2e-9d41510adbe7"});
   //useGetServicesByProviderId
