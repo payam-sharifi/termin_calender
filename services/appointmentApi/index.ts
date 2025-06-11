@@ -1,12 +1,20 @@
 import api from "../axiosConfig";
-import { CreateUserRqDataType, CreateUserRsDataType } from "./User.type";
+import { CreateAppointmentRqDataType, getAppointmentsRqByDateAndUserId } from "./Appointments.type";
 
-export const getAllAppointmentByDate = async () => {
-  const response = await api.get(`appointment`);
+
+//AllApoiintmentForUser
+export const getAllAppointmentByUserIdAndDate = async (body:getAppointmentsRqByDateAndUserId) => {
+  const response = await api.get(`appointment`,{
+    params:body
+  });
   return response.data;
 };
 
-export const createUser = async (userData: CreateUserRqDataType) => {
-  const response = await api.post(`appointment`, userData);
+
+
+//CreateAppointment
+export const createAppointment = async (appintmentData:CreateAppointmentRqDataType) => {
+  const response = await api.post(`appointment`,appintmentData);
   return response.data;
 };
+

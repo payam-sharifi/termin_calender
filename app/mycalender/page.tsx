@@ -1,14 +1,13 @@
 "use client";
 import { useGetTimeSlotsByDate } from "@/hooks/timeSlots/useGetTimeSlots";
-
 import {
   ScheduleRsDataType,
   TimeSlotsRsDataType,
 } from "@/services/scheduleApi/TimeSlots.types";
 import { useSearchParams } from "next/navigation";
-
-import { Container } from "react-bootstrap";
 import MyCalendarClient from "./components/MyCalendarClient";
+
+import { useGetOneUser } from "@/hooks/user/useGetOneuser";
 const today = new Date();
 const startDefault = new Date(
   today.getFullYear(),
@@ -26,15 +25,11 @@ export default function Home() {
     searchParams.get("start_time") || startDefault.toISOString();
   const end_time = searchParams.get("end_time") || endDefault.toISOString();
   const status = searchParams.get("status") || "true";
-  const {
-    data: apiData,
-    isLoading,
-    error,
-  } = useGetTimeSlotsByDate({
-    start_time,
-    end_time,
-    status,
-  });
+
+  
+  const { data: userData,isLoading:userisLoading,error:userError} = useGetOneUser({id:"123e9fae-4825-4e11-9d2e-9d41510adbe7"});
+  
+  const { data: apiData,isLoading,error,} = useGetTimeSlotsByDate({ start_time,end_time,status,});
 
   const transformedData: CustomEvent[] = (apiData ?? []).flatMap(
     (schedule: ScheduleRsDataType) =>
@@ -52,14 +47,14 @@ export default function Home() {
     ...it,
     isDraggable: ind % 2 === 0,
   }));
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error!</p>;
+console.log(userData,"userData")
+  if (isLoading && userisLoading) return <p>Loading...</p>;
+  if (error || userError) return <p>Error!</p>;
   return (
     <main className="p-4">
-      {/*  // <h1 className="text-2xl font-bold mb-4">ٍCalendar</h1> */}
-     
-        <MyCalendarClient eventsObj={adjEvents1} />
+      {/*  // <h1 className="text-2xl font-bold mb-4">ٍCalendar</h1> 
+     ss
+         <MyCalendarClient eventsObj={adjEvents1} />*/}
     
     </main>
   );

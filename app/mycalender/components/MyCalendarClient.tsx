@@ -11,31 +11,19 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import EventFormModal from "./EventFormModal";
-import ServicesList from "././ServicesList";
-import { Col, Row, Stack } from "react-bootstrap";
 import EventDetailsModal from "./EventDetailsModal";
+import { seviceType, ServiceRsDataType } from "@/services/servicesApi/Service.types";
+import { Event } from "../types/event";
 
-interface Service {
-  id: number;
-  name: string;
-  color: string;
-  duration: number;
-  price: number;
-  providerName: string;
-}
-
-interface Event extends CalendarEvent {
-  id: number;
-  title: string;
-  start: Date;
-  end: Date;
-  service: Service;
-  customerName: string;
-  customerFamily: string;
-  customerEmail: string;
-  customerPhone: string;
-  description?: string;
-}
+// interface Service {
+//   id: string;
+//   provider_id: string;
+//   title: string;
+//   duration: number;
+//   price: number;
+//   description: string;
+//   is_active: boolean;
+// }
 
 const locales = {
   "en-US": enUS,
@@ -51,10 +39,8 @@ const localizer = dateFnsLocalizer({
 
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-export default function MyCalendarClient({ eventsObj }: any) {
-  console.log('Initial eventsObj:', eventsObj);
+export default function MyCalendarClient({ eventsObj,services }: {eventsObj:any,services:ServiceRsDataType}) {
   const initialEvents = useMemo(() => {
-    console.log('Creating initialEvents from:', eventsObj);
     return eventsObj || [];
   }, [eventsObj]);
   const [events, setEvents] = useState<Event[]>(initialEvents);
@@ -63,7 +49,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
     start: Date;
     end: Date;
   } | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<seviceType | null>(null);
   const [currentView, setCurrentView] = useState<
     (typeof Views)[keyof typeof Views]
   >(Views.MONTH);
@@ -91,7 +77,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
     []
   );
 
-  const handleServiceSelect = useCallback((service: Service) => {
+  const handleServiceSelect = useCallback((service: seviceType) => {
     setSelectedService(service);
   }, []);
 
@@ -105,7 +91,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
       start: new Date(event.start),
       end: new Date(event.end),
     });
-    setSelectedService(event.service);
+    setSelectedService(event.service[0]);
     setIsEditMode(true);
     setIsDetailsModalOpen(false);
     setIsModalOpen(true);
@@ -177,7 +163,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
     const typedEvent = event as Event;
     return {
       style: {
-        backgroundColor: typedEvent.service.color,
+        backgroundColor: "#4a90e2", // Default color since seviceType doesn't have color
         borderRadius: "4px",
         opacity: 0.8,
         color: "white",
@@ -211,7 +197,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
     [selectedService]
   );
 
-  const handleDragStart = useCallback((service: Service) => {
+  const handleDragStart = useCallback((service: seviceType) => {
     setSelectedService(service);
   }, []);
 
@@ -227,32 +213,35 @@ export default function MyCalendarClient({ eventsObj }: any) {
   );
 
   // Mock services data - replace with your actual services data
-  const services: Service[] = [
-    {
-      id: 1,
-      name: "Haircut",
-      color: "#ff0000",
-      duration: 30,
-      price: 30,
-      providerName: "John Doe"
-    },
-    {
-      id: 2,
-      name: "Hair Coloring",
-      color: "#00ff00",
-      duration: 60,
-      price: 80,
-      providerName: "Jane Smith"
-    },
-    {
-      id: 3,
-      name: "Manicure",
-      color: "#0000ff",
-      duration: 45,
-      price: 40,
-      providerName: "Mike Johnson"
-    }
-  ];
+  // const services: ServiceRsDataType = [
+  //   {
+  //     id: "1",
+  //     provider_id: "1",
+  //     title: "Haircut",
+  //     duration: 30,
+  //     price: 30,
+  //     description: "A haircut",
+  //     is_active: true
+  //   },
+  //   {
+  //     id: "2",
+  //     provider_id: "2",
+  //     title: "Hair Coloring",
+  //     duration: 60,
+  //     price: 80,
+  //     description: "A hair coloring",
+  //     is_active: true
+  //   },
+  //   {
+  //     id: "3",
+  //     provider_id: "3",
+  //     title: "Manicure",
+  //     duration: 45,
+  //     price: 40,
+  //     description: "A manicure",
+  //     is_active: true
+  //   }
+  // ];
 
   const components = {
     event: ({ event }: { event: CalendarEvent }) => {
@@ -268,19 +257,15 @@ export default function MyCalendarClient({ eventsObj }: any) {
       // Show more details in day view
       if (currentView === Views.DAY) {
         return (
-          <div style={{ padding: '4px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>
+          <div className="d-flex justify-content align-items-center" style={{ padding: '4px' }}>
+            <div  style={{ fontWeight: 'bold', marginBottom: '2px' }}>
               {typedEvent.title}
             </div>
-            <div style={{ fontSize: '0.9em', marginBottom: '2px' }}>
-              {formatTime(typedEvent.start)} - {formatTime(typedEvent.end)}
-            </div>
+           
             <div style={{ fontSize: '0.9em', marginBottom: '2px' }}>
               {typedEvent.customerName} {typedEvent.customerFamily}
             </div>
-            <div style={{ fontSize: '0.9em' }}>
-              {typedEvent.service.name} ({typedEvent.service.providerName})
-            </div>
+           
           </div>
         );
       }
@@ -347,7 +332,7 @@ export default function MyCalendarClient({ eventsObj }: any) {
         selectedSlot={selectedSlot || undefined}
         selectedService={selectedService || undefined}
         services={services}
-        initialData={isEditMode ? selectedEvent : undefined}
+        initialData={isEditMode ? (selectedEvent === null ? undefined : selectedEvent) : undefined}
       />
       <EventDetailsModal
         isOpen={isDetailsModalOpen}

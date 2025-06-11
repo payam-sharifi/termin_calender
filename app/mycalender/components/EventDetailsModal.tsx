@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Event } from "../types/event";
 
 interface Service {
   id: number;
@@ -9,19 +10,6 @@ interface Service {
   duration: number;
   price: number;
   providerName: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  start: Date;
-  end: Date;
-  service: Service;
-  customerName: string;
-  customerFamily: string;
-  customerEmail: string;
-  customerPhone: string;
-  description?: string;
 }
 
 interface EventDetailsModalProps {

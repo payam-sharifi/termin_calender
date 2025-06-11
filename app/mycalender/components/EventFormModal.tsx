@@ -4,29 +4,17 @@ import { useState, useEffect } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import dayjs from "dayjs";
+import { ServiceRsDataType, seviceType } from "@/services/servicesApi/Service.types";
+import { Event } from "../types/event";
 
-interface Service {
-  id: number;
-  name: string;
-  color: string;
-  duration: number;
-  price: number;
-  providerName: string;
-}
-
-interface Event {
-  id: number;
-  title: string;
-  start: Date;
-  end: Date;
-  service: Service;
-  customerName: string;
-  customerFamily: string;
-  customerEmail: string;
-  customerPhone: string;
-  description?: string;
-}
+// interface Service {
+//   id: number;
+//   name: string;
+//   color: string;
+//   duration: number;
+//   price: number;
+//   providerName: string;
+// }
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -36,9 +24,9 @@ interface EventFormModalProps {
     start: Date;
     end: Date;
   };
-  selectedService?: Service;
-  services: Service[];
-  initialData?: Event;
+  selectedService?: seviceType;
+  services: seviceType[];
+  initialData?: Event | null;
 }
 
 export default function EventFormModal({
@@ -50,12 +38,22 @@ export default function EventFormModal({
   services,
   initialData,
 }: EventFormModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    start: Date;
+    end: Date;
+    service: seviceType[];
+    customerName: string;
+    customerFamily: string;
+    customerEmail: string;
+    customerPhone: string;
+  }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
     start: initialData?.start || selectedSlot?.start || new Date(),
     end: initialData?.end || selectedSlot?.end || new Date(),
-    service: initialData?.service || selectedService || null,
+    service: initialData?.service || (selectedService ? [selectedService] : []),
     customerName: initialData?.customerName || "",
     customerFamily: initialData?.customerFamily || "",
     customerEmail: initialData?.customerEmail || "",
@@ -73,8 +71,8 @@ export default function EventFormModal({
     if (selectedService) {
       setFormData(prev => ({
         ...prev,
-        service: selectedService,
-        title: selectedService.name
+        service: [selectedService],
+        title: selectedService.title
       }));
     }
   }, [selectedSlot, selectedService]);
@@ -102,12 +100,12 @@ export default function EventFormModal({
   };
 
   const handleServiceChange = (serviceId: string) => {
-    const service = services.find(s => s.id === parseInt(serviceId));
+    const service = services?.find(s => s.id === serviceId);
     if (service) {
       setFormData(prev => ({
         ...prev,
-        service,
-        title: service.name,
+        service: [service],
+        title: service.title,
         end: new Date(prev.start.getTime() + service.duration * 60000)
       }));
     }
@@ -125,14 +123,14 @@ export default function EventFormModal({
               <Form.Group className="mb-3">
                 <Form.Label>Service</Form.Label>
                 <Form.Select
-                  value={formData.service?.id || ""}
+                  value={formData.service[0]?.id || ""}
                   onChange={(e) => handleServiceChange(e.target.value)}
                   required
                 >
                   <option value="">Service auswählen</option>
-                  {services.map((service) => (
+                  {services?.map((service) => (
                     <option key={service.id} value={service.id}>
-                      {service.name} - {service.providerName} ({service.price}€)
+                      {service.title} - {service.title} ({service.price}€)
                     </option>
                   ))}
                 </Form.Select>

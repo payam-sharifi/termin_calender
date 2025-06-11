@@ -1,12 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getAllUser } from "../../services/userApi";
+import {  getOneUser } from "../../services/userApi";
 
 
-export const useGetUsers = () => {
+export const useGetOneUser = ({id}:{id:string}) => {
   return useQuery({
     queryKey: ["users"],
-    queryFn: () => getAllUser(),
+    queryFn: () => getOneUser({id}),
   //  refetchInterval: 10_000, // هر ۱۰ ثانیه چک کند
   });
 };
