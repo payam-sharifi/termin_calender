@@ -33,6 +33,7 @@ export interface ScheduleRsDataType {
 export interface ScheduleRqDataType {
   start_time: string;
   end_time: string;
-  status: string;
+  is_available?: string;
+  provider_id?:string
 }
 export type CalendarType = CalendarEvent[];

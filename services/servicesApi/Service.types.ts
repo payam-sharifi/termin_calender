@@ -1,3 +1,13 @@
+
+
+
+export interface TimeSlotsType{
+  id:string,
+  service_id: string,
+  start_time: string,
+  end_time: string,
+  status:string,
+}
 export interface seviceType{
   id: string,
   provider_id: string,
@@ -6,5 +16,8 @@ export interface seviceType{
   price: number,
   description: string
   is_active: boolean
+  timeSlots:TimeSlotsType[]
 }
+
+
 export type ServiceRsDataType = seviceType[];

@@ -1,13 +1,9 @@
 import api from "../axiosConfig";
-import { ScheduleRqDataType } from "./TimeSlots.types";
+import { ScheduleRqDataType } from "./Schedule.types";
 
-export const getTimeSlotsByDate = async ({
-  start_time,
-  end_time,
-  status,
-}: ScheduleRqDataType) => {
+export const getSceduleByDateAndId = async (body: ScheduleRqDataType) => {
   const response = await api.get(
-    `schedule?start_time=${start_time}&end_time=${end_time}&is_available=${status}`
+    `schedule`,{params:body}
   );
   return response.data;
 };

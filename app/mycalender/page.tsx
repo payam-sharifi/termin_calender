@@ -1,9 +1,9 @@
 "use client";
-import { useGetTimeSlotsByDate } from "@/hooks/timeSlots/useGetTimeSlots";
+import { useGetTimeSlotsByDate } from "@/hooks/schedule/useScheduleByDateAndProviderId";
 import {
   ScheduleRsDataType,
   TimeSlotsRsDataType,
-} from "@/services/scheduleApi/TimeSlots.types";
+} from "@/services/scheduleApi/Schedule.types";
 import { useSearchParams } from "next/navigation";
 import MyCalendarClient from "./components/MyCalendarClient";
 

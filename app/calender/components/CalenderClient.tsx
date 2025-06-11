@@ -2,12 +2,12 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useGetTimeSlotsByDate } from "@/hooks/timeSlots/useGetTimeSlots";
+import { useGetTimeSlotsByDate } from "@/hooks/schedule/useScheduleByDateAndProviderId";
 import DnDCalender from "./DnDCalender";
 import {
   ScheduleRsDataType,
   TimeSlotsRsDataType,
-} from "@/services/scheduleApi/TimeSlots.types";
+} from "@/services/scheduleApi/Schedule.types";
 const today = new Date();
 const startDefault = new Date(
   today.getFullYear(),

@@ -3,9 +3,9 @@ import { ServiceRsDataType } from "./Service.types";
 
 
 
-export const getServicesByUserId = async ({userId}:{userId:string}): Promise<ServiceRsDataType> => {
+export const getServicesByPrividerId = async ({providerId}:{providerId:string}): Promise<ServiceRsDataType> => {
   const response = await api.get(
-    `service/${userId}`
+    `service/${providerId}`
   );
   return response.data;
 };
