@@ -24,5 +24,10 @@ export interface TimeSlotsRqType{
   end_time: string,
   status?:string
 }
-
+export interface ServiceRqType{
+  providerId: string,
+  start_time: string,
+  end_time: string,
+  status?:string
+}
 export type ServiceRsDataType = seviceType[];

@@ -1,12 +1,12 @@
 import { Event as CalendarEvent } from "react-big-calendar";
-import { seviceType } from "@/services/servicesApi/Service.types";
+import { serviceType } from "@/services/servicesApi/Service.types";
 
 export interface Event extends CalendarEvent {
   id: number;
   title: string;
   start: Date;
   end: Date;
-  service: seviceType[];
+  service: serviceType;
   customerName: string;
   customerFamily: string;
   customerEmail: string;
