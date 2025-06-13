@@ -13,6 +13,7 @@ export interface serviceType {
   providerName: string,
   duration: number,
   price: number,
+  color:string,
   description: string,
   is_active: boolean,
   timeSlots: TimeSlotsType[]

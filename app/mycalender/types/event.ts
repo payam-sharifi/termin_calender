@@ -6,6 +6,7 @@ export interface Event extends CalendarEvent {
   title: string;
   start: Date;
   end: Date;
+  color?:string
   service: serviceType;
   customerName: string;
   customerFamily: string;

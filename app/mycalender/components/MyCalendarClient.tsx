@@ -84,7 +84,6 @@ export default function MyCalendarClient({
   const [isEditMode, setIsEditMode] = useState(false);
   const { mutate: CreateSlotApi, isError, isSuccess } = useCreateTimeSlot();
   useEffect(() => {
-    console.log("Updating events from eventsObj:", eventsObj);
     setEvents(eventsObj || []);
   }, [eventsObj]);
 
@@ -122,12 +121,10 @@ export default function MyCalendarClient({
             const updatedEvents = prev.map((event) =>
               event.id === selectedEvent.id ? { ...event, ...eventData } : event
             );
-            console.log("Updating existing event:", updatedEvents);
             return updatedEvents;
           } else {
             // Create new event
 
-            console.log(eventData, "eventData");
             CreateSlotApi({
               start_time: eventData.start,
               end_time: eventData.end,
@@ -139,9 +136,7 @@ export default function MyCalendarClient({
               id: prev.length + 1,
               ...eventData,
             };
-            console.log("Adding new event:", newEvent);
             const updatedEvents = [...prev, newEvent];
-            console.log("Events after update:", updatedEvents);
             return updatedEvents;
           }
         });
@@ -149,7 +144,6 @@ export default function MyCalendarClient({
         setSelectedSlot(null);
         setIsEditMode(false);
       } catch (error) {
-        console.error("Error saving event:", error);
       }
     },
     [isEditMode, selectedEvent]

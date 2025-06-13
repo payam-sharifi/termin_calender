@@ -1,25 +1,18 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
 import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 import { Container } from "react-bootstrap";
 import { useGetServicesByProviderId } from "@/hooks/serviices/useGetServices";
-import { useState } from "react";
-import { ServiceRsDataType } from "@/services/servicesApi/Service.types";
 import { use } from "react";
 
-const today = new Date();
 
 export default function ServicePage({
   params,
 }: {
-  params: Promise<{ providerId: string }>;
+  params: Promise<{ provider_id: string }>;
 }) {
-  const today = new Date();
-  const yyyyMMdd = today.toISOString().split("T")[0];
-  const { providerId } = use(params);
-  const searchParams = useSearchParams();
-  const [date, setDate] = useState<string>();
+  const { provider_id } = use(params);
+ 
 
   const {
     mutate: GetServices,
@@ -41,7 +34,6 @@ export default function ServicePage({
   // });
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
-    console.log(newStart, "newStart");
 
     const formatDate = (date: Date) => {
       return date.toISOString().split("T")[0];
@@ -51,7 +43,7 @@ export default function ServicePage({
     const start_time = formatDate(newStart);
     const end_time = formatDate(newEnd);
     GetServices({
-      providerId,
+      provider_id,
       start_time,
       end_time,
     });
@@ -65,6 +57,7 @@ export default function ServicePage({
       id: `${serviceIndex}-${slotIndex}`,
       slotId: slot.id,
       isDraggable: true,
+      color:service.color,
       title: service.name,
       service: {
         id: service.id,

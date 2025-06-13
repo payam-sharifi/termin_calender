@@ -25,7 +25,7 @@ export interface TimeSlotsRqType{
   status?:string
 }
 export interface ServiceRqType{
-  providerId: string,
+  provider_id: string,
   start_time: string,
   end_time: string,
   status?:string
