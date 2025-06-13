@@ -9,7 +9,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push(`/service/123e9fae-4825-4e11-9d2e-9d41510adbe7?start_time=${yyyyMMdd}&end_time=${yyyyMMdd}`);
+    router.push(`/service/123e9fae-4825-4e11-9d2e-9d41510adbe7`);
   }, [router]);
 
   return null;

@@ -1,15 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import {
-  Calendar,
-  Views,
-  dateFnsLocalizer,
-  Event as CalendarEvent,
-} from "react-big-calendar";
+import { Calendar, Views, Event as CalendarEvent, Components } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import { format, parse, startOfWeek, getDay, startOfToday } from "date-fns";
-import { enUS } from "date-fns/locale";
 import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
 import {
@@ -17,32 +10,14 @@ import {
   ServiceRsDataType,
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
-import { useCreateTimeSlot } from "@/hooks/timeSlots/useCreateTimeSlot";
-import { TimeSlotsRqType } from "@/services/timeSlotsApi/TimeSlots.types";
-import DatePicker from "react-datepicker";
+import GermanDatePicker from "./Datapicker";
+import { momentLocalizer } from "react-big-calendar";
+import moment from "moment";
+import "moment-timezone";
+import '@/styles/calender-override.css'
 
-// interface Service {
-//   id: string;
-//   provider_id: string;
-//   title: string;
-//   duration: number;
-//   price: number;
-//   description: string;
-//   is_active: boolean;
-// }
-
-const locales = {
-  "en-US": enUS,
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
-
+moment.locale('de');
+const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
 export default function MyCalendarClient({
@@ -54,7 +29,6 @@ export default function MyCalendarClient({
   services: ServiceRsDataType;
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
 }) {
- 
   const initialEvents = useMemo(() => {
     return eventsObj || [];
   }, [eventsObj]);
@@ -83,7 +57,6 @@ export default function MyCalendarClient({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const { mutate: CreateSlotApi, isError, isSuccess } = useCreateTimeSlot();
   useEffect(() => {
     setEvents(eventsObj || []);
   }, [eventsObj]);
@@ -124,15 +97,6 @@ export default function MyCalendarClient({
             );
             return updatedEvents;
           } else {
-            // Create new event
-
-            CreateSlotApi({
-              start_time: eventData.start,
-              end_time: eventData.end,
-              service_id: eventData.service[0].id,
-              status: "Available",
-            });
-
             const newEvent = {
               id: prev.length + 1,
               ...eventData,
@@ -144,8 +108,7 @@ export default function MyCalendarClient({
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
-      } catch (error) {
-      }
+      } catch (error) {}
     },
     [isEditMode, selectedEvent]
   );
@@ -186,7 +149,7 @@ export default function MyCalendarClient({
     const typedEvent = event as Event;
     return {
       style: {
-        backgroundColor: event.color ||  "#4a90e2", // Use service color or fallback to default
+        backgroundColor: event.color || "#4a90e2", // Use service color or fallback to default
         borderRadius: "4px",
         opacity: 0.8,
         color: "white",
@@ -226,7 +189,6 @@ export default function MyCalendarClient({
 
   const handleNavigate = useCallback(
     (newDate: Date) => {
-
       setCurrentDate(newDate);
       // Calculate the start and end of the current view
       let start = new Date(newDate);
@@ -284,7 +246,7 @@ export default function MyCalendarClient({
       if (currentView === Views.DAY) {
         return (
           <div
-            className="d-flex justify-content align-items-center"
+            className="d-flex  justify-content align-items-center"
             style={{ padding: "4px" }}
           >
             <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
@@ -302,61 +264,90 @@ export default function MyCalendarClient({
       return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
     },
   };
-
+  const CustomHeader: Components['header'] = ({ label }) => {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <div>{label}</div>
+        <div style={{ fontSize: '10px', color: '#666' }}>پیام به عنوان خدمت دهنده</div>
+      </div>
+    );
+  };
+  const formats = {
+    timeGutterFormat: "HH:mm", // 24-hour format (e.g., "08:00", "18:00")
+    eventTimeRangeFormat: ({ start, end }: any, culture: any, localizer: any) =>
+      `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(
+        end,
+        "HH:mm",
+        culture
+      )}`,
+  };
   return (
     <>
-      <div className="calendar-controls">
-      <DatePicker
+    
+      <div
+        style={{
+          height: "auto",
+          backgroundColor: '#E6F1E7', 
+          padding: '20px',
+          borderRadius: '12px', // گوشه‌های گرد
+          boxShadow: '0 4px 20px #455446', // سایه نرم
+        }}
+      >
+          <div className="calendar-controls">
+        <GermanDatePicker
           selected={currentDate}
           onChange={(date: Date | null) => {
             if (date) {
-              
               setCurrentDate(date);
               handleNavigate(date);
             }
           }}
-          dateFormat="MMMM d, yyyy"
-        /> 
+          //  dateFormat="MMMM d, yyyy"
+        />
       </div>
-      <DragAndDropCalendar
-        localizer={localizer}
-        defaultDate={new Date()}
-        events={events}
-        startAccessor={(event: any) => new Date(event.start)}
-        endAccessor={(event: any) => new Date(event.end)}
-        style={{ height: "80vh" }}
-        view={"day"}
-        date={currentDate}
-        onNavigate={handleNavigate}
-        onView={handleViewChange}
-        views={["day"]}
-        onEventDrop={moveEvent}
-        onEventResize={resizeEvent}
-        selectable
-        onSelectSlot={handleSelectSlot}
-        // onDropFromOutside={handleDropFromOutside}
-        resizable
-        step={30}
-        timeslots={2}
-        eventPropGetter={eventStyleGetter}
-        onSelectEvent={handleEventClick}
-        popup
-        messages={{
-          next: "Weiter",
-          previous: "Zurück",
-          today: "Heute",
-          //  month: "Monat",
-          //   week: "Woche",
-          //  day: "Tag",
-          //   agenda: "Agenda",
-          date: "Datum",
-          time: "Zeit",
-          event: "Termin",
-          noEventsInRange: "Keine Termine in diesem Zeitraum.",
-          allDay: "Ganztägig",
-        }}
-        components={components}
-      />
+        <DragAndDropCalendar
+          localizer={localizer}
+          defaultDate={new Date()}
+          min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
+          max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
+          formats={formats}
+          events={events}
+          startAccessor={(event: any) => new Date(event.start)}
+          endAccessor={(event: any) => new Date(event.end)}
+          style={{ height: "80vh" }}
+          view={"day"}
+          date={currentDate}
+          onNavigate={handleNavigate}
+          onView={handleViewChange}
+          views={["day"]}
+          onEventDrop={moveEvent}
+          onEventResize={resizeEvent}
+          selectable
+          onSelectSlot={handleSelectSlot}
+          // onDropFromOutside={handleDropFromOutside}
+          resizable
+          step={30}
+          timeslots={2}
+          eventPropGetter={eventStyleGetter}
+          onSelectEvent={handleEventClick}
+          popup
+          messages={{
+            next: "Weiter",
+            previous: "Zurück",
+            today: "Heute",
+            //  month: "Monat",
+            //   week: "Woche",
+            //  day: "Tag",
+            //   agenda: "Agenda",
+            date: "Datum",
+            time: "Zeit",
+            event: "Termin",
+            noEventsInRange: "Keine Termine in diesem Zeitraum.",
+            //allDay: "Ganztägig",
+          }}
+          components={components}
+        />
+      </div>
       <EventFormModal
         isOpen={isModalOpen}
         onClose={() => {

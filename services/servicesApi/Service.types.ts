@@ -9,7 +9,7 @@ export interface TimeSlotsType {
 export interface serviceType {
   id: string,
   provider_id: string,
-  name: string,
+  title: string,
   providerName: string,
   duration: number,
   price: number,

@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ServiceRsDataType, seviceType } from "@/services/servicesApi/Service.types";
+import {
+  ServiceRsDataType,
+  serviceType,
+} from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
+import { useCreateTimeSlot } from "@/hooks/timeSlots/useCreateTimeSlot";
 
 // interface Service {
 //   id: number;
@@ -24,8 +28,8 @@ interface EventFormModalProps {
     start: Date;
     end: Date;
   };
-  selectedService?: seviceType;
-  services: seviceType[];
+  selectedService?: serviceType;
+  services: serviceType[];
   initialData?: Event | null;
 }
 
@@ -38,12 +42,19 @@ export default function EventFormModal({
   services,
   initialData,
 }: EventFormModalProps) {
+  console.log("Services in EventFormModal:", services);
+  const {
+    mutate: CreateSlotApi,
+    data,
+    isError,
+    isSuccess,
+  } = useCreateTimeSlot();
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
     start: Date;
     end: Date;
-    service: seviceType[];
+    service: serviceType;
     customerName: string;
     customerFamily: string;
     customerEmail: string;
@@ -53,7 +64,7 @@ export default function EventFormModal({
     description: initialData?.description || "",
     start: initialData?.start || selectedSlot?.start || new Date(),
     end: initialData?.end || selectedSlot?.end || new Date(),
-    service: initialData?.service || (selectedService ? [selectedService] : []),
+    service: initialData?.service || selectedService || services[0],
     customerName: initialData?.customerName || "",
     customerFamily: initialData?.customerFamily || "",
     customerEmail: initialData?.customerEmail || "",
@@ -62,17 +73,17 @@ export default function EventFormModal({
 
   useEffect(() => {
     if (selectedSlot) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         start: selectedSlot.start,
-        end: selectedSlot.end
+        end: selectedSlot.end,
       }));
     }
     if (selectedService) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        service: [selectedService],
-        title: selectedService.title
+        service: selectedService,
+        title: selectedService.title,
       }));
     }
   }, [selectedSlot, selectedService]);
@@ -95,18 +106,30 @@ export default function EventFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    onClose();
+    //
+    try {
+      CreateSlotApi({
+        start_time: formData.start.toISOString(),
+        end_time: formData.end.toISOString(),
+        service_id: formData.service.id,
+        status: "Available",
+      });
+      console.log(data, "insussecc");
+      if (data.statusCode == 201) {
+        onSubmit(formData);
+        onClose();
+      }
+    } catch (error) {}
   };
 
   const handleServiceChange = (serviceId: string) => {
-    const service = services?.find(s => s.id === serviceId);
+    const service = services?.find((s) => s.id === serviceId);
     if (service) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        service: [service],
+        service: service,
         title: service.title,
-        end: new Date(prev.start.getTime() + service.duration * 60000)
+        end: new Date(prev.start.getTime() + service.duration * 60000),
       }));
     }
   };
@@ -123,16 +146,22 @@ export default function EventFormModal({
               <Form.Group className="mb-3">
                 <Form.Label>Service</Form.Label>
                 <Form.Select
-                  value={formData.service[0]?.id || ""}
+                  value={formData.service?.id?.toString() || ""}
                   onChange={(e) => handleServiceChange(e.target.value)}
                   required
                 >
                   <option value="">Service auswählen</option>
-                  {services?.map((service) => (
-                    <option key={service.id} value={service.id}>
-                      {service.title} - {service.title} ({service.price}€)
+                  {Array.isArray(services) && services.length > 0 ? (
+                    services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.title} - ({service.price}€)
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      Keine Services verfügbar
                     </option>
-                  ))}
+                  )}
                 </Form.Select>
               </Form.Group>
             </Col>

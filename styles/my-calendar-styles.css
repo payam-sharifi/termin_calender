@@ -152,9 +152,7 @@
 }
 
 /* Today's date */
-.rbc-today {
-  background-color: #f8f9fa;
-}
+
 
 /* Selected day (Day 8 in the image has a light blue background) */
 .rbc-day-bg.rbc-selected-cell,

@@ -8,3 +8,10 @@ export const getServicesByPrividerId = async (
   const response = await api.post(`service`, body);
   return response.data;
 };
+
+
+
+export const getAllServices = async (): Promise<ServiceRsDataType> => {
+  const response = await api.get(`service`);
+  return response.data;
+};
