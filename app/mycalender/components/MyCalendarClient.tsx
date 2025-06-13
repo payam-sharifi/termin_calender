@@ -54,6 +54,7 @@ export default function MyCalendarClient({
   services: ServiceRsDataType;
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
 }) {
+ 
   const initialEvents = useMemo(() => {
     return eventsObj || [];
   }, [eventsObj]);
@@ -185,7 +186,7 @@ export default function MyCalendarClient({
     const typedEvent = event as Event;
     return {
       style: {
-        backgroundColor: "#4a90e2", // Default color since seviceType doesn't have color
+        backgroundColor: event.color ||  "#4a90e2", // Use service color or fallback to default
         borderRadius: "4px",
         opacity: 0.8,
         color: "white",
