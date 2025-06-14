@@ -29,10 +29,12 @@ export default function MyCalendarClient({
   eventsObj,
   services,
   onDateRangeChange,
+  provider_id,
 }: {
   eventsObj: any;
   services: ServiceRsDataType;
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
+  provider_id: string;
 }) {
   const initialEvents = useMemo(() => {
     return eventsObj || [];
@@ -375,6 +377,7 @@ export default function MyCalendarClient({
         selectedSlot={selectedSlot || undefined}
         selectedService={selectedService || undefined}
         services={services}
+        provider_id={provider_id}
         initialData={
           isEditMode
             ? selectedEvent === null

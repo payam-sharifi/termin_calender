@@ -83,6 +83,7 @@ export default function ServicePage({
       <MyCalendarClient
         eventsObj={adjEvents1}
         services={onlyServiceData ?? []}
+        provider_id={provider_id}
         onDateRangeChange={(newDate, end_time) => {
           handleDateRangeChange(newDate, end_time);
         }}

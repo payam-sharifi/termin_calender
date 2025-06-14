@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.6",
+    "@types/react-color": "^3.0.13",
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dnd-html5-backend": "^3.0.2",
     "antd": "^5.26.0",
@@ -23,6 +24,7 @@
     "react": "^19.0.0",
     "react-big-calendar": "^1.19.2",
     "react-bootstrap": "^2.10.10",
+    "react-color": "^2.19.3",
     "react-datepicker": "^8.4.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
