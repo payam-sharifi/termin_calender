@@ -19,4 +19,13 @@ export interface serviceType {
   timeSlots: TimeSlotsType[]
 }
 
+export interface createNewService {
+  provider_id:string  
+  title:string
+  duration:number
+  is_active:boolean
+  price?:number
+  color:string
+  description?:string
+}
 export type ServiceRsDataType = serviceType[];

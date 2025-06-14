@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useGetTimeSlotsByDate } from "@/hooks/schedule/useScheduleByDateAndProviderId";
+import { useGetTimeSlotsByDate } from "@/services/hooks/schedule/useScheduleByDateAndProviderId";
 import DnDCalender from "./DnDCalender";
 import {
   ScheduleRsDataType,
@@ -58,7 +58,7 @@ function CalenderContent() {
   return (
     <>
       <h1 className="text-2xl font-bold mb-4">Calendar</h1>
-      <DnDCalender data={transformedData}/>
+      <DnDCalender data={transformedData} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import {  getOneUser } from "../../services/userApi";
+import {  getOneUser } from "../../userApi";
 
 
 export const useGetOneUser = ({id}:{id:string}) => {

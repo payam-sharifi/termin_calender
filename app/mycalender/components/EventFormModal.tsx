@@ -9,7 +9,7 @@ import {
   serviceType,
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
-import { useCreateTimeSlot } from "@/hooks/timeSlots/useCreateTimeSlot";
+import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot";
 
 // interface Service {
 //   id: number;

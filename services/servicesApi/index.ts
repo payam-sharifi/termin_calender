@@ -1,6 +1,6 @@
 import api from "../axiosConfig";
 import { ServiceRqType } from "../timeSlotsApi/TimeSlots.types";
-import { ServiceRsDataType } from "./Service.types";
+import { createNewService, ServiceRsDataType } from "./Service.types";
 
 export const getServicesByPrividerId = async (
   body: ServiceRqType
@@ -13,5 +13,12 @@ export const getServicesByPrividerId = async (
 
 export const getAllServices = async (): Promise<ServiceRsDataType> => {
   const response = await api.get(`service`);
+  return response.data;
+};
+
+
+
+export const createNewServiceByProviderId = async (body:createNewService) => {
+  const response = await api.post(`service/create`,body);
   return response.data;
 };

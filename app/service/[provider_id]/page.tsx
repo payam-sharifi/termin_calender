@@ -2,9 +2,9 @@
 
 import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 import { Container } from "react-bootstrap";
-import { useGetServicesByProviderId } from "@/hooks/serviices/useGetServices";
+import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
 import { use } from "react";
-import { useGetAllServices } from "@/hooks/serviices/useGetAllServices";
+import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 
 export default function ServicePage({
   params,
@@ -80,13 +80,13 @@ export default function ServicePage({
   return (
     <main className="p-2">
       {/* <Container className="m-4"> */}
-        <MyCalendarClient
-          eventsObj={adjEvents1}
-          services={onlyServiceData ?? []}
-          onDateRangeChange={(newDate, end_time) => {
-            handleDateRangeChange(newDate, end_time);
-          }}
-        />
+      <MyCalendarClient
+        eventsObj={adjEvents1}
+        services={onlyServiceData ?? []}
+        onDateRangeChange={(newDate, end_time) => {
+          handleDateRangeChange(newDate, end_time);
+        }}
+      />
       {/* </Container> */}
     </main>
   );
