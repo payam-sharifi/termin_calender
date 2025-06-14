@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { Calendar, Views, Event as CalendarEvent, Components } from "react-big-calendar";
+import {
+  Calendar,
+  Views,
+  Event as CalendarEvent,
+  Components,
+} from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
@@ -14,9 +19,9 @@ import GermanDatePicker from "./Datapicker";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
-import '@/styles/calender-override.css'
+import "@/styles/calender-override.css";
 
-moment.locale('de');
+moment.locale("de");
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
@@ -264,11 +269,13 @@ export default function MyCalendarClient({
       return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
     },
   };
-  const CustomHeader: Components['header'] = ({ label }) => {
+  const CustomHeader: Components["header"] = ({ label }) => {
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: "center" }}>
         <div>{label}</div>
-        <div style={{ fontSize: '10px', color: '#666' }}>پیام به عنوان خدمت دهنده</div>
+        <div style={{ fontSize: "10px", color: "#666" }}>
+          پیام به عنوان خدمت دهنده
+        </div>
       </div>
     );
   };
@@ -283,28 +290,37 @@ export default function MyCalendarClient({
   };
   return (
     <>
-    
       <div
-        style={{
+     // className="d-flex align-items-center justify-content-center"
+      style={{
           height: "auto",
-          backgroundColor: '#E6F1E7', 
-          padding: '20px',
-          borderRadius: '12px', // گوشه‌های گرد
-          boxShadow: '0 4px 20px #455446', // سایه نرم
+          backgroundColor: "#E6F1E7",
+          padding: "20px",
+          borderRadius: "12px",
+          
+          boxShadow: `
+      3px 3px 6px rgba(69, 84, 70, 0.2), /* سایه نرم بیرونی */
+      -1px -1px 4px rgba(255, 255, 255, 0.8), /* هایلایت سفید */
+      inset 1px 1px 2px rgba(69, 84, 70, 0.1) /* سایه داخلی ملایم */
+    `,
+          border: "1px solid rgba(69, 84, 70, 0.1)", // حاشیه ظریف
         }}
       >
-          <div className="calendar-controls">
-        <GermanDatePicker
-          selected={currentDate}
-          onChange={(date: Date | null) => {
-            if (date) {
-              setCurrentDate(date);
-              handleNavigate(date);
-            }
-          }}
-          //  dateFormat="MMMM d, yyyy"
-        />
-      </div>
+       
+        <div className="calendar-controls  d-flex justify-content-start ">
+    
+          <GermanDatePicker
+            selected={currentDate}
+            onChange={(date: Date | null) => {
+              if (date) {
+                setCurrentDate(date);
+                handleNavigate(date);
+              }
+            }}
+            //  dateFormat="MMMM d, yyyy"
+          />
+           <p className="mx-2">Hengameh</p>
+        </div>
         <DragAndDropCalendar
           localizer={localizer}
           defaultDate={new Date()}
@@ -314,7 +330,7 @@ export default function MyCalendarClient({
           events={events}
           startAccessor={(event: any) => new Date(event.start)}
           endAccessor={(event: any) => new Date(event.end)}
-          style={{ height: "80vh" }}
+          style={{ height: "90vh" }}
           view={"day"}
           date={currentDate}
           onNavigate={handleNavigate}

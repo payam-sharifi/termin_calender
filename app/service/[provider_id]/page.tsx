@@ -78,8 +78,8 @@ export default function ServicePage({
   if (isError) return <p>Error!</p>;
 
   return (
-    <main className="p-4">
-      <Container className="m-4">
+    <main className="p-2">
+      {/* <Container className="m-4"> */}
         <MyCalendarClient
           eventsObj={adjEvents1}
           services={onlyServiceData ?? []}
@@ -87,7 +87,7 @@ export default function ServicePage({
             handleDateRangeChange(newDate, end_time);
           }}
         />
-      </Container>
+      {/* </Container> */}
     </main>
   );
 }

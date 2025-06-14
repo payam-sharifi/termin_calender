@@ -46,6 +46,7 @@ export default function GermanDatePicker({ selected, onChange }: Props) {
       {open && (
         <div style={{ position: "absolute", zIndex: 1000 }}>
           <DatePicker
+          
             selected={selected}
             onChange={(date) => {
               setOpen(false);

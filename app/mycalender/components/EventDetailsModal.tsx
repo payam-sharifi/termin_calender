@@ -68,7 +68,7 @@ export default function EventDetailsModal({
         </Row>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Service:</Col>
-          <Col md={8}>{event.service.name} ({event.service.providerName})</Col>
+          <Col md={8}>{event.service.title} ({event.service.providerName})</Col>
         </Row>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Preis:</Col>
