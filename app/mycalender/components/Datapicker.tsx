@@ -13,9 +13,11 @@ registerLocale("de", de);
 type Props = {
   selected: Date | null;
   onChange: (date: Date | null) => void;
+  minDate?: Date;
+  filterDate?: (date: Date) => boolean;
 };
 
-export default function GermanDatePicker({ selected, onChange }: Props) {
+export default function GermanDatePicker({ selected, onChange, minDate, filterDate }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,7 +48,6 @@ export default function GermanDatePicker({ selected, onChange }: Props) {
       {open && (
         <div style={{ position: "absolute", zIndex: 1000 }}>
           <DatePicker
-          
             selected={selected}
             onChange={(date) => {
               setOpen(false);
@@ -56,6 +57,8 @@ export default function GermanDatePicker({ selected, onChange }: Props) {
             dateFormat="dd.MM.yyyy"
             inline
             onClickOutside={() => setOpen(false)}
+            minDate={minDate}
+            filterDate={filterDate}
           />
         </div>
       )}

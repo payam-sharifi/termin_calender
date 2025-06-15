@@ -14,6 +14,23 @@ import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot"
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { ChromePicker, ColorResult } from "react-color";
 import { useQueryClient } from "@tanstack/react-query";
+import moment from "moment";
+import "moment/locale/de";
+
+moment.locale("de");
+
+// Add custom styles for weekend days
+const customStyles = `
+  .weekend-day {
+    color: red !important;
+  }
+  .react-datepicker__day--weekend {
+    color: red !important;
+  }
+  .react-datepicker__day--disabled {
+    color: #ccc !important;
+  }
+`;
 
 // interface Service {
 //   id: number;
@@ -138,6 +155,12 @@ export default function EventFormModal({
     }));
   }, [provider_id]);
 
+  useEffect(() => {
+    if (createdServiceData) {
+      console.log('Service created with response:', createdServiceData);
+    }
+  }, [createdServiceData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     //
@@ -170,8 +193,10 @@ export default function EventFormModal({
 
   const handleCreateNewService = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting service with color:', newServiceFormData.color);
     createNewServiceMutation(newServiceFormData, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log('Service created successfully:', data);
         // Invalidate and refetch services
         queryClient.invalidateQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
@@ -185,12 +210,37 @@ export default function EventFormModal({
           color: "#000000",
           description: "",
         });
+      },
+      onError: (error) => {
+        console.error('Error creating service:', error);
       }
     });
   };
 
+  // Function to check if a date is a weekend
+  const isWeekend = (date: Date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  };
+
+  // Function to check if a date is in the past
+  const isPastDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
+  // Custom day class for DatePicker
+  const dayClassName = (date: Date) => {
+    if (isWeekend(date)) {
+      return "weekend-day";
+    }
+    return "";
+  };
+
   return (
     <>
+      <style>{customStyles}</style>
       <Modal show={isOpen} onHide={onClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Neuer Termin</Modal.Title>
@@ -254,8 +304,14 @@ export default function EventFormModal({
                       date && setFormData({ ...formData, start: date })
                     }
                     showTimeSelect
-                    dateFormat="Pp"
                     className="form-control"
+                    minDate={new Date()}
+                    filterDate={(date) => !isPastDate(date)}
+                    dayClassName={dayClassName}
+                    locale="de"
+                    timeIntervals={30}
+                    timeCaption="Zeit"
+                    dateFormat="dd.MM.yyyy HH:mm"
                   />
                 </Form.Group>
               </Col>
@@ -268,8 +324,14 @@ export default function EventFormModal({
                       date && setFormData({ ...formData, end: date })
                     }
                     showTimeSelect
-                    dateFormat="Pp"
                     className="form-control"
+                    minDate={formData.start}
+                    filterDate={(date) => !isPastDate(date)}
+                    dayClassName={dayClassName}
+                    locale="de"
+                    timeIntervals={30}
+                    timeCaption="Zeit"
+                    dateFormat="dd.MM.yyyy HH:mm"
                   />
                 </Form.Group>
               </Col>
@@ -412,7 +474,7 @@ export default function EventFormModal({
 
             <Form.Group className="mb-3">
               <Form.Label>Farbe</Form.Label>
-              <div className="d-flex gap-2 align-items-center">
+              <div className="d-flex gap-2 align-items-center position-relative">
                 <div
                   style={{
                     width: "40px",
@@ -425,27 +487,31 @@ export default function EventFormModal({
                   onClick={() => setShowColorPicker(!showColorPicker)}
                 />
                 {showColorPicker && (
-                  <div style={{ position: "absolute", zIndex: 2 }}>
+                  <>
                     <div
                       style={{
                         position: "fixed",
                         top: 0,
+                        left: 0,
                         right: 0,
                         bottom: 0,
-                        left: 0,
+                        zIndex: 1,
                       }}
                       onClick={() => setShowColorPicker(false)}
                     />
-                    <ChromePicker
-                      color={newServiceFormData.color}
-                      onChange={(color: ColorResult) =>
-                        setNewServiceFormData({
-                          ...newServiceFormData,
-                          color: color.hex,
-                        })
-                      }
-                    />
-                  </div>
+                    <div style={{ position: "absolute", zIndex: 2, top: "100%", left: 0 }}>
+                      <ChromePicker
+                        color={newServiceFormData.color}
+                        onChange={(color: ColorResult) => {
+                          console.log('Color selected:', color.hex);
+                          setNewServiceFormData({
+                            ...newServiceFormData,
+                            color: color.hex,
+                          });
+                        }}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </Form.Group>

@@ -1,3 +1,72 @@
-.rbc-today{
-    background-color: #E6F1E7 !important;
+.calendar-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  
+}
+
+/* Sidebar: visible on desktop, hidden on mobile */
+
+/* min-width: 300px; */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 200px;
+  background-color: #ffffff;
+  padding: 1rem;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+  transform: translateX(-100%);
+  transform: translateX(0); /* visible by default */
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+/* Hidden state */
+.closed {
+  transform: translateX(-200%);
+}
+
+/* Main content: flexible on desktop, full width on mobile */
+.maincontentcalender {
+  flex: 1;
+  padding: 1rem;
+  overflow: hidden;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.maincontentcalenderopensidebar {
+  flex: 1;
+  margin-left: 200px;
+  padding: 1rem;
+  overflow: hidden;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.header {
+  display: flex;
+  gap: 10px;
+  justify-content: start;
+  align-items: center;
+}
+/* Mobile layout */
+@media (max-width: 768px) {
+  .calendar-layout {
+    flex-direction: column;
+  }
+
+
+
+  .rbc-calendar {
+    flex: 1;
+    height: 100% !important;
+  }
 }

@@ -6,7 +6,7 @@ import "@/resources/main.scss";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.scss";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/services/queryClient";
-
+import 'bootstrap-icons/font/bootstrap-icons.css';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

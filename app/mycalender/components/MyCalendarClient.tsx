@@ -20,10 +20,37 @@ import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
 import "@/styles/calender-override.css";
+import { useDeleteService } from "@/services/hooks/serviices/useDeleteService";
+import {
+  FaTimes,
+  FaChevronDown,
+  FaChevronUp,
+  FaChevronRight,
+  FaChevronLeft,
+  FaBars,
+} from "react-icons/fa";
+import { Container } from "react-bootstrap";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
+
+// Add custom styles for weekend days
+const customStyles = `
+  .rbc-off-range-bg {
+    background: #f5f5f5;
+  }
+  .rbc-today {
+    background-color: #e6f1e7;
+  }
+  .rbc-day-sat, .rbc-day-sun {
+    color: red;
+  }
+  .rbc-event {
+    background-color: #4a90e2;
+    border: none;
+  }
+`;
 
 export default function MyCalendarClient({
   eventsObj,
@@ -41,6 +68,7 @@ export default function MyCalendarClient({
   }, [eventsObj]);
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [selectedSlot, setSelectedSlot] = useState<{
     start: Date;
     end: Date;
@@ -64,6 +92,10 @@ export default function MyCalendarClient({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const { mutate: deleteService } = useDeleteService();
+  const [isServicesExpanded, setIsServicesExpanded] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     setEvents(eventsObj || []);
   }, [eventsObj]);
@@ -271,16 +303,7 @@ export default function MyCalendarClient({
       return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
     },
   };
-  const CustomHeader: Components["header"] = ({ label }) => {
-    return (
-      <div style={{ textAlign: "center" }}>
-        <div>{label}</div>
-        <div style={{ fontSize: "10px", color: "#666" }}>
-          پیام به عنوان خدمت دهنده
-        </div>
-      </div>
-    );
-  };
+
   const formats = {
     timeGutterFormat: "HH:mm", // 24-hour format (e.g., "08:00", "18:00")
     eventTimeRangeFormat: ({ start, end }: any, culture: any, localizer: any) =>
@@ -290,81 +313,167 @@ export default function MyCalendarClient({
         culture
       )}`,
   };
+
+  const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the click from triggering the button's onClick
+    if (window.confirm("Are you sure you want to delete this service?")) {
+      deleteService(serviceId);
+    }
+  };
+
   return (
     <>
+      {/* Hamburger Menu Button */}
+
       <div
-     // className="d-flex align-items-center justify-content-center"
-      style={{
-          height: "auto",
-          backgroundColor: "#E6F1E7",
+        className="calendar-container"
+        style={{
+          // backgroundColor: "#e6f1e7",
           padding: "20px",
+          marginLeft: "10px",
           borderRadius: "12px",
-          
+          display: "flex",
+          position: "relative",
           boxShadow: `
-      3px 3px 6px rgba(69, 84, 70, 0.2), /* سایه نرم بیرونی */
-      -1px -1px 4px rgba(255, 255, 255, 0.8), /* هایلایت سفید */
-      inset 1px 1px 2px rgba(69, 84, 70, 0.1) /* سایه داخلی ملایم */
-    `,
-          border: "1px solid rgba(69, 84, 70, 0.1)", // حاشیه ظریف
+            3px 3px 6px rgba(69, 84, 70, 0.2),
+            -3px -3px 6px rgba(255, 255, 255, 0.8)
+          `,
         }}
       >
        
-        <div className="calendar-controls  d-flex justify-content-start ">
-    
-          <GermanDatePicker
-            selected={currentDate}
-            onChange={(date: Date | null) => {
-              if (date) {
-                setCurrentDate(date);
-                handleNavigate(date);
-              }
-            }}
-            //  dateFormat="MMMM d, yyyy"
-          />
-           <p className="mx-2">Hengameh</p>
-        </div>
-        <DragAndDropCalendar
-          localizer={localizer}
-          defaultDate={new Date()}
-          min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
-          max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
-          formats={formats}
-          events={events}
-          startAccessor={(event: any) => new Date(event.start)}
-          endAccessor={(event: any) => new Date(event.end)}
-          style={{ height: "90vh" }}
-          view={"day"}
-          date={currentDate}
-          onNavigate={handleNavigate}
-          onView={handleViewChange}
-          views={["day"]}
-          onEventDrop={moveEvent}
-          onEventResize={resizeEvent}
-          selectable
-          onSelectSlot={handleSelectSlot}
-          // onDropFromOutside={handleDropFromOutside}
-          resizable
-          step={30}
-          timeslots={2}
-          eventPropGetter={eventStyleGetter}
-          onSelectEvent={handleEventClick}
-          popup
-          messages={{
-            next: "Weiter",
-            previous: "Zurück",
-            today: "Heute",
-            //  month: "Monat",
-            //   week: "Woche",
-            //  day: "Tag",
-            //   agenda: "Agenda",
-            date: "Datum",
-            time: "Zeit",
-            event: "Termin",
-            noEventsInRange: "Keine Termine in diesem Zeitraum.",
-            //allDay: "Ganztägig",
-          }}
-          components={components}
-        />
+          {/* SideBar Menu */}
+          <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
+            <div
+              className="services-list"
+              style={{
+                padding: "20px",
+                paddingTop: "40px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <button  onClick={()=>console.log("p")} className="btn " style={{backgroundColor:"#ACD1AF"}}>Nue Service</button>
+              <button className="btn "style={{backgroundColor:"#ACD1AF"}}>Nue Termin</button>
+              {Array.isArray(services) &&
+                services.map((service) => (
+                  <button
+                    key={service.id}
+                    className="btn   position-relative"
+                    style={{backgroundColor:service.color}}
+                    title={service.title}
+                    onClick={() => {
+                      setSelectedService(service);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    {service.title}
+                    <FaTimes
+                      className="position-absolute"
+                      style={{
+                        right: "4px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: "0.75rem",
+                        cursor: "pointer",
+                        opacity: 0.8,
+                        transition: "opacity 0.2s",
+                      }}
+                      onClick={(e) => handleDeleteService(service.id, e)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = "1";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = "0.8";
+                      }}
+                    />
+                  </button>
+                ))}
+            </div>
+          </section>
+
+          {/* Main Calendar Area */}
+          <main className="calendar-layout ">
+          <section
+            className={
+              isSidebarOpen
+                ? "maincontentcalenderopensidebar"
+                : " maincontentcalender"
+            }
+          >
+            <div className="d-flex align-items-center gap-2">
+              <i
+                style={{ fontSize: "1.5rem", cursor: "pointer" }}
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="bi bi-grid"
+              ></i>
+              {/* <GermanDatePicker
+              selected={currentDate}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  setCurrentDate(date);
+                  handleNavigate(date);
+                }
+              }}
+              minDate={new Date()}
+              filterDate={(date: Date) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return date >= today;
+              }}
+            /> */}
+            </div>
+
+            <DragAndDropCalendar
+              localizer={localizer}
+              defaultDate={new Date()}
+              min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
+              max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
+              formats={formats}
+              events={events}
+              startAccessor={(event: any) => new Date(event.start)}
+              endAccessor={(event: any) => new Date(event.end)}
+              style={{ height: "90vh" }}
+              view={"day"}
+              date={currentDate}
+              onNavigate={handleNavigate}
+              onView={handleViewChange}
+              views={["day"]}
+              onEventDrop={moveEvent}
+              onEventResize={resizeEvent}
+              selectable
+              onSelectSlot={handleSelectSlot}
+              // onDropFromOutside={handleDropFromOutside}
+              resizable
+              step={30}
+              timeslots={2}
+              eventPropGetter={eventStyleGetter}
+              onSelectEvent={handleEventClick}
+              popup
+              messages={{
+                next: "Weiter",
+                previous: "Zurück",
+                today: "Heute",
+                //  month: "Monat",
+                //   week: "Woche",
+                //  day: "Tag",
+                //   agenda: "Agenda",
+                date: "Datum",
+                time: "Zeit",
+                event: "Termin",
+                noEventsInRange: "Keine Termine in diesem Zeitraum.",
+                //allDay: "Ganztägig",
+              }}
+              components={components}
+              dayPropGetter={(date) => ({
+                className:
+                  date.getDay() === 0 || date.getDay() === 6
+                    ? "weekend-day"
+                    : "",
+              })}
+            />
+          </section>
+        </main>
       </div>
       <EventFormModal
         isOpen={isModalOpen}

@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const today = new Date();
-  const yyyyMMdd = today.toISOString().split("T")[0];
   const router = useRouter();
 
   useEffect(() => {

@@ -22,3 +22,8 @@ export const createNewServiceByProviderId = async (body:createNewService) => {
   const response = await api.post(`service/create`,body);
   return response.data;
 };
+
+export const deleteServiceById = async (serviceId: string) => {
+  const response = await api.delete(`service/${serviceId}`);
+  return response.data;
+};
