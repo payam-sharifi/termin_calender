@@ -296,11 +296,11 @@ export default function EventFormModal({
                     <Form.Label>Preis</Form.Label>
                     <Form.Control
                       type="number"
-                      value={newServiceFormData.price}
+                      value={newServiceFormData.price || 0}
                       onChange={(e) =>
                         setNewServiceFormData((prev) => ({
                           ...prev,
-                          price: parseFloat(e.target.value),
+                          price: parseFloat(e.target.value) || 0,
                         }))
                       }
                       required
