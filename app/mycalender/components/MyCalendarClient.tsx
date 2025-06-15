@@ -354,7 +354,7 @@ export default function MyCalendarClient({
               }}
             >
               <button  onClick={()=>console.log("p")} className="btn " style={{backgroundColor:"#ACD1AF"}}>Nue Service</button>
-              <button className="btn "style={{backgroundColor:"#ACD1AF"}}>Nue Termin</button>
+              <button className="btn" onClick={()=>setIsModalOpen(true)}  style={{backgroundColor:"#ACD1AF"}}>Nue Termin</button>
               {Array.isArray(services) &&
                 services.map((service) => (
                   <button
