@@ -53,6 +53,7 @@ interface EventFormModalProps {
   services: serviceType[];
   initialData?: Event | null;
   provider_id: string;
+  isNewServiceModal?: boolean;
 }
 
 export default function EventFormModal({
@@ -64,6 +65,7 @@ export default function EventFormModal({
   services,
   initialData,
   provider_id,
+  isNewServiceModal = false,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
   console.log("Services in EventFormModal:", services);
@@ -95,7 +97,7 @@ export default function EventFormModal({
     customerPhone: initialData?.customerPhone || "",
   });
 
-  const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
+  const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(isNewServiceModal);
   const [newServiceFormData, setNewServiceFormData] = useState<createNewService>({
     provider_id: provider_id,
     title: "",
@@ -160,6 +162,10 @@ export default function EventFormModal({
       console.log('Service created with response:', createdServiceData);
     }
   }, [createdServiceData]);
+
+  useEffect(() => {
+    setIsNewServiceModalOpen(isNewServiceModal);
+  }, [isNewServiceModal]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,306 +249,302 @@ export default function EventFormModal({
       <style>{customStyles}</style>
       <Modal show={isOpen} onHide={onClose} size="lg" centered>
         <Modal.Header closeButton>
-          <Modal.Title>Neuer Termin</Modal.Title>
+          <Modal.Title>
+            {isNewServiceModal ? "Neuer Service" : "Neuer Termin"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Service</Form.Label>
-                  <div className="d-flex gap-2">
+          {isNewServiceModal ? (
+            <Form onSubmit={handleCreateNewService}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Titel</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={newServiceFormData.title}
+                      onChange={(e) =>
+                        setNewServiceFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Dauer (Minuten)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={newServiceFormData.duration}
+                      onChange={(e) =>
+                        setNewServiceFormData((prev) => ({
+                          ...prev,
+                          duration: parseInt(e.target.value),
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Preis</Form.Label>
+                    <Form.Control
+                      type="number"
+                      value={newServiceFormData.price}
+                      onChange={(e) =>
+                        setNewServiceFormData((prev) => ({
+                          ...prev,
+                          price: parseFloat(e.target.value),
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Farbe</Form.Label>
+                    <div style={{ position: "relative" }}>
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "38px",
+                          backgroundColor: newServiceFormData.color,
+                          border: "1px solid #ced4da",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setShowColorPicker(!showColorPicker)}
+                      />
+                      {showColorPicker && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            zIndex: 2,
+                            top: "100%",
+                            left: 0,
+                            marginTop: "4px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              position: "fixed",
+                              top: 0,
+                              right: 0,
+                              bottom: 0,
+                              left: 0,
+                            }}
+                            onClick={() => setShowColorPicker(false)}
+                          />
+                          <ChromePicker
+                            color={newServiceFormData.color}
+                            onChange={(color: ColorResult) =>
+                              setNewServiceFormData((prev) => ({
+                                ...prev,
+                                color: color.hex,
+                              }))
+                            }
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Beschreibung</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={newServiceFormData.description}
+                  onChange={(e) =>
+                    setNewServiceFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Group>
+              <div className="d-flex justify-content-end gap-2">
+                <Button variant="secondary" onClick={onClose}>
+                  Abbrechen
+                </Button>
+                <Button variant="primary" type="submit">
+                  Service erstellen
+                </Button>
+              </div>
+            </Form>
+          ) : (
+            <Form onSubmit={handleSubmit}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Service</Form.Label>
                     <Form.Select
-                      value={formData.service?.id?.toString() || ""}
+                      value={formData.service?.id}
                       onChange={(e) => handleServiceChange(e.target.value)}
                       required
                     >
-                      <option value="">Service auswählen</option>
-                      {Array.isArray(services) && services.length > 0 ? (
-                        services.map((service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.title} - ({service.price}€)
-                          </option>
-                        ))
-                      ) : (
-                        <option value="" disabled>
-                          Keine Services verfügbar
+                      {services?.map((service) => (
+                        <option key={service.id} value={service.id}>
+                          {service.title}
                         </option>
-                      )}
+                      ))}
                     </Form.Select>
-                    <Button
-                      variant="outline-primary"
-                      onClick={() => setIsNewServiceModalOpen(true)}
-                    >
-                      +
-                    </Button>
-                  </div>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Titel</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Startzeit</Form.Label>
-                  <DatePicker
-                    selected={formData.start}
-                    onChange={(date: Date | null) =>
-                      date && setFormData({ ...formData, start: date })
-                    }
-                    showTimeSelect
-                    className="form-control"
-                    minDate={new Date()}
-                    filterDate={(date) => !isPastDate(date)}
-                    dayClassName={dayClassName}
-                    locale="de"
-                    timeIntervals={30}
-                    timeCaption="Zeit"
-                    dateFormat="dd.MM.yyyy HH:mm"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Endzeit</Form.Label>
-                  <DatePicker
-                    selected={formData.end}
-                    onChange={(date: Date | null) =>
-                      date && setFormData({ ...formData, end: date })
-                    }
-                    showTimeSelect
-                    className="form-control"
-                    minDate={formData.start}
-                    filterDate={(date) => !isPastDate(date)}
-                    dayClassName={dayClassName}
-                    locale="de"
-                    timeIntervals={30}
-                    timeCaption="Zeit"
-                    dateFormat="dd.MM.yyyy HH:mm"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Vorname</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.customerName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerName: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Nachname</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.customerFamily}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerFamily: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>E-Mail</Form.Label>
-                  <Form.Control
-                    type="email"
-                    value={formData.customerEmail}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerEmail: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Telefon</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    value={formData.customerPhone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, customerPhone: e.target.value })
-                    }
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Beschreibung</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-              />
-            </Form.Group>
-
-            <div className="d-flex justify-content-end gap-2">
-              <Button variant="secondary" onClick={onClose}>
-                Abbrechen
-              </Button>
-              <Button variant="primary" type="submit">
-                Speichern
-              </Button>
-            </div>
-          </Form>
-        </Modal.Body>
-      </Modal>
-
-      {/* New Service Modal */}
-      <Modal
-        show={isNewServiceModalOpen}
-        onHide={() => setIsNewServiceModalOpen(false)}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Neuer Service</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleCreateNewService}>
-            <Form.Group className="mb-3">
-              <Form.Label>Titel</Form.Label>
-              <Form.Control
-                type="text"
-                value={newServiceFormData.title}
-                onChange={(e) =>
-                  setNewServiceFormData({ ...newServiceFormData, title: e.target.value })
-                }
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Dauer (Minuten)</Form.Label>
-              <Form.Control
-                type="number"
-                value={newServiceFormData.duration}
-                onChange={(e) =>
-                  setNewServiceFormData({
-                    ...newServiceFormData,
-                    duration: parseInt(e.target.value),
-                  })
-                }
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Preis (€)</Form.Label>
-              <Form.Control
-                type="number"
-                value={newServiceFormData.price}
-                onChange={(e) =>
-                  setNewServiceFormData({
-                    ...newServiceFormData,
-                    price: parseFloat(e.target.value),
-                  })
-                }
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Farbe</Form.Label>
-              <div className="d-flex gap-2 align-items-center position-relative">
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    backgroundColor: newServiceFormData.color,
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setShowColorPicker(!showColorPicker)}
-                />
-                {showColorPicker && (
-                  <>
-                    <div
-                      style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: 1,
-                      }}
-                      onClick={() => setShowColorPicker(false)}
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Titel</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, title: e.target.value }))
+                      }
+                      required
                     />
-                    <div style={{ position: "absolute", zIndex: 2, top: "100%", left: 0 }}>
-                      <ChromePicker
-                        color={newServiceFormData.color}
-                        onChange={(color: ColorResult) => {
-                          console.log('Color selected:', color.hex);
-                          setNewServiceFormData({
-                            ...newServiceFormData,
-                            color: color.hex,
-                          });
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Startzeit</Form.Label>
+                    <DatePicker
+                      selected={formData.start}
+                      onChange={(date: Date | null) =>
+                        date && setFormData((prev) => ({ ...prev, start: date }))
+                      }
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="dd.MM.yyyy HH:mm"
+                      className="form-control"
+                      filterDate={(date) => !isWeekend(date) && !isPastDate(date)}
+                      dayClassName={dayClassName}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Endzeit</Form.Label>
+                    <DatePicker
+                      selected={formData.end}
+                      onChange={(date: Date | null) =>
+                        date && setFormData((prev) => ({ ...prev, end: date }))
+                      }
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="dd.MM.yyyy HH:mm"
+                      className="form-control"
+                      filterDate={(date) => !isWeekend(date) && !isPastDate(date)}
+                      dayClassName={dayClassName}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Vorname</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={formData.customerName}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          customerName: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Nachname</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={formData.customerFamily}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          customerFamily: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>E-Mail</Form.Label>
+                    <Form.Control
+                      type="email"
+                      value={formData.customerEmail}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          customerEmail: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Telefon</Form.Label>
+                    <Form.Control
+                      type="tel"
+                      value={formData.customerPhone}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          customerPhone: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Beschreibung</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                />
+              </Form.Group>
+              <div className="d-flex justify-content-end gap-2">
+                <Button variant="secondary" onClick={onClose}>
+                  Abbrechen
+                </Button>
+                <Button variant="primary" type="submit">
+                  Termin erstellen
+                </Button>
               </div>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Beschreibung</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={newServiceFormData.description}
-                onChange={(e) =>
-                  setNewServiceFormData({
-                    ...newServiceFormData,
-                    description: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-
-            <div className="d-flex justify-content-end gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setIsNewServiceModalOpen(false)}
-              >
-                Abbrechen
-              </Button>
-              <Button variant="primary" type="submit">
-                Speichern
-              </Button>
-            </div>
-          </Form>
+            </Form>
+          )}
         </Modal.Body>
       </Modal>
     </>

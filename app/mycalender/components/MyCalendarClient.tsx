@@ -68,7 +68,7 @@ export default function MyCalendarClient({
   }, [eventsObj]);
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     start: Date;
     end: Date;
@@ -353,8 +353,26 @@ export default function MyCalendarClient({
                 gap: "8px",
               }}
             >
-              <button  onClick={()=>console.log("p")} className="btn " style={{backgroundColor:"#ACD1AF"}}>Nue Service</button>
-              <button className="btn" onClick={()=>setIsModalOpen(true)}  style={{backgroundColor:"#ACD1AF"}}>Nue Termin</button>
+              <button 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsNewServiceModalOpen(true);
+                }} 
+                className="btn" 
+                style={{backgroundColor:"#ACD1AF"}}
+              >
+                Nue Service
+              </button>
+              <button 
+                className="btn" 
+                onClick={() => {
+                  setIsNewServiceModalOpen(false);
+                  setIsModalOpen(true);
+                }}  
+                style={{backgroundColor:"#ACD1AF"}}
+              >
+                Nue Termin
+              </button>
               {Array.isArray(services) &&
                 services.map((service) => (
                   <button
@@ -476,9 +494,10 @@ export default function MyCalendarClient({
         </main>
       </div>
       <EventFormModal
-        isOpen={isModalOpen}
+        isOpen={isModalOpen || isNewServiceModalOpen}
         onClose={() => {
           setIsModalOpen(false);
+          setIsNewServiceModalOpen(false);
           setIsEditMode(false);
           setSelectedEvent(null);
         }}
@@ -494,6 +513,7 @@ export default function MyCalendarClient({
               : selectedEvent
             : undefined
         }
+        isNewServiceModal={isNewServiceModalOpen}
       />
       <EventDetailsModal
         isOpen={isDetailsModalOpen}
