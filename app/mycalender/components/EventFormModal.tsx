@@ -186,7 +186,7 @@ export default function EventFormModal({
     e.preventDefault();
 
     try {
-      console.log(formData, "insussecc");
+      console.log(formData, "formDataForsend");
       CreateSlotApi({
         start_time: formData.start.toISOString(),
         end_time: formData.end.toISOString(),
@@ -196,6 +196,7 @@ export default function EventFormModal({
       });
       console.log(data, "insussecc");
       if (data.statusCode == 201) {
+        console.log(data,"dataaa")
         onSubmit(formData);
         onClose();
       }
@@ -583,14 +584,14 @@ export default function EventFormModal({
                   }
                 />
               </Form.Group>
-              <div className="d-flex justify-content-end gap-2">
+              {/* <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={onClose}>
                   Abbrechen
                 </Button>
                 <Button variant="primary" type="submit">
                   Termin erstellen
                 </Button>
-              </div>
+              </div> */}
             </Form>
           )}
         </Modal.Body>
