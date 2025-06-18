@@ -29,7 +29,6 @@ import {
   FaChevronLeft,
   FaBars,
 } from "react-icons/fa";
-import { Container } from "react-bootstrap";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -93,7 +92,6 @@ export default function MyCalendarClient({
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const { mutate: deleteService } = useDeleteService();
-  const [isServicesExpanded, setIsServicesExpanded] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -185,7 +183,7 @@ export default function MyCalendarClient({
   }, []);
 
   const eventStyleGetter = useCallback((event: CalendarEvent) => {
-    const typedEvent = event as Event;
+  
     return {
       style: {
         backgroundColor: event.color || "#4a90e2", // Use service color or fallback to default
@@ -289,18 +287,15 @@ export default function MyCalendarClient({
             style={{ padding: "4px" }}
           >
             <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
-              {typedEvent.title}
+           {typedEvent.title} {typedEvent.description} {typedEvent.customerFamily}
             </div>
 
-            <div style={{ fontSize: "0.9em", marginBottom: "2px" }}>
-              {typedEvent.customerName} {typedEvent.customerFamily}
-            </div>
           </div>
         );
       }
 
       // Simple display for other views
-      return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
+    //  return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
     },
   };
 
@@ -363,6 +358,9 @@ export default function MyCalendarClient({
               >
                 Nue Service
               </button>
+
+
+              
               <button 
                 className="btn" 
                 onClick={() => {

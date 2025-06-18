@@ -16,6 +16,7 @@ import { ChromePicker, ColorResult } from "react-color";
 import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import "moment/locale/de";
+import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 
 moment.locale("de");
 
@@ -68,7 +69,9 @@ export default function EventFormModal({
   isNewServiceModal = false,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
-  console.log("Services in EventFormModal:", services);
+  const { data: customersList, isLoading } = useGetUsers("Customer");
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+
   const {
     mutate: CreateSlotApi,
     data,
@@ -85,6 +88,7 @@ export default function EventFormModal({
     customerFamily: string;
     customerEmail: string;
     customerPhone: string;
+    customer_id: string;
   }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
@@ -95,18 +99,21 @@ export default function EventFormModal({
     customerFamily: initialData?.customerFamily || "",
     customerEmail: initialData?.customerEmail || "",
     customerPhone: initialData?.customerPhone || "",
+    customer_id: initialData?.customer_id || "",
   });
 
-  const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(isNewServiceModal);
-  const [newServiceFormData, setNewServiceFormData] = useState<createNewService>({
-    provider_id: provider_id,
-    title: "",
-    duration: 30,
-    is_active: true,
-    price: 0,
-    color: "#000000",
-    description: "",
-  });
+  const [isNewServiceModalOpen, setIsNewServiceModalOpen] =
+    useState(isNewServiceModal);
+  const [newServiceFormData, setNewServiceFormData] =
+    useState<createNewService>({
+      provider_id: provider_id,
+      title: "",
+      duration: 30,
+      is_active: true,
+      price: 0,
+      color: "#000000",
+      description: "",
+    });
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const {
@@ -130,8 +137,15 @@ export default function EventFormModal({
         service: selectedService,
         title: selectedService.title,
       }));
+    } else if (services && services.length > 0) {
+      // Set first service as default if no service is selected
+      setFormData((prev) => ({
+        ...prev,
+        service: services[0],
+        title: services[0].title,
+      }));
     }
-  }, [selectedSlot, selectedService]);
+  }, [selectedSlot, selectedService, services, setFormData]);
 
   useEffect(() => {
     if (initialData) {
@@ -145,21 +159,22 @@ export default function EventFormModal({
         customerFamily: initialData.customerFamily,
         customerEmail: initialData.customerEmail,
         customerPhone: initialData.customerPhone,
+        customer_id: initialData.customer_id || "",
       });
     }
   }, [initialData]);
 
   // Update provider_id when it changes
   useEffect(() => {
-    setNewServiceFormData(prev => ({
+    setNewServiceFormData((prev) => ({
       ...prev,
-      provider_id: provider_id
+      provider_id: provider_id,
     }));
   }, [provider_id]);
 
   useEffect(() => {
     if (createdServiceData) {
-      console.log('Service created with response:', createdServiceData);
+      console.log("Service created with response:", createdServiceData);
     }
   }, [createdServiceData]);
 
@@ -169,12 +184,14 @@ export default function EventFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    //
+
     try {
+      console.log(formData, "insussecc");
       CreateSlotApi({
         start_time: formData.start.toISOString(),
         end_time: formData.end.toISOString(),
         service_id: formData.service.id,
+        customer_id: formData.customer_id,
         status: "Available",
       });
       console.log(data, "insussecc");
@@ -199,10 +216,10 @@ export default function EventFormModal({
 
   const handleCreateNewService = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting service with color:', newServiceFormData.color);
+    console.log("Submitting service with color:", newServiceFormData.color);
     createNewServiceMutation(newServiceFormData, {
       onSuccess: (data) => {
-        console.log('Service created successfully:', data);
+        console.log("Service created successfully:", data);
         // Invalidate and refetch services
         queryClient.invalidateQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
@@ -218,9 +235,21 @@ export default function EventFormModal({
         });
       },
       onError: (error) => {
-        console.error('Error creating service:', error);
-      }
+        console.error("Error creating service:", error);
+      },
     });
+  };
+
+  const handleCustomerSelect = (customer: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      customerName: customer.name || "",
+      customerFamily: customer.family || "",
+      customerEmail: customer.email || "",
+      customerPhone: customer.phone || "",
+      customer_id: customer.id || "",
+    }));
+    setShowCustomerModal(false);
   };
 
   // Function to check if a date is a weekend
@@ -246,7 +275,6 @@ export default function EventFormModal({
 
   return (
     <>
-      <style>{customStyles}</style>
       <Modal show={isOpen} onHide={onClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -254,6 +282,7 @@ export default function EventFormModal({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <style>{customStyles}</style>
           {isNewServiceModal ? (
             <Form onSubmit={handleCreateNewService}>
               <Row>
@@ -398,6 +427,7 @@ export default function EventFormModal({
                       ))}
                     </Form.Select>
                   </Form.Group>
+                  
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
@@ -406,7 +436,10 @@ export default function EventFormModal({
                       type="text"
                       value={formData.title}
                       onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, title: e.target.value }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       required
                     />
@@ -420,14 +453,17 @@ export default function EventFormModal({
                     <DatePicker
                       selected={formData.start}
                       onChange={(date: Date | null) =>
-                        date && setFormData((prev) => ({ ...prev, start: date }))
+                        date &&
+                        setFormData((prev) => ({ ...prev, start: date }))
                       }
                       showTimeSelect
                       timeFormat="HH:mm"
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
-                      filterDate={(date) => !isWeekend(date) && !isPastDate(date)}
+                      filterDate={(date) =>
+                        !isWeekend(date) && !isPastDate(date)
+                      }
                       dayClassName={dayClassName}
                       required
                     />
@@ -446,7 +482,9 @@ export default function EventFormModal({
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
-                      filterDate={(date) => !isWeekend(date) && !isPastDate(date)}
+                      filterDate={(date) =>
+                        !isWeekend(date) && !isPastDate(date)
+                      }
                       dayClassName={dayClassName}
                       required
                     />
@@ -457,17 +495,26 @@ export default function EventFormModal({
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Label>Vorname</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={formData.customerName}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerName: e.target.value,
-                        }))
-                      }
-                      required
-                    />
+                    <div className="d-flex gap-2">
+                      <Form.Control
+                        type="text"
+                        value={formData.customerName}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            customerName: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                      <Button
+                        variant="outline-primary"
+                        onClick={() => setShowCustomerModal(true)}
+                        style={{ width: "40px" }}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -521,6 +568,7 @@ export default function EventFormModal({
                   </Form.Group>
                 </Col>
               </Row>
+              
               <Form.Group className="mb-3">
                 <Form.Label>Beschreibung</Form.Label>
                 <Form.Control
@@ -546,6 +594,53 @@ export default function EventFormModal({
             </Form>
           )}
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onClose}>
+            Abbrechen
+          </Button>
+          <Button
+            variant="primary"
+            onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
+          >
+            {isNewServiceModalOpen ? "Service erstellen" : "Termin erstellen"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Customer Selection Modal */}
+      <Modal show={showCustomerModal} onHide={() => setShowCustomerModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Kunde auswählen</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {isLoading ? (
+            <div>Laden...</div>
+          ) : (
+            <div className="list-group">
+              {customersList?.map((customer) => (
+                <button
+                  key={customer.id}
+                  className="list-group-item list-group-item-action"
+                  onClick={() => handleCustomerSelect(customer)}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{customer.name} {customer.family}</strong>
+                      <div className="text-muted small">
+                        {customer.email} - {customer.phone}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCustomerModal(false)}>
+            Schließen
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );

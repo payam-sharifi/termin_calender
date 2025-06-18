@@ -4,7 +4,9 @@
   width: 100%;
   
 }
-
+.rbc-today {
+  background-color: #ffffff !important;
+}
 /* Sidebar: visible on desktop, hidden on mobile */
 
 /* min-width: 300px; */

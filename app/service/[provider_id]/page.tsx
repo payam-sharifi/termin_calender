@@ -78,7 +78,7 @@ export default function ServicePage({
   if (isError) return <p>Error!</p>;
 
   return (
-    <main className="p-2" style={{ backgroundColor: "#ffffff" }}>
+    <main className="p-4" style={{ backgroundColor: "#ffffff" }}>
       {/* <Container className="m-4"> */}
       <MyCalendarClient
         eventsObj={adjEvents1}
