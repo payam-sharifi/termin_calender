@@ -349,6 +349,16 @@ export default function MyCalendarClient({
               }}
             >
               <button 
+                className="btn" 
+                onClick={() => {
+                  setIsNewServiceModalOpen(false);
+                  setIsModalOpen(true);
+                }}  
+                style={{backgroundColor:"#ACD1AF"}}
+              >
+                Nue Kunde
+              </button>
+              <button 
                 onClick={() => {
                   setIsModalOpen(false);
                   setIsNewServiceModalOpen(true);
@@ -371,6 +381,7 @@ export default function MyCalendarClient({
               >
                 Nue Termin
               </button>
+
               {Array.isArray(services) &&
                 services.map((service) => (
                   <button

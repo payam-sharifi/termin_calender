@@ -123,6 +123,9 @@ export default function EventFormModal({
     isSuccess: isNewServiceSuccess,
   } = useCreateNewService();
 
+  const [serviceWarning, setServiceWarning] = useState<boolean>(false);
+  const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service.duration||90);
+  // duration
   useEffect(() => {
     if (selectedSlot) {
       setFormData((prev) => ({
@@ -186,7 +189,7 @@ export default function EventFormModal({
     e.preventDefault();
 
     try {
-      console.log(formData, "formDataForsend");
+   
       CreateSlotApi({
         start_time: formData.start.toISOString(),
         end_time: formData.end.toISOString(),
@@ -194,24 +197,27 @@ export default function EventFormModal({
         customer_id: formData.customer_id,
         status: "Available",
       });
-      console.log(data, "insussecc");
-      if (data.statusCode == 201) {
-        console.log(data,"dataaa")
         onSubmit(formData);
         onClose();
-      }
-    } catch (error) {}
+      
+    } catch (error) {console.log(error)}
   };
 
   const handleServiceChange = (serviceId: string) => {
     const service = services?.find((s) => s.id === serviceId);
     if (service) {
+      setServiceWarning(true);
+      const startTime = formData.start;
+      const endTime = new Date(startTime.getTime() + service.duration * 60000);
+      
       setFormData((prev) => ({
         ...prev,
         service: service,
         title: service.title,
-        end: new Date(prev.start.getTime() + service.duration * 60000),
+        end: endTime,
       }));
+      setServiceDuration(service.duration)
+   
     }
   };
 
@@ -426,12 +432,18 @@ export default function EventFormModal({
                           {service.title}
                         </option>
                       ))}
+                 
                     </Form.Select>
+                    {serviceWarning && (
+                      <div className="text-danger  mt-2 small" style={{height:"30px",width:"auto"}}>
+                        Dieser Service dauert {serviceDuration} Minuten.
+                      </div>
+                    )}
+                    
                   </Form.Group>
-                  
                 </Col>
                 <Col md={6}>
-                  <Form.Group className="mb-3">
+                  {/* <Form.Group className="mb-3">
                     <Form.Label>Titel</Form.Label>
                     <Form.Control
                       type="text"
@@ -444,7 +456,7 @@ export default function EventFormModal({
                       }
                       required
                     />
-                  </Form.Group>
+                  </Form.Group> */}
                 </Col>
               </Row>
               <Row>
