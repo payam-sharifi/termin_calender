@@ -6,11 +6,9 @@ import {
   UserRsDataType,
 } from "./user.types";
 
-export const getAllUser = async (
-  role?: string
-): Promise<getAllUserRsDataType> => {
+export const getAllUser = async (role?: string,limit?:number, page?:number): Promise<getAllUserRsDataType> => {
   if (role) {
-    const response = await api.get(`user?role=${role}`);
+    const response = await api.get(`user?role=${role}&limit=${limit}&page=${page}`);
     return response.data;
   } else {
     const response = await api.get(`user`);
