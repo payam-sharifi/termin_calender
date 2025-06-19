@@ -29,6 +29,7 @@ import {
   FaChevronLeft,
   FaBars,
 } from "react-icons/fa";
+import Link from "next/link";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -348,16 +349,9 @@ export default function MyCalendarClient({
                 gap: "8px",
               }}
             >
-              <button 
-                className="btn" 
-                onClick={() => {
-                  setIsNewServiceModalOpen(false);
-                  setIsModalOpen(true);
-                }}  
-                style={{backgroundColor:"#ACD1AF"}}
-              >
-                Nue Kunde
-              </button>
+              <Link href="/users" className="btn"  style={{backgroundColor:"#ACD1AF", textDecoration: 'none' }}>
+              Nue Kunde
+              </Link>
               <button 
                 onClick={() => {
                   setIsModalOpen(false);

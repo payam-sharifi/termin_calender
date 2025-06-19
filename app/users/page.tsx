@@ -1,0 +1,303 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Table, Container, Button, Modal, Form } from "react-bootstrap";
+import { useGetUsers } from "@/services/hooks/user/useGetUsers";
+import { ROLE, SEX } from "@/services/userApi/user.types";
+import { createUser } from "@/services/userApi";
+import { useQueryClient } from "@tanstack/react-query";
+
+export default function UsersPage() {
+  const queryClient = useQueryClient();
+  const { data: users, isLoading, refetch } = useGetUsers();
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showNewUserModal, setShowNewUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    family: "",
+    email: "",
+    phone: "",
+    sex: SEX.male,
+    role: ROLE.Customer,
+    is_verified: false,
+    password: "",
+  });
+
+  const handleEdit = (user: any) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleClose = () => {
+    setShowEditModal(false);
+    setSelectedUser(null);
+  };
+
+  const handleNewUserClose = () => {
+    setShowNewUserModal(false);
+    setNewUser({
+      name: "",
+      family: "",
+      email: "",
+      phone: "",
+      sex: SEX.male,
+      role: ROLE.Customer,
+      is_verified: false,
+      password: "",
+    });
+  };
+
+  const handleCreateUser = async () => {
+    try {
+      await createUser(newUser);
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      handleNewUserClose();
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
+
+  return (
+    <Container className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Benutzerverwaltung</h2>
+        <Button variant="primary" onClick={() => setShowNewUserModal(true)}>
+          Neuer Benutzer
+        </Button>
+      </div>
+      
+      {isLoading ? (
+        <div>Laden...</div>
+      ) : (
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Familienname</th>
+              <th>E-Mail</th>
+              <th>Telefon</th>
+              <th>Geschlecht</th>
+              <th>Verifiziert</th>
+              <th>Rolle</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users?.map((user: any) => (
+              <tr key={user.id}>
+                <td>{user.name}</td>
+                <td>{user.family}</td>
+                <td>{user.email}</td>
+                <td>{user.phone}</td>
+                <td>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
+                <td>{user.is_verified ? "Ja" : "Nein"}</td>
+                <td>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
+                <td>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => handleEdit(user)}
+                  >
+                    Bearbeiten
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+
+      <Modal show={showEditModal} onHide={handleClose} size="lg" centered
+       dialogClassName="modal-50w"
+      >
+            <style jsx global>{`
+          .modal-50w {
+            max-width: 40% !important;
+            width: 40% !important;
+          }
+        `}</style>
+        <Modal.Header closeButton>
+          <Modal.Title>Benutzer bearbeiten</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <Form>
+              <Form.Group className="mb-1">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  defaultValue={selectedUser.name}
+                />
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Label>Familienname</Form.Label>
+                <Form.Control
+                  type="text"
+                  defaultValue={selectedUser.family}
+                />
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Label>E-Mail</Form.Label>
+                <Form.Control
+                  type="email"
+                  defaultValue={selectedUser.email}
+                />
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Label>Telefon</Form.Label>
+                <Form.Control
+                  type="tel"
+                  defaultValue={selectedUser.phone}
+                />
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Label>Geschlecht</Form.Label>
+                <Form.Select defaultValue={selectedUser.sex}>
+                  <option value={SEX.male}>Männlich</option>
+                  <option value={SEX.female}>Weiblich</option>
+                </Form.Select>
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Label>Rolle</Form.Label>
+                <Form.Select defaultValue={selectedUser.role}>
+                  <option value={ROLE.Customer}>Kunde</option>
+                  <option value={ROLE.Provider}>Anbieter</option>
+                </Form.Select>
+              </Form.Group>
+              <Form.Group className="mb-1">
+                <Form.Check
+                  type="checkbox"
+                  label="Verifiziert"
+                  defaultChecked={selectedUser.is_verified}
+                />
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="d-flex align-items-center justify-content-between">
+        <Button variant="danger" onClick={()=>console.log("delete kunde")}>
+            Speichern
+          </Button>
+          <div className="d-flex align-items-center ">
+          <Button variant="secondary" onClick={handleClose}>
+            Abbrechen
+          </Button>
+          <Button variant="primary" className="mx-2" onClick={handleClose}>
+            Speichern
+          </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal 
+        show={showNewUserModal} 
+        onHide={handleNewUserClose} 
+        size="sm" 
+        centered
+        dialogClassName="modal-50w"
+      >
+        <style jsx global>{`
+          .modal-50w {
+            max-width: 40% !important;
+            width: 40% !important;
+          }
+        `}</style>
+        <Modal.Header closeButton>
+          <Modal.Title>Neuer Benutzer</Modal.Title>
+        </Modal.Header>
+        <Modal.Body >
+          <Form>
+            <Form.Group className="mb-1">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>Familienname</Form.Label>
+              <Form.Control
+           
+                type="text"
+                value={newUser.family}
+                onChange={(e) => setNewUser({ ...newUser, family: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>E-Mail</Form.Label>
+              <Form.Control
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>Telefon</Form.Label>
+              <Form.Control
+                type="tel"
+                value={newUser.phone}
+                onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>Passwort</Form.Label>
+              <Form.Control
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>Geschlecht</Form.Label>
+              <Form.Select
+                value={newUser.sex}
+                onChange={(e) => setNewUser({ ...newUser, sex: e.target.value as unknown as SEX })}
+              >
+                <option value={SEX.male}>Männlich</option>
+                <option value={SEX.female}>Weiblich</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Label>Rolle</Form.Label>
+              <Form.Select
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value as unknown as ROLE })}
+              >
+                <option value={ROLE.Customer}>Kunde</option>
+                <option value={ROLE.Provider}>Anbieter</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-1">
+              <Form.Check
+                type="checkbox"
+                label="Verifiziert"
+                checked={newUser.is_verified}
+                onChange={(e) => setNewUser({ ...newUser, is_verified: e.target.checked })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="d-flex align-items-center justify-content-between">
+        <Button variant="danger"  onClick={()=>console.log("delete kunde")}>
+            Speichern
+          </Button>
+          <div className="d-flex align-items-center ">
+          <Button variant="secondary" onClick={handleNewUserClose}>
+            Abbrechen
+          </Button>
+          <Button variant="primary" className="mx-2" onClick={handleCreateUser}>
+            Erstellen
+          </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+    </Container>
+  );
+} 

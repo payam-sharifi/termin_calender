@@ -3,14 +3,7 @@
 import { Modal, Button, Row, Col } from "react-bootstrap";
 import { Event } from "../types/event";
 
-interface Service {
-  id: number;
-  name: string;
-  color: string;
-  duration: number;
-  price: number;
-  providerName: string;
-}
+
 
 interface EventDetailsModalProps {
   isOpen: boolean;
