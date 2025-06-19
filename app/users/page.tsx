@@ -9,7 +9,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
-  const { data: users, isLoading, refetch } = useGetUsers();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const { data, isLoading, refetch } = useGetUsers(undefined, limit, page);
+  const users = data?.data || [];
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNewUserModal, setShowNewUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -70,42 +73,61 @@ export default function UsersPage() {
       {isLoading ? (
         <div>Laden...</div>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Familienname</th>
-              <th>E-Mail</th>
-              <th>Telefon</th>
-              <th>Geschlecht</th>
-              <th>Verifiziert</th>
-              <th>Rolle</th>
-              <th>Aktionen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users?.map((user: any) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.family}</td>
-                <td>{user.email}</td>
-                <td>{user.phone}</td>
-                <td>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
-                <td>{user.is_verified ? "Ja" : "Nein"}</td>
-                <td>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
-                <td>
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={() => handleEdit(user)}
-                  >
-                    Bearbeiten
-                  </Button>
-                </td>
+        <>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Familienname</th>
+                <th>E-Mail</th>
+                <th>Telefon</th>
+                <th>Geschlecht</th>
+                <th>Verifiziert</th>
+                <th>Rolle</th>
+                <th>Aktionen</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {users?.map((user: any) => (
+                <tr key={user.id}>
+                  <td>{user.name}</td>
+                  <td>{user.family}</td>
+                  <td>{user.email}</td>
+                  <td>{user.phone}</td>
+                  <td>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
+                  <td>{user.is_verified ? "Ja" : "Nein"}</td>
+                  <td>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
+                  <td>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => handleEdit(user)}
+                    >
+                      Bearbeiten
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <div className="d-flex justify-content-between align-items-center mt-3">
+            <Button
+              variant="secondary"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              Prev
+            </Button>
+            <span>Page {page}</span>
+            <Button
+              variant="secondary"
+              onClick={() => setPage((p) => (users.length < limit ? p : p + 1))}
+              disabled={users.length < limit}
+            >
+              Next
+            </Button>
+          </div>
+        </>
       )}
 
       <Modal show={showEditModal} onHide={handleClose} size="lg" centered
@@ -251,7 +273,7 @@ export default function UsersPage() {
                 type="password"
                 value={newUser.password}
                 onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                required
+          
               />
             </Form.Group>
             <Form.Group className="mb-1">

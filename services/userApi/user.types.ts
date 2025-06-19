@@ -37,6 +37,8 @@ export interface CreateUserRqDataType {
   sex: SEX;
 }
 
-
-
-export type getAllUserRsDataType = UserRsDataType[];
+export type getAllUserRsDataType = {
+  success: boolean;
+  data: UserRsDataType[];
+  message: string;
+};
