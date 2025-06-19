@@ -189,14 +189,26 @@ export default function EventFormModal({
     e.preventDefault();
 
     try {
-   
-      CreateSlotApi({
-        start_time: formData.start.toISOString(),
-        end_time: formData.end.toISOString(),
-        service_id: formData.service.id,
-        customer_id: formData.customer_id,
-        status: "Available",
-      });
+   if(formData.customer_id){
+
+    CreateSlotApi({
+       start_time: formData.start.toISOString(),
+       end_time: formData.end.toISOString(),
+       service_id: formData.service.id,
+       customer_id: formData.customer_id,
+       status: "Available",
+     });
+   }CreateSlotApi({
+    name:formData.customerName,
+    family:formData.customerFamily,
+    email:formData.customerEmail,
+    phone:formData.customerPhone,
+    
+    start_time: formData.start.toISOString(),
+    end_time: formData.end.toISOString(),
+    service_id: formData.service.id,
+    status: "Available",
+  });
         onSubmit(formData);
         onClose();
       
@@ -427,19 +439,21 @@ export default function EventFormModal({
                       onChange={(e) => handleServiceChange(e.target.value)}
                       required
                     >
-                      {services?.map((service) => (
-                        <option key={service.id} value={service.id}>
-                          {service.title}
-                        </option>
-                      ))}
-                 
+                      {Array.isArray(services) && services.length > 0 ? (
+                        services.map((service) => (
+                          <option key={service.id} value={service.id}>
+                            {service.title}
+                          </option>
+                        ))
+                      ) : (
+                        <option disabled>Keine Services verfügbar</option>
+                      )}
                     </Form.Select>
                     {serviceWarning && (
                       <div className="text-danger  mt-2 small" style={{height:"30px",width:"auto"}}>
                         Dieser Service dauert {serviceDuration} Minuten.
                       </div>
                     )}
-                    
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -630,7 +644,7 @@ export default function EventFormModal({
             <div>Laden...</div>
           ) : (
             <div className="list-group">
-              {customersList?.map((customer) => (
+              {customersList?.data?.map((customer) => (
                 <button
                   key={customer.id}
                   className="list-group-item list-group-item-action"

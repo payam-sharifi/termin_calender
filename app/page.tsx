@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push(`/service/123e9fae-4825-4e11-9d2e-9d41510adbe7`);
+    router.push(`/service/48a25a1b-771d-4611-a926-e929aeb4b2df`);
   }, [router]);
 
   return null;

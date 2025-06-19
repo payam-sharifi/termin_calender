@@ -19,6 +19,10 @@ export interface seviceType{
   timeSlots:TimeSlotsType[]
 }
 export interface TimeSlotsRqType{
+  name?:string,
+  family?:string,
+  email?:string,
+  phone?:string,
   service_id: string,
   start_time: string,
   customer_id?:string

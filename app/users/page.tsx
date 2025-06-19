@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Table, Container, Button, Modal, Form } from "react-bootstrap";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
-import { ROLE, SEX } from "@/services/userApi/user.types";
+import { ROLE, SEX, UserRsDataType } from "@/services/userApi/user.types";
 import { createUser } from "@/services/userApi";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -64,6 +64,11 @@ export default function UsersPage() {
   return (
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <button className="btn btn-outline-secondary me-2" onClick={() => window.location.href = '/service'}>
+            &larr; Zurück zu Services
+          </button>
+        </div>
         <h2>Benutzerverwaltung</h2>
         <Button variant="primary" onClick={() => setShowNewUserModal(true)}>
           Neuer Benutzer
@@ -77,27 +82,27 @@ export default function UsersPage() {
           <Table striped bordered hover responsive>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Familienname</th>
-                <th>E-Mail</th>
-                <th>Telefon</th>
-                <th>Geschlecht</th>
-                <th>Verifiziert</th>
-                <th>Rolle</th>
-                <th>Aktionen</th>
+                <th style={{ width: '8%' }}>Name</th>
+                <th style={{ width: '10%' }}>Familienname</th>
+                <th style={{ width: '16%' }}>E-Mail</th>
+                <th style={{ width: '12%' }}>Telefon</th>
+                <th style={{ width: '8%' }}>Geschlecht</th>
+                <th style={{ width: '8%' }}>Verifiziert</th>
+                <th style={{ width: '10%' }}>Rolle</th>
+                <th style={{ width: '8%' }}>Aktionen</th>
               </tr>
             </thead>
             <tbody>
               {users?.map((user: any) => (
                 <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.family}</td>
-                  <td>{user.email}</td>
-                  <td>{user.phone}</td>
-                  <td>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
-                  <td>{user.is_verified ? "Ja" : "Nein"}</td>
-                  <td>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
-                  <td>
+                  <td style={{ width: '8%' }}>{user.name}</td>
+                  <td style={{ width: '10%' }}>{user.family}</td>
+                  <td style={{ width: '16%' }}>{user.email}</td>
+                  <td style={{ width: '12%' }}>{user.phone}</td>
+                  <td style={{ width: '8%' }}>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
+                  <td style={{ width: '8%' }}>{user.is_verified ? "Ja" : "Nein"}</td>
+                  <td style={{ width: '10%' }}>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
+                  <td style={{ width: '8%' }}>
                     <Button
                       variant="outline-primary"
                       size="sm"
@@ -322,4 +327,7 @@ export default function UsersPage() {
       </Modal>
     </Container>
   );
-} 
+}
+
+export { createUser };
+export type { UserRsDataType }; 
