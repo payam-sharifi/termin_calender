@@ -8,13 +8,17 @@ import {  LoginResponseTypeData, loginRqDataType } from "./auth.type";
 
 export const loginUser = async (body:loginRqDataType): Promise<LoginResponseTypeData>  => {
   const response = await api.post(`auth/login`, body);
-  console.log(response,"response")
+
   return response.data;
 };
 
 //LoginResponseTypeData
 
+export const sendOtp = async (phone:{phone:string}): Promise<LoginResponseTypeData>  => {
+  const response = await api.post(`auth/send-otp`, phone);
 
+  return response.data;
+};
 
 
 

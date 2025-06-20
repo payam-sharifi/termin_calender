@@ -9,6 +9,12 @@ import { queryClient } from "@/services/queryClient";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import useDecoder from "@/hooks/useDecoder";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,13 +35,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+
+
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>
-          
+        <QueryClientProvider client={queryClient}>  
+     
 
           {children}
+      
+       
           <ToastContainer
         position="top-right"
         autoClose={3000}

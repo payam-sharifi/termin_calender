@@ -6,6 +6,7 @@ import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { ROLE, SEX, UserRsDataType } from "@/services/userApi/user.types";
 import { createUser } from "@/services/userApi";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
@@ -16,6 +17,7 @@ export default function UsersPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNewUserModal, setShowNewUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const router=useRouter()
   const [newUser, setNewUser] = useState({
     name: "",
     family: "",
@@ -65,7 +67,7 @@ export default function UsersPage() {
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <button className="btn btn-outline-secondary me-2" onClick={() => window.location.href = '/service'}>
+          <button className="btn btn-outline-secondary me-2" onClick={() => router.back()}>
             &larr; Zurück zu Services
           </button>
         </div>

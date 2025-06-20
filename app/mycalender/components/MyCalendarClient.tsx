@@ -30,6 +30,8 @@ import {
   FaBars,
 } from "react-icons/fa";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import useLogout from "@/hooks/useLogout";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -67,6 +69,7 @@ export default function MyCalendarClient({
     return eventsObj || [];
   }, [eventsObj]);
   const [events, setEvents] = useState<Event[]>(initialEvents);
+  const {logout} = useLogout()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
@@ -100,7 +103,7 @@ export default function MyCalendarClient({
   }, [eventsObj]);
 
   const handleSelectSlot = useCallback((slotInfo: any) => {
-    console.log("Slot selected:", slotInfo);
+   
     setSelectedSlot({
       start: new Date(slotInfo.start),
       end: new Date(slotInfo.end),
@@ -339,17 +342,20 @@ export default function MyCalendarClient({
        
           {/* SideBar Menu */}
           <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
+          
             <div
               className="services-list"
               style={{
                 padding: "20px",
                 paddingTop: "40px",
+                maxHeight:'80vh',
                 display: "flex",
                 flexDirection: "column",
                 gap: "8px",
               }}
             >
-              <Link href="/users" className="btn"  style={{backgroundColor:"#ACD1AF", textDecoration: 'none' }}>
+              
+              <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#ACD1AF", textDecoration: 'none' }}>
               Nue Kunde
               </Link>
               <button 
@@ -362,9 +368,6 @@ export default function MyCalendarClient({
               >
                 Nue Service
               </button>
-
-
-              
               <button 
                 className="btn" 
                 onClick={() => {
@@ -375,7 +378,7 @@ export default function MyCalendarClient({
               >
                 Nue Termin
               </button>
-
+             
               {Array.isArray(services) &&
                 services.map((service) => (
                   <button
@@ -410,9 +413,17 @@ export default function MyCalendarClient({
                     />
                   </button>
                 ))}
+                 <button 
+                onClick={() => logout()} 
+                className="btn btn-danger" 
+                
+              >
+                logout
+              </button>
             </div>
+      
+          
           </section>
-
           {/* Main Calendar Area */}
           <main className="calendar-layout ">
           <section

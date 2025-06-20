@@ -1,6 +1,7 @@
 
 export  interface loginRqDataType{
 email?:string,
+code?:string,
 phone?:string,
 password:string
 }

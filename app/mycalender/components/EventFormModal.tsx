@@ -419,14 +419,14 @@ export default function EventFormModal({
                   }
                 />
               </Form.Group>
-              <div className="d-flex justify-content-end gap-2">
+              {/* <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={onClose}>
                   Abbrechen
                 </Button>
                 <Button variant="primary" type="submit">
                   Service erstellen
                 </Button>
-              </div>
+              </div> */}
             </Form>
           ) : (
             <Form onSubmit={handleSubmit}>
