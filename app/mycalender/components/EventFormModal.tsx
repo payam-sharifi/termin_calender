@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import "moment/locale/de";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
+import { toast } from "react-toastify";
 
 moment.locale("de");
 
@@ -187,30 +188,33 @@ export default function EventFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+console.log(formData,"formData")
     try {
-   if(formData.customer_id){
-
-    CreateSlotApi({
-       start_time: formData.start.toISOString(),
-       end_time: formData.end.toISOString(),
-       service_id: formData.service.id,
-       customer_id: formData.customer_id,
-       status: "Available",
-     });
-   }CreateSlotApi({
+CreateSlotApi({
     name:formData.customerName,
     family:formData.customerFamily,
     email:formData.customerEmail,
     phone:formData.customerPhone,
-    
+    customer_id:formData.customer_id,
     start_time: formData.start.toISOString(),
     end_time: formData.end.toISOString(),
     service_id: formData.service.id,
     status: "Available",
-  });
-        onSubmit(formData);
+  },
+  {
+    onSuccess: (res) => {
+      toast.success(res.message);
+      onSubmit(formData);
         onClose();
+    },
+    onError: (error: any) => {
+      toast.error(error?.message);
+     
+    }
+  }
+
+);
+      
       
     } catch (error) {console.log(error)}
   };
@@ -237,8 +241,8 @@ export default function EventFormModal({
     e.preventDefault();
     console.log("Submitting service with color:", newServiceFormData.color);
     createNewServiceMutation(newServiceFormData, {
-      onSuccess: (data) => {
-        console.log("Service created successfully:", data);
+      onSuccess: (res) => {
+        toast.success(res.message);
         // Invalidate and refetch services
         queryClient.invalidateQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
@@ -254,6 +258,7 @@ export default function EventFormModal({
         });
       },
       onError: (error) => {
+        toast.error(error.message);
         console.error("Error creating service:", error);
       },
     });
@@ -262,11 +267,11 @@ export default function EventFormModal({
   const handleCustomerSelect = (customer: any) => {
     setFormData((prev) => ({
       ...prev,
-      customerName: customer.name || "",
-      customerFamily: customer.family || "",
-      customerEmail: customer.email || "",
-      customerPhone: customer.phone || "",
-      customer_id: customer.id || "",
+      customerName: customer.name ,
+      customerFamily: customer.family ,
+      customerEmail: customer.email ,
+      customerPhone: customer.phone ,
+      customer_id: customer.id ,
     }));
     setShowCustomerModal(false);
   };

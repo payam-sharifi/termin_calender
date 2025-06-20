@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const router=useRouter()
   const [loginMethod, setLoginMethod] = useState<'password' | 'sms'>('password');
-  const [phone, setPhone] = useState('+49');
+  const [phone, setPhone] = useState('');
 
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
@@ -81,7 +81,7 @@ const handleSendCode = async (e: React.FormEvent) => {
         jwtToken(res.data)
       },
       onError: (error: any) => {
-        toast.success(error?.message);
+        toast.error(error?.message);
         setError(error?.message || "Fehler beim Senden des Codes");
         setLoading(false);
       }
@@ -166,11 +166,11 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
               value={phone}
               onChange={e => {
                 // Always keep +49 at the start
-                if (!e.target.value.startsWith('+49')) {
-                  setPhone('+49');
-                } else {
+                // if (!e.target.value.startsWith('+49')) {
+                //   setPhone('+49');
+                // } else {
                   setPhone(e.target.value);
-                }
+                // }
               }}
               required
             />
@@ -207,11 +207,11 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
               value={phone}
               onChange={e => {
                 // Always keep +49 at the start
-                if (!e.target.value.startsWith('0049')) {
-                  setPhone('0049');
-                } else {
+                // if (!e.target.value.startsWith('0049')) {
+                //   setPhone('0049');
+                // } else {
                   setPhone(e.target.value);
-                }
+                // }
               }}
               required
               disabled={codeSent}

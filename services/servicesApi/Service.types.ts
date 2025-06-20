@@ -1,9 +1,20 @@
+export interface Costumer{
+  id: string,
+  name: string,
+  family: string,
+  email: string,
+  phone: string,
+  sex: string,         
+  is_verified: true,
+                
+}
 export interface TimeSlotsType {
   id: string,
   service_id: string,
   start_time: string,
   end_time: string,
   status: string,
+  costumer:Costumer
 }
 
 export interface serviceType {
