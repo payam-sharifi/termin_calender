@@ -29,6 +29,16 @@ const {mutate: sendOtp, isPending:otpPending }=useSendOtp()
  }
  },[userId])
 
+const jwtToken= (tokenrq:string)=>{
+  const token = typeof tokenrq === 'string' ? tokenrq : tokenrq;
+  const decoded = jwtDecode<{ id: string }>(token);
+          localStorage.setItem('termin-token', token);
+          document.cookie = `termin-token=${token}; path=/; max-age=2592000`;
+          setUserId(decoded.id)
+          router.push(`/dashboard/service/${decoded.id}`);
+}
+
+
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   setError(null);
@@ -39,13 +49,7 @@ const handleLogin = async (e: React.FormEvent) => {
       onSuccess: (res) => {
         if (res?.success) {
           toast.success(res.message);
-          const token = typeof res.data === 'string' ? res.data : res.data;
-          const decoded = jwtDecode<{ id: string }>(token);
-          localStorage.setItem('termin-token', token);
-          document.cookie = `termin-token=${token}; path=/; max-age=2592000`;
-          console.log(decoded.id,"decoded.id")
-          setUserId(decoded.id)
-          router.push(`/dashboard/service/${decoded.id}`);
+          jwtToken(res.data)
         } else {
           toast.error(res.message);
         }
@@ -74,6 +78,7 @@ const handleSendCode = async (e: React.FormEvent) => {
         toast.success(res.message);
         setCodeSent(true);
         setLoading(false);
+        jwtToken(res.data)
       },
       onError: (error: any) => {
         toast.success(error?.message);
@@ -202,8 +207,8 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
               value={phone}
               onChange={e => {
                 // Always keep +49 at the start
-                if (!e.target.value.startsWith('+49')) {
-                  setPhone('+49');
+                if (!e.target.value.startsWith('0049')) {
+                  setPhone('0049');
                 } else {
                   setPhone(e.target.value);
                 }
