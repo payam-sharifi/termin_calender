@@ -15,4 +15,5 @@ export interface Event extends CalendarEvent {
   customerPhone: string;
   customer_id: string;
   description?: string;
+  sex?: string;
 } 

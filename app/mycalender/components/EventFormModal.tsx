@@ -70,8 +70,13 @@ export default function EventFormModal({
   isNewServiceModal = false,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
-  const { data: customersList, isLoading } = useGetUsers("Customer");
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [allCustomers, setAllCustomers] = useState<any[]>([]);
+  
+  const { data: customersList, isLoading } = useGetUsers(searchTerm, 5, currentPage, "Customer");
 
   const {
     mutate: CreateSlotApi,
@@ -90,6 +95,7 @@ export default function EventFormModal({
     customerEmail: string;
     customerPhone: string;
     customer_id: string;
+    sex: string;
   }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
@@ -101,6 +107,7 @@ export default function EventFormModal({
     customerEmail: initialData?.customerEmail || "",
     customerPhone: initialData?.customerPhone || "",
     customer_id: initialData?.customer_id || "",
+    sex: initialData?.sex || "",
   });
 
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] =
@@ -164,6 +171,7 @@ export default function EventFormModal({
         customerEmail: initialData.customerEmail,
         customerPhone: initialData.customerPhone,
         customer_id: initialData.customer_id || "",
+        sex: initialData.sex || "",
       });
     }
   }, [initialData]);
@@ -199,6 +207,7 @@ CreateSlotApi({
     start_time: formData.start.toISOString(),
     end_time: formData.end.toISOString(),
     service_id: formData.service.id,
+    sex:formData.sex,
     status: "Available",
   },
   {
@@ -272,9 +281,47 @@ CreateSlotApi({
       customerEmail: customer.email ,
       customerPhone: customer.phone ,
       customer_id: customer.id ,
+      sex: customer.sex || "",
     }));
     setShowCustomerModal(false);
+    setSearchTerm("");
+    setCurrentPage(1);
+    setAllCustomers([]);
   };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+    setAllCustomers([]);
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && hasMore && !isLoading) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  // Update allCustomers when new data arrives
+  useEffect(() => {
+    if (customersList?.data) {
+      if (currentPage === 1) {
+        setAllCustomers(customersList.data);
+      } else {
+        setAllCustomers(prev => [...prev, ...customersList.data]);
+      }
+      
+      // Check if we have more data
+      setHasMore(customersList.data.length === 10);
+    }
+  }, [customersList?.data, currentPage]);
+
+  const filteredCustomers = allCustomers.filter((customer) =>
+    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.family?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Function to check if a date is a weekend
   const isWeekend = (date: Date) => {
@@ -600,21 +647,45 @@ CreateSlotApi({
                   </Form.Group>
                 </Col>
               </Row>
-              
-              <Form.Group className="mb-3">
-                <Form.Label>Beschreibung</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                />
-              </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Geschlecht</Form.Label>
+                    <Form.Select
+                      value={formData.sex}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          sex: e.target.value,
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">Bitte wählen</option>
+                      <option value="male">Männlich</option>
+                      <option value="female">Weiblich</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Beschreibung</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
               {/* <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={onClose}>
                   Abbrechen
@@ -648,23 +719,49 @@ CreateSlotApi({
           {isLoading ? (
             <div>Laden...</div>
           ) : (
-            <div className="list-group">
-              {customersList?.data?.map((customer) => (
-                <button
-                  key={customer.id}
-                  className="list-group-item list-group-item-action"
-                  onClick={() => handleCustomerSelect(customer)}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>{customer.name} {customer.family}</strong>
-                      <div className="text-muted small">
-                        {customer.email} - {customer.phone}
+            <div>
+              <input
+                type="text"
+                className="form-control mb-3"
+                placeholder="Suche nach Name, E-Mail oder Telefon..."
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+              <div 
+                className="list-group" 
+                style={{ maxHeight: '400px', overflowY: 'auto' }}
+                onScroll={handleScroll}
+              >
+                {filteredCustomers.map((customer) => (
+                  <button
+                    key={customer.id}
+                    className="list-group-item list-group-item-action"
+                    onClick={() => handleCustomerSelect(customer)}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{customer.name} {customer.family}</strong>
+                        <div className="text-muted small">
+                          {customer.email} - {customer.phone}
+                        </div>
                       </div>
                     </div>
+                  </button>
+                ))}
+                {filteredCustomers.length === 0 && searchTerm && (
+                  <div className="text-center text-muted p-3">
+                    Keine Kunden gefunden
                   </div>
-                </button>
-              ))}
+                )}
+                {hasMore && currentPage > 1 && isLoading && (
+                  <div className="text-center p-3">
+                    <div className="spinner-border spinner-border-sm" role="status">
+                      <span className="visually-hidden">Laden...</span>
+                    </div>
+                    <span className="ms-2">Weitere Kunden laden...</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </Modal.Body>

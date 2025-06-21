@@ -189,7 +189,7 @@ export default function MyCalendarClient({
             }
           )
         }
-         return []
+        return [];
       });
     },
     [setEvents]

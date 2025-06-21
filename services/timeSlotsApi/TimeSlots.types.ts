@@ -33,6 +33,7 @@ export interface TimeSlotsRqType{
   family?:string,
   email?:string,
   phone?:string,
+  sex?:string,
   service_id: string,
   start_time: string,
   customer_id?:string
