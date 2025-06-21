@@ -42,3 +42,9 @@ export type getAllUserRsDataType = {
   data: UserRsDataType[];
   message: string;
 };
+
+export type UserProfileRsDataType = {
+  success: boolean;
+  data: UserRsDataType
+  message: string;
+};

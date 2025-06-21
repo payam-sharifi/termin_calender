@@ -3,6 +3,7 @@ import api from "../axiosConfig";
 import {
   CreateUserRqDataType,
   getAllUserRsDataType,
+  UserProfileRsDataType,
   UserRsDataType,
 } from "./user.types";
 
@@ -20,7 +21,7 @@ export const getOneUser = async ({
   id,
 }: {
   id: string;
-}): Promise<UserRsDataType> => {
+}): Promise<UserProfileRsDataType> => {
   const response = await api.get(`user/${id}`);
   return response.data;
 };

@@ -4,6 +4,7 @@ import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
 import { use, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
+import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
 
 export default function ServicePage({
   params,
@@ -11,6 +12,7 @@ export default function ServicePage({
   params: Promise<{ provider_id: string }>;
 }) {
   const { provider_id } = use(params);
+  const {data:userData}=useGetOneUser( {id:provider_id})
 const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
   const {
     data: onlyServiceData,
@@ -95,10 +97,12 @@ setDateSizeChange(false)
 
   return (
     <main className="p-4" style={{ backgroundColor: "#ffffff" }}>
+      
       {/* <Container className="m-4"> */}
       <MyCalendarClient
       change={()=>setDateSizeChange(true)}
         eventsObj={adjEvents1}
+        userProfileData={userData?.data}
         services={onlyServiceData ?? []}
         provider_id={provider_id}
         onDateRangeChange={(newDate, end_time) => {

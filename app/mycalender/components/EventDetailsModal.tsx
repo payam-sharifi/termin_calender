@@ -118,9 +118,9 @@ export default function EventDetailsModal({
         <Button variant="secondary" onClick={onClose} className="me-2">
           Schließen
         </Button>
-        <Button variant="primary" onClick={() => onEdit(event)}>
+        {/* <Button variant="primary" onClick={() => onEdit(event)}>
           Bearbeiten
-        </Button>
+        </Button> */}
       </Modal.Footer>
     </Modal>
 

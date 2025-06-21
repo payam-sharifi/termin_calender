@@ -31,11 +31,11 @@ import {
   FaBars,
 } from "react-icons/fa";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import useLogout from "@/hooks/useLogout";
 import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeSlotDate";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserRsDataType } from "@/services/userApi/user.types";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -63,10 +63,12 @@ export default function MyCalendarClient({
   services,
   onDateRangeChange,
   provider_id,
+  userProfileData,
   change
 }: {
   eventsObj: any;
   services: ServiceRsDataType;
+  userProfileData?:UserRsDataType
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
   provider_id: string;
   change:()=>void
@@ -74,6 +76,7 @@ export default function MyCalendarClient({
   const initialEvents = useMemo(() => {
     return eventsObj || [];
   }, [eventsObj]);
+  
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const {logout} = useLogout()
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -330,7 +333,7 @@ export default function MyCalendarClient({
             style={{ padding: "4px" }}
           >
             <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
-           {typedEvent.title} {typedEvent.description} {typedEvent.customerFamily}
+           {typedEvent.title} {typedEvent.customerName}{typedEvent.customerFamily}{typedEvent.description}
             </div>
 
           </div>
@@ -400,7 +403,7 @@ export default function MyCalendarClient({
        
           {/* SideBar Menu */}
           <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
-          
+         
             <div
               className="services-list"
               style={{
@@ -493,12 +496,13 @@ export default function MyCalendarClient({
             }
           >
             <div className="d-flex align-items-center gap-2">
+
               <i
-                style={{ fontSize: "1.5rem", cursor: "pointer" }}
+                style={{ fontSize: "1.4rem", cursor: "pointer" }}
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="bi bi-grid"
               ></i>
-              {/* <GermanDatePicker
+               <GermanDatePicker
               selected={currentDate}
               onChange={(date: Date | null) => {
                 if (date) {
@@ -512,7 +516,9 @@ export default function MyCalendarClient({
                 today.setHours(0, 0, 0, 0);
                 return date >= today;
               }}
-            /> */}
+            /> 
+               <div className="h5">{userProfileData?.name}</div>
+              
             </div>
 
             <DragAndDropCalendar
@@ -568,6 +574,7 @@ export default function MyCalendarClient({
       </div>
       <EventFormModal
         isOpen={isModalOpen || isNewServiceModalOpen}
+        isNewServiceModal={isNewServiceModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setIsNewServiceModalOpen(false);
@@ -586,14 +593,13 @@ export default function MyCalendarClient({
               : selectedEvent
             : undefined
         }
-        isNewServiceModal={isNewServiceModalOpen}
       />
       <EventDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
+        onEdit={handleEditEvent}
         event={selectedEvent}
         onDelete={handleDeleteEvent}
-        onEdit={handleEditEvent}
       />
 
 <SafeDeleteModal

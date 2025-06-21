@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useLogin } from '@/services/hooks/auth/useLogin';
 import { toast } from "react-toastify";
 import { jwtDecode } from 'jwt-decode';
-import useDecoder from '@/hooks/useDecoder';
 import { useSendOtp } from '@/services/hooks/auth/useSendOtp';
 import { useRouter } from 'next/navigation';
 export default function LoginPage() {
