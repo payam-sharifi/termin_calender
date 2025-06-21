@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { Table, Container, Button, Modal, Form } from "react-bootstrap";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
-import { ROLE, SEX, UserRsDataType } from "@/services/userApi/user.types";
+import { ROLE, SEX, UserRsDataType, CreateUserRqDataType } from "@/services/userApi/user.types";
 import { createUser } from "@/services/userApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
+import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
+import { toast } from "react-toastify";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
@@ -15,10 +18,13 @@ export default function UsersPage() {
   const { data, isLoading, refetch } = useGetUsers(undefined, limit, page);
   const users = data?.data || [];
   const [showEditModal, setShowEditModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+  const [userToDelete, setUserToDelete] = useState<UserRsDataType | null>(null);
   const [showNewUserModal, setShowNewUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<UserRsDataType | null>(null);
+  const {mutate:deleteMutated}=useDeleteUserById()
   const router=useRouter()
-  const [newUser, setNewUser] = useState({
+  const [newUser, setNewUser] = useState<CreateUserRqDataType>({
     name: "",
     family: "",
     email: "",
@@ -29,7 +35,8 @@ export default function UsersPage() {
     password: "",
   });
 
-  const handleEdit = (user: any) => {
+
+  const handleEdit = (user: UserRsDataType) => {
     setSelectedUser(user);
     setShowEditModal(true);
   };
@@ -63,7 +70,31 @@ export default function UsersPage() {
     }
   };
 
+  const handleDeleteClick = (user: UserRsDataType) => {
+    setUserToDelete(user);
+    handleClose()
+    setOpenDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
+      deleteMutated({ id: userToDelete.id }, {
+        onSuccess: (res:any) => {
+        toast.success(res.message)
+          queryClient.invalidateQueries({ queryKey: ["users"] });
+          setUserToDelete(null);
+          setOpenDeleteModal(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message)
+          console.error("Error deleting user:", error);
+        }
+      });
+    }
+  };
+
   return (
+    <>
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -95,15 +126,15 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users?.map((user: any) => (
+              {users?.map((user: UserRsDataType) => (
                 <tr key={user.id}>
                   <td style={{ width: '8%' }}>{user.name}</td>
                   <td style={{ width: '10%' }}>{user.family}</td>
                   <td style={{ width: '16%' }}>{user.email}</td>
                   <td style={{ width: '12%' }}>{user.phone}</td>
                   <td style={{ width: '8%' }}>{user.sex === SEX.male ? "Männlich" : "Weiblich"}</td>
-                  <td style={{ width: '8%' }}>{user.is_verified ? "Ja" : "Nein"}</td>
-                  <td style={{ width: '10%' }}>{user.role === ROLE.Customer ? "Kunde" : "Anbieter"}</td>
+                  <td style={{ width: '3%' }}>{user.is_verified ? "Ja" : "Nein"}</td>
+                  <td style={{ width: '10%' }}>{user.role}</td>
                   <td style={{ width: '8%' }}>
                     <Button
                       variant="outline-primary"
@@ -137,7 +168,7 @@ export default function UsersPage() {
         </>
       )}
 
-      <Modal show={showEditModal} onHide={handleClose} size="lg" centered
+      <Modal show={showEditModal} onHide={handleClose} size="sm" centered
        dialogClassName="modal-50w"
       >
             <style jsx global>{`
@@ -205,9 +236,13 @@ export default function UsersPage() {
           )}
         </Modal.Body>
         <Modal.Footer className="d-flex align-items-center justify-content-between">
-        <Button variant="danger" onClick={()=>console.log("delete kunde")}>
-            Speichern
-          </Button>
+        <Button variant="danger" onClick={() => {
+          if (selectedUser) {
+            handleDeleteClick(selectedUser);
+          }
+        }}>
+          Löschen
+        </Button>
           <div className="d-flex align-items-center ">
           <Button variant="secondary" onClick={handleClose}>
             Abbrechen
@@ -328,6 +363,16 @@ export default function UsersPage() {
         </Modal.Footer>
       </Modal>
     </Container>
+    <SafeDeleteModal
+     isOpen={openDeleteModal}
+     onClose={() => setOpenDeleteModal(false)}
+     onConfirm={handleConfirmDelete}
+     title="Benutzer löschen"
+     message="Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?"
+     confirmText="Löschen"
+     cancelText="Abbrechen"
+    />
+    </>
   );
 }
 

@@ -27,7 +27,15 @@ export const getOneUser = async ({
 };
 //UserRsDataType
 
+
+//تایپش باید درست شود
 export const createUser = async (userData: CreateUserRqDataType) => {
   const response = await api.post(`user`, userData);
+  return response.data;
+};
+
+
+export const deleteUserById = async ({id}:{id:string}): Promise<ResponseType> => {
+  const response = await api.delete(`user/${id}`,);
   return response.data;
 };
