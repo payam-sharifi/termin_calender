@@ -10,6 +10,7 @@ import {
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
+import SafeDeleteModal from "./SafeDeleteModal";
 import {
   serviceType,
   ServiceRsDataType,
@@ -76,6 +77,7 @@ export default function MyCalendarClient({
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const {logout} = useLogout()
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     start: Date;
@@ -102,11 +104,14 @@ export default function MyCalendarClient({
   const [isEditMode, setIsEditMode] = useState(false);
   const { mutate: deleteService } = useDeleteService();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
-const {mutate}=useUpdateTimeSlotDate()
+  const {mutate}=useUpdateTimeSlotDate()
   useEffect(() => {
     setEvents(eventsObj || []);
   }, [eventsObj]);
+
+
 
   const handleSelectSlot = useCallback((slotInfo: any) => {
    
@@ -348,11 +353,30 @@ const {mutate}=useUpdateTimeSlotDate()
   };
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent the click from triggering the button's onClick
-    if (window.confirm("Are you sure you want to delete this service?")) {
-      deleteService(serviceId);
-    }
+    e.stopPropagation();
+    setServiceToDelete(serviceId);
+    setOpenDeleteModal(true);
   };
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (serviceToDelete) {
+
+     deleteService(serviceToDelete,{
+      onSuccess(res) {
+        toast.success("Dienst erfolgreich gelöscht")
+       setServiceToDelete(null);
+     },onError(res){
+      toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält")
+     }
+    },
+  
+  
+  );
+
+      setOpenDeleteModal(false);
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+    }
+  }, [deleteService, serviceToDelete, queryClient]);
 
   return (
     <>
@@ -437,7 +461,8 @@ const {mutate}=useUpdateTimeSlotDate()
                         opacity: 0.8,
                         transition: "opacity 0.2s",
                       }}
-                      onClick={(e) => handleDeleteService(service.id, e)}
+                      onClick={(e) => {
+                        handleDeleteService(service.id, e)}}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.opacity = "1";
                       }}
@@ -570,6 +595,16 @@ const {mutate}=useUpdateTimeSlotDate()
         onDelete={handleDeleteEvent}
         onEdit={handleEditEvent}
       />
+
+<SafeDeleteModal
+     isOpen={openDeleteModal}
+     onClose={() => setOpenDeleteModal(false)}
+     onConfirm={handleConfirmDelete}
+     title="Service löschen"
+     message="Sind Sie sicher, dass Sie diesen Service löschen möchten?"
+     confirmText="Löschen"
+     cancelText="Abbrechen"
+    />
     </>
   );
 }
