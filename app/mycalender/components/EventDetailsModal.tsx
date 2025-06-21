@@ -2,6 +2,10 @@
 
 import { Modal, Button, Row, Col } from "react-bootstrap";
 import { Event } from "../types/event";
+import { useDeleteTimeSlotById } from "@/services/hooks/timeSlots/useDeleteTimeSlot";
+import { toast } from "react-toastify";
+import SafeDeleteModal from "./SafeDeleteModal";
+import { useState } from "react";
 
 
 
@@ -21,7 +25,8 @@ export default function EventDetailsModal({
   onEdit,
 }: EventDetailsModalProps) {
   if (!event) return null;
-
+  const {mutate}=useDeleteTimeSlotById()
+  const [openDeleteModal,setOpenDeleteModal]=useState<boolean>(false)
   const formatTime = (date: Date) => {
     return new Date(date).toLocaleTimeString('de-DE', {
       hour: '2-digit',
@@ -38,14 +43,30 @@ export default function EventDetailsModal({
     });
   };
 
+
+
   const handleDelete = () => {
-    if (window.confirm('Möchten Sie diesen Termin wirklich löschen?')) {
-      onDelete(event.id);
-      onClose();
+   
+    if(event.slotId){
+      mutate({id:event.slotId}
+        ,{
+          onSuccess: (res) => {
+            toast.success(res.message);
+            onDelete(event.id);
+            onClose();
+          },
+          onError: (error: any) => {
+            toast.error(error?.message);
+          }
+        }
+      )
     }
+     
+    
   };
 
   return (
+    <>
     <Modal show={isOpen} onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>{event.title}</Modal.Title>
@@ -87,7 +108,11 @@ export default function EventDetailsModal({
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger" onClick={handleDelete} className="me-auto">
+        <Button variant="danger" onClick={()=>{
+          
+          setOpenDeleteModal(true)
+          onClose()
+          }} className="me-auto">
           Löschen
         </Button>
         <Button variant="secondary" onClick={onClose} className="me-2">
@@ -98,5 +123,12 @@ export default function EventDetailsModal({
         </Button>
       </Modal.Footer>
     </Modal>
+
+    <SafeDeleteModal
+     isOpen={openDeleteModal}
+     onClose={()=>setOpenDeleteModal(false)}
+     onConfirm={handleDelete}
+    />
+    </>
   );
 } 

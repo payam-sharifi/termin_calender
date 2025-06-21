@@ -16,3 +16,10 @@ export const UpdateTimeSlotsApi = async (body:TimeSlotsRqUpdateType): Promise<ge
   );
   return response.data;
 };
+
+export const DeleteTimeSlotsApi = async (id:string): Promise<getTimeSlotsUpdateRsDataType> => {
+  const response = await api.delete(
+    `timeslot/${id}`
+  );
+  return response.data;
+};
