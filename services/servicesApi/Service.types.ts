@@ -1,4 +1,4 @@
-export interface Costumer{
+export interface User{
   id: string,
   name: string,
   family: string,
@@ -14,7 +14,7 @@ export interface TimeSlotsType {
   start_time: string,
   end_time: string,
   status: string,
-  costumer:Costumer
+  user:User
 }
 
 export interface serviceType {

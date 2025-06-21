@@ -1,7 +1,6 @@
 "use client";
 
 import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
-import { Container } from "react-bootstrap";
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
 import { use, useEffect } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
@@ -71,13 +70,12 @@ useEffect(()=>{
           is_active: service.is_active,
           timeSlots: service.timeSlots,
         },
-        customerName: "",
-        customerFamily: "",
-        customerEmail: "",
-        customerPhone: "",
+        customerName: slot.user?.name,
+        customerFamily: slot.user?.family,
+        customerEmail: slot.user?.email,
+        customerPhone: slot.user?.phone,
       }))
   );
-
   const adjEvents1 = transformedData.map((it: any, ind: any) => ({
     ...it,
     isDraggable: ind % 2 === 0,

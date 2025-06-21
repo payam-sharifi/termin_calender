@@ -1,5 +1,14 @@
+import { BlobOptions } from "buffer"
 
-
+export interface Customer{
+  id: string,
+  name: string,
+  family: string,
+  email: string,
+  phone: string,
+  sex: string,
+  is_verified: boolean
+}
 
 export interface TimeSlotsType{
   id:string,
@@ -7,6 +16,7 @@ export interface TimeSlotsType{
   start_time: string,
   end_time: string,
   status:string,
+  costumer:Customer
 }
 export interface seviceType{
   id: string,
