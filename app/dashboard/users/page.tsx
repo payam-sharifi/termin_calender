@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Container, Button } from "react-bootstrap";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { ROLE, SEX, UserRsDataType, CreateUserRqDataType } from "@/services/userApi/user.types";
-import { createUser } from "@/services/userApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
+import { useCreateUser } from "@/services/hooks/user/useCreateUser";
 import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
 import { toast } from "react-toastify";
 import UsersTable from "./components/UsersTable";
@@ -18,7 +18,7 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const limit = 10;
-  const { data, isLoading, refetch } = useGetUsers(undefined, limit, page);
+  const { data, isLoading } = useGetUsers(undefined, limit, page);
   const users = data?.data || [];
   
   // Modal states
@@ -29,19 +29,20 @@ export default function UsersPage() {
   // Data states
   const [selectedUser, setSelectedUser] = useState<UserRsDataType | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserRsDataType | null>(null);
-  const [newUser, setNewUser] = useState<CreateUserRqDataType>({
+  const [newUser, setNewUser] = useState({
     name: "",
     family: "",
     email: "",
     phone: "",
-    sex: SEX.male,
-    role: ROLE.Customer,
+    sex: "",
+    role: "",
     is_verified: false,
     password: "",
   });
 
   // API hooks
   const { mutate: deleteMutated } = useDeleteUserById();
+  const { mutate: createMutated } = useCreateUser();
   const router = useRouter();
 
   // Handlers
@@ -62,23 +63,32 @@ export default function UsersPage() {
       family: "",
       email: "",
       phone: "",
-      sex: SEX.male,
-      role: ROLE.Customer,
+      sex: "",
+      role: "",
       is_verified: false,
       password: "",
     });
   };
 
-  const handleCreateUser = async () => {
-    try {
-      await createUser(newUser);
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      handleNewUserClose();
-      toast.success("Benutzer erfolgreich erstellt");
-    } catch (error) {
-      console.error("Error creating user:", error);
-      toast.error("Fehler beim Erstellen des Benutzers");
-    }
+  const handleCreateUser = () => {
+    const payload = {
+      ...newUser,
+      sex: newUser.sex as SEX,
+      role: newUser.role as ROLE,
+    };
+
+    createMutated(payload, {
+      onSuccess: (res: any) => {
+        toast.success(res.message);
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        handleNewUserClose();
+      },
+      onError: (error: any) => {
+       
+        toast.error("Möglicherweise gibt es einen Kunden mit dieser E-Mail-Adresse oder Nummer.");
+        console.error("Error creating user:", error);
+      },
+    });
   };
 
   const handleDeleteClick = (user: UserRsDataType) => {
@@ -119,12 +129,12 @@ export default function UsersPage() {
           marginBottom: '24px'
         }}>
           <div>
-            <button className="btn btn-outline-warning ms-2" onClick={() => router.back()}>
+            <button className="btn btn-outline-warning me-2" onClick={() => router.back()}>
               &larr; Zurück zu Services
             </button>
           </div>
           <h2>Benutzerverwaltung</h2>
-          <button className="btn btn-outline-warning me-2"  onClick={() => setShowNewUserModal(true)}>
+          <button className="btn btn-outline-warning me-2"onClick={() => setShowNewUserModal(true)}>
             Neuer Benutzer
           </button>
         </div>
@@ -167,5 +177,4 @@ export default function UsersPage() {
   );
 }
 
-export { createUser };
 export type { UserRsDataType }; 

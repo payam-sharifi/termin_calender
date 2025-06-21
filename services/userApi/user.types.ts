@@ -1,14 +1,14 @@
 import { ServiceRsDataType } from "../servicesApi/Service.types";
 
 export enum ROLE {
-  "Admin",
-  "Customer",
-  "Provider",
+  Admin = "Admin",
+  Customer = "Customer",
+  Provider = "Provider",
 }
 
 export enum SEX {
-  "male",
-  "female",
+  male = "male",
+  female = "female",
 }
 
 export interface UserRsDataType {
@@ -33,8 +33,8 @@ export interface CreateUserRqDataType {
   name: string;
   password: string;
   phone: string;
-  role: ROLE;
-  sex: SEX;
+  role: string;
+  sex: string;
 }
 
 
