@@ -32,6 +32,9 @@ import {
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import useLogout from "@/hooks/useLogout";
+import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeSlotDate";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -59,11 +62,13 @@ export default function MyCalendarClient({
   services,
   onDateRangeChange,
   provider_id,
+  change
 }: {
   eventsObj: any;
   services: ServiceRsDataType;
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
   provider_id: string;
+  change:()=>void
 }) {
   const initialEvents = useMemo(() => {
     return eventsObj || [];
@@ -97,7 +102,8 @@ export default function MyCalendarClient({
   const [isEditMode, setIsEditMode] = useState(false);
   const { mutate: deleteService } = useDeleteService();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const queryClient = useQueryClient();
+const {mutate}=useUpdateTimeSlotDate()
   useEffect(() => {
     setEvents(eventsObj || []);
   }, [eventsObj]);
@@ -161,7 +167,21 @@ export default function MyCalendarClient({
         const existing = prev.find((ev) => ev.id === typedEvent.id);
         if (!existing) return prev;
         const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-        return [...filtered, { ...existing, start, end }];
+        if(existing?.slotId){
+          mutate({id: existing.slotId, start_time: start, end_time: end}
+            ,{
+              onSuccess: (res) => {
+                toast.success(res.message);
+                  change()
+                return [...filtered, { ...existing, start, end }];
+              },
+              onError: (error: any) => {
+                toast.error(error?.message);
+              }
+            }
+          )
+        }
+         return []
       });
     },
     [setEvents]
@@ -174,7 +194,21 @@ export default function MyCalendarClient({
         const existing = prev.find((ev) => ev.id === typedEvent.id);
         if (!existing) return prev;
         const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-        return [...filtered, { ...existing, start, end }];
+      if(existing?.slotId){
+        mutate({id: existing.slotId, start_time: start, end_time: end}
+          ,{
+            onSuccess: (res) => {
+              toast.success(res.message);
+                change()
+              return [...filtered, { ...existing, start, end }];
+            },
+            onError: (error: any) => {
+              toast.error(error?.message);
+            }
+          }
+        )
+      }
+       return []
       });
     },
     [setEvents]

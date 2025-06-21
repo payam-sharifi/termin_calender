@@ -1,5 +1,5 @@
 import api from "../axiosConfig";
-import {  TimeSlotsRqType } from "./TimeSlots.types";
+import {  getTimeSlotsUpdateRsDataType, TimeSlotsRqType, TimeSlotsRqUpdateType } from "./TimeSlots.types";
 
 
 
@@ -10,3 +10,9 @@ export const CreateTimeSlotsApi = async (body:TimeSlotsRqType): Promise<any> => 
   return response.data;
 };
 
+export const UpdateTimeSlotsApi = async (body:TimeSlotsRqUpdateType): Promise<getTimeSlotsUpdateRsDataType> => {
+  const response = await api.put(
+    `timeslot/${body.id}`,body
+  );
+  return response.data;
+};

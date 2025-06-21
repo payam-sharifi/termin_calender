@@ -39,6 +39,11 @@ export interface TimeSlotsRqType{
   end_time: string,
   status?:string
 }
+export interface TimeSlotsRqUpdateType {
+  id:string
+  start_time: string,
+  end_time: string,
+}
 export interface ServiceRqType{
   provider_id: string,
   start_time: string,
@@ -46,3 +51,9 @@ export interface ServiceRqType{
   status?:string
 }
 export type ServiceRsDataType = seviceType[];
+
+export type getTimeSlotsUpdateRsDataType = {
+  success: boolean;
+  data: TimeSlotsRqUpdateType;
+  message: string;
+};

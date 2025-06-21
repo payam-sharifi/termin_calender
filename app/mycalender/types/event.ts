@@ -3,6 +3,7 @@ import { serviceType } from "@/services/servicesApi/Service.types";
 
 export interface Event extends CalendarEvent {
   id: number;
+  slotId?: string;
   title: string;
   start: Date;
   end: Date;

@@ -2,7 +2,7 @@
 
 import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 
 export default function ServicePage({
@@ -11,7 +11,7 @@ export default function ServicePage({
   params: Promise<{ provider_id: string }>;
 }) {
   const { provider_id } = use(params);
-
+const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
   const {
     data: onlyServiceData,
     isError: onlyServiceError,
@@ -32,7 +32,16 @@ useEffect(()=>{
     end_time:  new Date().toISOString().split("T")[0],
   });
 },[])
-
+useEffect(()=>{
+  if(dateSizeChange){
+  GetServices({
+    provider_id,
+    start_time: new Date().toISOString().split("T")[0],
+    end_time:  new Date().toISOString().split("T")[0],
+  });
+}
+setDateSizeChange(false)
+},[dateSizeChange])
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
     const formatDate = (date: Date) => {
@@ -88,6 +97,7 @@ useEffect(()=>{
     <main className="p-4" style={{ backgroundColor: "#ffffff" }}>
       {/* <Container className="m-4"> */}
       <MyCalendarClient
+      change={()=>setDateSizeChange(true)}
         eventsObj={adjEvents1}
         services={onlyServiceData ?? []}
         provider_id={provider_id}
