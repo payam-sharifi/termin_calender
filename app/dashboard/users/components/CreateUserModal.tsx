@@ -2,7 +2,7 @@
 
 import { Modal, Button, Form } from "react-bootstrap";
 import { CreateUserRqDataType, ROLE, SEX } from "@/services/userApi/user.types";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface CreateUserModalProps {
   show: boolean;
@@ -20,6 +20,13 @@ export default function CreateUserModal({
   onCreate,
 }: CreateUserModalProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof CreateUserRqDataType, string>>>({});
+  const [roleSearch, setRoleSearch] = useState("");
+
+  const filteredRoles = useMemo(() => {
+    return Object.values(ROLE).filter(role => 
+      role.toLowerCase().includes(roleSearch.toLowerCase())
+    );
+  }, [roleSearch]);
 
   const handleFieldChange = (field: keyof CreateUserRqDataType, value: any) => {
     onUserChange({ ...newUser, [field]: value });
@@ -69,6 +76,9 @@ export default function CreateUserModal({
         .modal-50w {
           max-width: 40% !important;
           width: 40% !important;
+        }
+        .modal-content {
+          background-color: #f8f9fa;
         }
       `}</style>
       <Modal.Header closeButton>
@@ -145,14 +155,22 @@ export default function CreateUserModal({
           </Form.Group>
           <Form.Group className="mb-1">
             <Form.Label>Rolle</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Rolle suchen..."
+              className="mb-2"
+              value={roleSearch}
+              onChange={(e) => setRoleSearch(e.target.value)}
+            />
             <Form.Select
               value={newUser.role}
               onChange={(e) => handleFieldChange('role', e.target.value)}
               isInvalid={!!errors.role}
             >
               <option value="" disabled>Bitte auswählen</option>
-              <option value={ROLE.Customer}>Kunde</option>
-              <option value={ROLE.Provider}>Anbieter</option>
+              {filteredRoles.map(role => (
+                <option key={role} value={role}>{role}</option>
+              ))}
             </Form.Select>
             <Form.Control.Feedback type="invalid">{errors.role}</Form.Control.Feedback>
           </Form.Group>

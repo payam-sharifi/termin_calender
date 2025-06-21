@@ -7,14 +7,20 @@ import {
   UserRsDataType,
 } from "./user.types";
 
-export const getAllUser = async (role?: string,limit?:number, page?:number): Promise<getAllUserRsDataType> => {
-  if (role) {
-    const response = await api.get(`user?role=${role}&limit=${limit}&page=${page}`);
-    return response.data;
-  } else {
-    const response = await api.get(`user`);
-    return response.data;
-  }
+export const getAllUser = async (
+  search: string,
+  limit?: number,
+  page?: number,
+  role?: string,
+): Promise<getAllUserRsDataType> => {
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (limit) params.append('limit', limit.toString());
+  if (page) params.append('page', page.toString());
+  if (role) params.append('role', role);
+
+  const response = await api.get(`user?${params.toString()}`);
+  return response.data;
 };
 
 export const getOneUser = async ({

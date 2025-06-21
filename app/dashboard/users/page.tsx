@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Container, Button } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Container, Button, Form } from "react-bootstrap";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { ROLE, SEX, UserRsDataType, CreateUserRqDataType } from "@/services/userApi/user.types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
 import { useCreateUser } from "@/services/hooks/user/useCreateUser";
+import { useDebounce } from "@/hooks/useDebounce";
 import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
 import { toast } from "react-toastify";
 import UsersTable from "./components/UsersTable";
@@ -17,8 +18,10 @@ import CreateUserModal from "./components/CreateUserModal";
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const limit = 10;
-  const { data, isLoading } = useGetUsers(undefined, limit, page);
+  const { data, isLoading } = useGetUsers(debouncedSearchTerm, limit, page);
   const users = data?.data || [];
   
   // Modal states
@@ -29,7 +32,7 @@ export default function UsersPage() {
   // Data states
   const [selectedUser, setSelectedUser] = useState<UserRsDataType | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserRsDataType | null>(null);
-  const [newUser, setNewUser] = useState({
+  const [newUser, setNewUser] = useState<Omit<CreateUserRqDataType, "role" | "sex"> & { role: string; sex: string }>({
     name: "",
     family: "",
     email: "",
@@ -44,6 +47,12 @@ export default function UsersPage() {
   const { mutate: deleteMutated } = useDeleteUserById();
   const { mutate: createMutated } = useCreateUser();
   const router = useRouter();
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   // Handlers
   const handleEdit = (user: UserRsDataType) => {
@@ -84,7 +93,6 @@ export default function UsersPage() {
         handleNewUserClose();
       },
       onError: (error: any) => {
-       
         toast.error("Möglicherweise gibt es einen Kunden mit dieser E-Mail-Adresse oder Nummer.");
         console.error("Error creating user:", error);
       },
@@ -139,6 +147,15 @@ export default function UsersPage() {
           </button>
         </div>
         
+        <div className="mb-3">
+          <Form.Control
+            type="text"
+            placeholder="Suchen nach Name, E-Mail oder Telefon..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         <UsersTable
           users={users}
           isLoading={isLoading}
