@@ -10,12 +10,12 @@ import {
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
-import SafeDeleteModal from "./SafeDeleteModal";
+
 import {
   serviceType,
   ServiceRsDataType,
 } from "@/services/servicesApi/Service.types";
-import { Event } from "../types/event";
+import { Event } from "@/types/event";
 import GermanDatePicker from "./Datapicker";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
@@ -36,6 +36,7 @@ import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeS
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserRsDataType } from "@/services/userApi/user.types";
+import SafeDeleteModal from "../SafeDeleteModal";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);

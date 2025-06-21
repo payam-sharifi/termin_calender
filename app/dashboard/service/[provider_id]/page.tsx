@@ -1,10 +1,11 @@
 "use client";
 
-import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
+
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
 import { use, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
+import MyCalendarClient from "@/app/components/calender/MyCalendarClient";
 
 export default function ServicePage({
   params,

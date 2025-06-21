@@ -9,11 +9,11 @@ import { useRouter } from "next/navigation";
 import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
 import { useCreateUser } from "@/services/hooks/user/useCreateUser";
 import { useDebounce } from "@/hooks/useDebounce";
-import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
+import SafeDeleteModal from "@/app/components/SafeDeleteModal";
 import { toast } from "react-toastify";
-import UsersTable from "./components/UsersTable";
-import EditUserModal from "./components/EditUserModal";
-import CreateUserModal from "./components/CreateUserModal";
+import UsersTable from "../../components/users/UsersTable";
+import EditUserModal from "../../components/users/EditUserModal";
+import CreateUserModal from "../../components/users/CreateUserModal";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();

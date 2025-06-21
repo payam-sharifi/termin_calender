@@ -1,10 +1,10 @@
 "use client";
 
 import { Modal, Button, Row, Col } from "react-bootstrap";
-import { Event } from "../types/event";
+import { Event } from "@/types/event";
 import { useDeleteTimeSlotById } from "@/services/hooks/timeSlots/useDeleteTimeSlot";
 import { toast } from "react-toastify";
-import SafeDeleteModal from "./SafeDeleteModal";
+import SafeDeleteModal from "../SafeDeleteModal";
 import { useState } from "react";
 
 
@@ -13,7 +13,7 @@ interface EventDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   event: Event | null;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: any) => void;
   onEdit: (event: Event) => void;
 }
 
@@ -51,6 +51,7 @@ export default function EventDetailsModal({
       mutate({id:event.slotId}
         ,{
           onSuccess: (res) => {
+            console.log(event)
             toast.success(res.message);
             onDelete(event.id);
             onClose();

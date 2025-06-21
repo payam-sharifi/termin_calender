@@ -1,5 +1,5 @@
 "use client";
-import type { Metadata } from "next";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/resources/main.scss";
@@ -9,9 +9,7 @@ import { queryClient } from "@/services/queryClient";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import useDecoder from "@/hooks/useDecoder";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+
 
 
 
@@ -43,11 +41,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <QueryClientProvider client={queryClient}>  
-     
-
           {children}
-      
-       
+
           <ToastContainer
         position="top-right"
         autoClose={3000}

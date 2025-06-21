@@ -9,7 +9,7 @@ import {
   serviceType,
   createNewService,
 } from "@/services/servicesApi/Service.types";
-import { Event } from "../types/event";
+import { Event } from "@/types/event";
 import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot";
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { ChromePicker, ColorResult } from "react-color";
