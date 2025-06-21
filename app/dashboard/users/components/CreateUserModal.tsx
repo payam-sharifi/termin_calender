@@ -68,14 +68,14 @@ export default function CreateUserModal({
     <Modal 
       show={show} 
       onHide={onHide} 
-      size="sm" 
+      size="lg" 
       centered
       dialogClassName="modal-50w"
     >
       <style jsx global>{`
         .modal-50w {
-          max-width: 40% !important;
-          width: 40% !important;
+          max-width: 100% !important;
+          width: 100% !important;
         }
         .modal-content {
           background-color: #f8f9fa;

@@ -129,25 +129,19 @@ export default function UsersPage() {
   return (
     <>
       <Container className="py-4">
-        <div className="d-flex justify-content-between align-items-center mb-4" style={{
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
-          borderRadius: '8px',
-          padding: '20px',
-          backgroundColor: 'white',
-          marginBottom: '24px'
-        }}>
-          <div>
-            <button className="btn btn-outline-warning me-2" onClick={() => router.back()}>
-              &larr; Zurück zu Services
+        <div className="d-flex justify-content-between align-items-center mb-4 p-2 shadow" >
+         
+            <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => router.back()}>
+              Zurück
             </button>
-          </div>
-          <h2>Benutzerverwaltung</h2>
-          <button className="btn btn-outline-warning me-2"onClick={() => setShowNewUserModal(true)}>
-            Neuer Benutzer
+          
+          <h2 className="fs-5 fs-md-2 mb-0">Benutzerverwaltung</h2>
+          <button className="btn  btn-outline-primary me-md-2 m-1" onClick={() => setShowNewUserModal(true)}>
+            Neuer +
           </button>
         </div>
         
-        <div className="mb-3">
+        <div className="mb-3 shadow" >
           <Form.Control
             type="text"
             placeholder="Suchen nach Name, E-Mail oder Telefon..."
