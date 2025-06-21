@@ -232,7 +232,7 @@ export default function MyCalendarClient({
   
     return {
       style: {
-        backgroundColor: event.color || "#4a90e2", // Use service color or fallback to default
+        backgroundColor: event.color || "#4a90e2", 
         borderRadius: "4px",
         opacity: 0.8,
         color: "white",
