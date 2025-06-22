@@ -22,6 +22,7 @@ jobs:
           port: 22
           timeout: 5m
           script: |
+            rm -r .next
             set -e
             cd /termin/termin_calender
             echo "--> Pulling latest changes"
