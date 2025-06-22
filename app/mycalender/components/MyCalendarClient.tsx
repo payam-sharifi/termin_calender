@@ -385,21 +385,7 @@ export default function MyCalendarClient({
     <>
       {/* Hamburger Menu Button */}
 
-      <div
-        className="calendar-container"
-        style={{
-          // backgroundColor: "#e6f1e7",
-          padding: "20px",
-          marginLeft: "10px",
-          borderRadius: "12px",
-          display: "flex",
-          position: "relative",
-          boxShadow: `
-            3px 3px 6px rgba(69, 84, 70, 0.2),
-            -3px -3px 6px rgba(255, 255, 255, 0.8)
-          `,
-        }}
-      >
+      <div className="calendar-container p-2 shadow">
        
           {/* SideBar Menu */}
           <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
@@ -488,7 +474,7 @@ export default function MyCalendarClient({
           
           </section>
           {/* Main Calendar Area */}
-          <main className="calendar-layout ">
+          <main className="calendar-layout shadow">
           <section
             className={
               isSidebarOpen

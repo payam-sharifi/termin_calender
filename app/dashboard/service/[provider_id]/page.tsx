@@ -1,10 +1,10 @@
 "use client";
 
-import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
 import { use, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
+import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
 
 export default function ServicePage({
   params,
@@ -97,7 +97,7 @@ setDateSizeChange(false)
   if (isError) return <p>Error!</p>;
 
   return (
-    <main className="p-4" style={{ backgroundColor: "#ffffff" }}>
+   <>
       
       {/* <Container className="m-4"> */}
       <MyCalendarClient
@@ -111,6 +111,6 @@ setDateSizeChange(false)
         }}
       />
       {/* </Container> */}
-    </main>
+      </>
   );
 }
