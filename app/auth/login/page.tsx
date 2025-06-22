@@ -37,29 +37,25 @@ const jwtToken= (tokenrq:string)=>{
           router.push(`/dashboard/service/${decoded.id}`);
 }
 
+const isValidGermanMobile = (num: string) => /^\+49\d{10,14}$/.test(num);
 
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
-  setError(null);
+
   setLoading(true);
   login(
     { phone, password },
     {
       onSuccess: (res) => {
-        if (res?.success) {
+     
           toast.success(res.message);
           jwtToken(res.data)
-        } else {
-          toast.error(res.message);
-        }
+    
       },
       onError: (error: any) => {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          "Login fehlgeschlagen";
-        toast.error(message);
-        setError(message);
+   
+        toast.error("Login fehlgeschlagen");
+      
       },
     }
   );
@@ -68,7 +64,7 @@ const handleLogin = async (e: React.FormEvent) => {
 
 const handleSendCode = async (e: React.FormEvent) => {
   e.preventDefault();
-  setError(null);
+ // setError(null);
   setLoading(true);
   sendOtp(
     { phone },
@@ -80,8 +76,7 @@ const handleSendCode = async (e: React.FormEvent) => {
         jwtToken(res.data)
       },
       onError: (error: any) => {
-        toast.error(error?.message);
-        setError(error?.message || "Fehler beim Senden des Codes");
+        toast.error("Fehler beim Senden des Codes");
         setLoading(false);
       }
     }
@@ -90,18 +85,30 @@ const handleSendCode = async (e: React.FormEvent) => {
 
 const handleVerifyCode = async (e: React.FormEvent) => {
   e.preventDefault();
-  setError(null);
+
   setLoading(true);
-  // TODO: Implement code verification logic here
-  setTimeout(() => {
-    setLoading(false);
-    // On success, redirect or set auth state
-  }, 1000);
+  login(
+    { phone,code },
+    {
+      onSuccess: (res) => {
+       
+          toast.success(res.message);
+          jwtToken(res.data)
+      
+      },
+      onError: (error: any) => {
+      
+         
+        toast.error( "Login fehlgeschlagen");
+      
+      },
+    }
+  );
 };
 
 const handleTabChange = (method: 'password' | 'sms') => {
   setLoginMethod(method);
-  setError(null);
+
   setLoading(false);
   setCodeSent(false);
   setPassword('');
@@ -135,8 +142,8 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
 
   return (
     <div style={{ maxWidth: 400, margin: '40px auto' }}>
-      <h2>Login</h2>
-      <div style={{ display: 'flex', marginBottom: 24 }}>
+      <h2 className="text-center">Login</h2>
+      {/* <div style={{ display: 'flex', marginBottom: 24 }}>
         <button
           type="button"
           className={`btn btn-light w-50${loginMethod === 'password' ? ' active' : ''}`}
@@ -153,25 +160,25 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         >
           SMS
         </button>
-      </div>
+      </div> */}
       {loginMethod === 'password' && (
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label htmlFor="phone" className="form-label">Phone</label>
             <input
-              type="phone"
+              type="tel"
               className="form-control"
               id="phone"
               value={phone}
               onChange={e => {
-                // Always keep +49 at the start
-                // if (!e.target.value.startsWith('+49')) {
-                //   setPhone('+49');
-                // } else {
-                  setPhone(e.target.value);
-                // }
+                let val = e.target.value.replace(/^0+/, '');
+                if (!val.startsWith('+49')) {
+                  val = '+49' + val.replace(/^\+*/, '');
+                }
+                setPhone(val);
               }}
               required
+             
             />
           </div>
           <div className="mb-3">
@@ -185,11 +192,7 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
               required
             />
           </div>
-          {error && (
-            <div className="alert alert-danger">
-              {error}
-            </div>
-          )}
+
           <button type="submit" className="btn btn-primary w-100" disabled={loading}>
             {loading ? 'Einloggen...' : 'Login'}
           </button>
@@ -205,12 +208,11 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
               id="phone"
               value={phone}
               onChange={e => {
-                // Always keep +49 at the start
-                // if (!e.target.value.startsWith('0049')) {
-                //   setPhone('0049');
-                // } else {
-                  setPhone(e.target.value);
-                // }
+                let val = e.target.value.replace(/^0+/, '');
+                if (!val.startsWith('+49')) {
+                  val = '+49' + val.replace(/^\+*/, '');
+                }
+                setPhone(val);
               }}
               required
               disabled={codeSent}
@@ -223,7 +225,7 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
           )}
           {codeSent && (
             <>
-              <div className="mb-3" style={{ display: 'flex', gap: 8 }}>
+              <div className="mb-3 d-flex justify-content-center" style={{ gap: 8 }}>
                 {[0, 1, 2, 3].map(i => (
                   <input
                     key={i}
@@ -242,11 +244,7 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
                   />
                 ))}
               </div>
-              {error && (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
-              )}
+           
               <button type="submit" className="btn btn-primary w-100" disabled={loading}>
                 {loading ? 'Überprüfe...' : 'Code überprüfen'}
               </button>

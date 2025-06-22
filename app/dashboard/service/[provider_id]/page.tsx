@@ -98,7 +98,7 @@ setDateSizeChange(false)
 
   return (
    <>
-      
+      <div>
       {/* <Container className="m-4"> */}
       <MyCalendarClient
       change={()=>setDateSizeChange(true)}
@@ -110,6 +110,7 @@ setDateSizeChange(false)
           handleDateRangeChange(newDate, end_time);
         }}
       />
+      </div>
       {/* </Container> */}
       </>
   );

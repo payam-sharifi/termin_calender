@@ -35,7 +35,7 @@ export default function Layout({
     setToken(t);
 
     if (!t && pathname !== "/login") {
-      router.push("/login");
+      router.push("/auth/login");
     } else if (t && pathname === "/dashboard") {
       const decoded = jwtDecode<{ id: string }>(t);
       router.push(`/dashboard/service/${decoded.id}`);
