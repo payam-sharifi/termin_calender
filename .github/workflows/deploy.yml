@@ -23,7 +23,7 @@ jobs:
           timeout: 5m
           script: |
             cd /termin/termin_calender
-            git pull
+            git pull origin master
             rm -r .next
             npm run build
             pm2 delete termin-next-app || true
