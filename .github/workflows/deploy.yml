@@ -25,9 +25,8 @@ jobs:
             cd /termin/termin_calender
             git pull
             rm -r .next
-            npm run dev
             npm run build
             pm2 delete termin-next-app || true
-            PORT=4000 pm2 start npm --name "termin-next-app" -- start
+            PORT=4500 pm2 start npm --name "termin-next-app" -- start
             pm2 save
             pm2 startup
