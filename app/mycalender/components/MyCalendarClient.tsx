@@ -228,7 +228,7 @@ export default function MyCalendarClient({
     setIsDetailsModalOpen(true);
   }, []);
 
-  const eventStyleGetter = useCallback((event: CalendarEvent) => {
+  const eventStyleGetter = useCallback((event: any) => {
   
     return {
       style: {
