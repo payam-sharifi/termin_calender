@@ -114,6 +114,7 @@ export default function RegisterPage() {
         role: ROLE.Customer,
         is_verified:true
       });
+      
       setSuccess(true);
       toast.success(res.message)
       setOtpModalOpen(false);
