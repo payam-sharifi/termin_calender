@@ -22,16 +22,12 @@ jobs:
           port: 22
           timeout: 5m
           script: |
-            rm -r .next
-            set -e
             cd /termin/termin_calender
-            echo "--> Pulling latest changes"
-            git fetch
-            git reset --hard origin/master
-            echo "--> Installing dependencies"
-            npm ci --omit=dev
-            echo "--> Building application"
+            git pull
+            rm -r .next
+            npm run dev
             npm run build
-            echo "--> Restarting PM2 process"
-            pm2 reload next-app --update-env
-            echo "--> Deployment complete"
+            pm2 delete termin-next-app || true
+            PORT=4000 pm2 start npm --name "termin-next-app" -- start
+            pm2 save
+            pm2 startup
