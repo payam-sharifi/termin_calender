@@ -18,6 +18,7 @@ import moment from "moment";
 import "moment/locale/de";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { toast } from "react-toastify";
+import React from "react";
 
 moment.locale("de");
 
@@ -118,7 +119,7 @@ export default function EventFormModal({
       title: "",
       duration: 30,
       is_active: true,
-      price: 0,
+      price: undefined,
       color: "#000000",
       description: "",
     });
@@ -133,6 +134,8 @@ export default function EventFormModal({
 
   const [serviceWarning, setServiceWarning] = useState<boolean>(false);
   const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service.duration||90);
+  const [errors, setErrors] = useState<any>({});
+
   // duration
   useEffect(() => {
     if (selectedSlot) {
@@ -194,9 +197,45 @@ export default function EventFormModal({
     setIsNewServiceModalOpen(isNewServiceModal);
   }, [isNewServiceModal]);
 
+  // German mobile phone validation
+  const isValidGermanMobile = (phone: string) => {
+    // Must start with +49, followed by 10-14 digits (mobile numbers in Germany)
+    return /^\+49\d{10,14}$/.test(phone);
+  };
+
+  // Email validation
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    const newErrors: any = {};
+    if (!formData.service?.id) newErrors.service = "Service ist erforderlich.";
+    if (!formData.start) newErrors.start = "Startzeit ist erforderlich.";
+    if (!formData.end) newErrors.end = "Endzeit ist erforderlich.";
+    if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
+    if (!formData.customerFamily) newErrors.customerFamily = "Nachname ist erforderlich.";
+    if (!formData.customerEmail) newErrors.customerEmail = "E-Mail ist erforderlich.";
+    else if (!isValidEmail(formData.customerEmail)) newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+    if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
+    else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
+    if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Prefill phone with +49 if empty
+  React.useEffect(() => {
+    if (formData.customerPhone === "") {
+      setFormData((prev) => ({ ...prev, customerPhone: "+49" }));
+    }
+    // eslint-disable-next-line
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-console.log(formData,"formData")
+    if (!validateForm()) return;
+    console.log(formData,"formData")
     try {
 CreateSlotApi({
     name:formData.customerName,
@@ -261,7 +300,7 @@ CreateSlotApi({
           title: "",
           duration: 30,
           is_active: true,
-          price: 0,
+          price: undefined,
           color: "#000000",
           description: "",
         });
@@ -396,13 +435,15 @@ CreateSlotApi({
                     <Form.Label>Preis</Form.Label>
                     <Form.Control
                       type="number"
-                      value={newServiceFormData.price || 0}
-                      onChange={(e) =>
-                        setNewServiceFormData((prev) => ({
+                      value={newServiceFormData.price === undefined ? '' : newServiceFormData.price}
+                      placeholder="€"
+                      onChange={e => {
+                        const value = e.target.value;
+                        setNewServiceFormData(prev => ({
                           ...prev,
-                          price: parseFloat(e.target.value) || 0,
-                        }))
-                      }
+                          price: value === '' ? undefined : parseFloat(value)
+                        }));
+                      }}
                       required
                     />
                   </Form.Group>
@@ -488,7 +529,10 @@ CreateSlotApi({
                     <Form.Label>Service</Form.Label>
                     <Form.Select
                       value={formData.service?.id}
-                      onChange={(e) => handleServiceChange(e.target.value)}
+                      onChange={(e) => {
+                        handleServiceChange(e.target.value);
+                        if (errors.service) setErrors((prev: any) => ({ ...prev, service: undefined }));
+                      }}
                       required
                     >
                       {Array.isArray(services) && services.length > 0 ? (
@@ -506,6 +550,7 @@ CreateSlotApi({
                         Dieser Service dauert {serviceDuration} Minuten.
                       </div>
                     )}
+                    {errors.service && <div style={{background: '#fff', color: 'red', fontSize: '0.5em', marginTop: 4}}>{errors.service}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -531,10 +576,10 @@ CreateSlotApi({
                     <Form.Label>Startzeit</Form.Label>
                     <DatePicker
                       selected={formData.start}
-                      onChange={(date: Date | null) =>
-                        date &&
-                        setFormData((prev) => ({ ...prev, start: date }))
-                      }
+                      onChange={(date: Date | null) => {
+                        if (date) setFormData((prev) => ({ ...prev, start: date }));
+                        if (errors.start) setErrors((prev: any) => ({ ...prev, start: undefined }));
+                      }}
                       showTimeSelect
                       timeFormat="HH:mm"
                       timeIntervals={15}
@@ -546,6 +591,7 @@ CreateSlotApi({
                       dayClassName={dayClassName}
                       required
                     />
+                    {errors.start && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.start}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -553,9 +599,10 @@ CreateSlotApi({
                     <Form.Label>Endzeit</Form.Label>
                     <DatePicker
                       selected={formData.end}
-                      onChange={(date: Date | null) =>
-                        date && setFormData((prev) => ({ ...prev, end: date }))
-                      }
+                      onChange={(date: Date | null) => {
+                        if (date) setFormData((prev) => ({ ...prev, end: date }));
+                        if (errors.end) setErrors((prev: any) => ({ ...prev, end: undefined }));
+                      }}
                       showTimeSelect
                       timeFormat="HH:mm"
                       timeIntervals={15}
@@ -567,6 +614,7 @@ CreateSlotApi({
                       dayClassName={dayClassName}
                       required
                     />
+                    {errors.end && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.end}</div>}
                   </Form.Group>
                 </Col>
               </Row>
@@ -578,12 +626,13 @@ CreateSlotApi({
                       <Form.Control
                         type="text"
                         value={formData.customerName}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
                             customerName: e.target.value,
-                          }))
-                        }
+                          }));
+                          if (errors.customerName) setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                        }}
                         required
                       />
                       <Button
@@ -594,6 +643,7 @@ CreateSlotApi({
                         +
                       </Button>
                     </div>
+                    {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -602,14 +652,16 @@ CreateSlotApi({
                     <Form.Control
                       type="text"
                       value={formData.customerFamily}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           customerFamily: e.target.value,
-                        }))
-                      }
+                        }));
+                        if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
+                      }}
                       required
                     />
+                    {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
                   </Form.Group>
                 </Col>
               </Row>
@@ -620,14 +672,16 @@ CreateSlotApi({
                     <Form.Control
                       type="email"
                       value={formData.customerEmail}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           customerEmail: e.target.value,
-                        }))
-                      }
+                        }));
+                        if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
+                      }}
                       required
                     />
+                    {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -636,14 +690,16 @@ CreateSlotApi({
                     <Form.Control
                       type="tel"
                       value={formData.customerPhone}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           customerPhone: e.target.value,
-                        }))
-                      }
+                        }));
+                        if (errors.customerPhone) setErrors((prev: any) => ({ ...prev, customerPhone: undefined }));
+                      }}
                       required
                     />
+                    {errors.customerPhone && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerPhone}</div>}
                   </Form.Group>
                 </Col>
               </Row>
@@ -653,18 +709,20 @@ CreateSlotApi({
                     <Form.Label>Geschlecht</Form.Label>
                     <Form.Select
                       value={formData.sex}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           sex: e.target.value,
-                        }))
-                      }
+                        }));
+                        if (errors.sex) setErrors((prev: any) => ({ ...prev, sex: undefined }));
+                      }}
                       required
                     >
                       <option value="">Bitte wählen</option>
                       <option value="male">Männlich</option>
                       <option value="female">Weiblich</option>
                     </Form.Select>
+                    {errors.sex && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.sex}</div>}
                   </Form.Group>
                 </Col>
               </Row>

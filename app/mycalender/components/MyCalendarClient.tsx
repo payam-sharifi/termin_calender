@@ -426,20 +426,33 @@ export default function MyCalendarClient({
               >
                 Nue Termin
               </button>
-             
+              <button 
+                onClick={() => logout()} 
+                className="btn btn-danger" 
+                
+              >
+                logout
+              </button>
               {Array.isArray(services) &&
                 services.map((service) => (
                   <button
                     key={service.id}
-                    className="btn   position-relative"
-                    style={{backgroundColor:service.color}}
+                    className="btn position-relative"
+                    style={{
+                      backgroundColor: service.color,
+                      fontSize: "10px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "100px"
+                    }}
                     title={service.title}
                     onClick={() => {
                       setSelectedService(service);
                       setIsModalOpen(true);
                     }}
                   >
-                    {service.title}
+                    {service.title.split(' ').length > 2 ? `${service.title.split(' ')[0]}${service.title.split(' ')[1]}...` : service.title}
                     <FaTimes
                       className="position-absolute"
                       style={{
@@ -462,13 +475,7 @@ export default function MyCalendarClient({
                     />
                   </button>
                 ))}
-                 <button 
-                onClick={() => logout()} 
-                className="btn btn-danger" 
-                
-              >
-                logout
-              </button>
+            
             </div>
       
           
