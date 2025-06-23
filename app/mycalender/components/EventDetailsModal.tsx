@@ -46,9 +46,9 @@ export default function EventDetailsModal({
 
 
   const handleDelete = () => {
-   
-    if(event.slotId){
-      mutate({id:event.slotId}
+    if(event.slotId && event.customerPhone){
+      
+      mutate({id:event.slotId,phone:event.customerPhone}
         ,{
           onSuccess: (res) => {
             toast.success(res.message);

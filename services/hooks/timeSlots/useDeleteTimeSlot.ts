@@ -1,5 +1,3 @@
-
-
 import {  DeleteTimeSlotsApi } from "@/services/timeSlotsApi";
 import { useMutation } from "@tanstack/react-query";
 
@@ -7,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useDeleteTimeSlotById = () => {
   return useMutation({
   // queryKey: ["createTimeSlots"],
-    mutationFn: ({id}:{id:string}) => DeleteTimeSlotsApi(id),
+    mutationFn: ({ id, phone }: { id: string; phone: string }) => DeleteTimeSlotsApi(id, phone),
     //refetchInterval: 10_000, // هر ۱۰ ثانیه چک کند
   });
 };

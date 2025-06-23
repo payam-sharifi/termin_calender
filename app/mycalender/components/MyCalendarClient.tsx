@@ -170,13 +170,14 @@ export default function MyCalendarClient({
 
   const moveEvent = useCallback(
     ({ event, start, end }: any) => {
-      const typedEvent = event as Event;
+ 
+      const typedEvent = event as any;
       setEvents((prev) => {
         const existing = prev.find((ev) => ev.id === typedEvent.id);
         if (!existing) return prev;
         const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
         if(existing?.slotId){
-          mutate({id: existing.slotId, start_time: start, end_time: end}
+          mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
             ,{
               onSuccess: (res) => {
                 toast.success(res.message);
@@ -197,13 +198,13 @@ export default function MyCalendarClient({
 
   const resizeEvent = useCallback(
     ({ event, start, end }: any) => {
-      const typedEvent = event as Event;
+      const typedEvent = event as any;
       setEvents((prev) => {
         const existing = prev.find((ev) => ev.id === typedEvent.id);
         if (!existing) return prev;
         const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
       if(existing?.slotId){
-        mutate({id: existing.slotId, start_time: start, end_time: end}
+        mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
           ,{
             onSuccess: (res) => {
               toast.success(res.message);
@@ -362,15 +363,18 @@ export default function MyCalendarClient({
   };
 
   const handleConfirmDelete = useCallback(async () => {
+   
     if (serviceToDelete) {
 
      deleteService(serviceToDelete,{
       onSuccess(res) {
         toast.success("Dienst erfolgreich gelöscht")
+        toast.success(res.message)
        setServiceToDelete(null);
      },onError(res){
       toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält")
-     }
+      toast.error(res.message) 
+    }
     },
   
   

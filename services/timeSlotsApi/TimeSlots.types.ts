@@ -44,6 +44,8 @@ export interface TimeSlotsRqUpdateType {
   id:string
   start_time: string,
   end_time: string,
+  name?:string,
+  phone:string
 }
 export interface ServiceRqType{
   provider_id: string,
