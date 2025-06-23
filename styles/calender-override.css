@@ -17,7 +17,7 @@
   top: 0;
   height: 100%;
   width: 200px;
-  background-color: #ffffff;
+  background-color: #f0f6fb;
   padding: 1rem;
   overflow-y: auto;
   border-right: 1px solid #ccc;
@@ -31,13 +31,29 @@
 .closed {
   transform: translateX(-200%);
 }
+/* Calendar Table and Sidebar Background */
+.calendar-table-bg, .calendar-sidebar-bg {
+  background-color: #f0f6fb !important;
+}
+
+/* Calendar Button (deeper blue) */
+.calendar-btn-deep {
+  background-color: #2563eb !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* Optional: hover effect for button */
+.calendar-btn-deep:hover {
+  background-color: #1746a0 !important;
+}
 
 /* Main content: flexible on desktop, full width on mobile */
 .maincontentcalender {
   flex: 1;
   padding: 1rem;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #f0f6fb;
   display: flex;
   flex-direction: column;
 }
@@ -47,7 +63,7 @@
   margin-left: 200px;
   padding: 1rem;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #f0f6fb;
   display: flex;
   flex-direction: column;
 }

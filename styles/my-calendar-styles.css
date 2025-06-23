@@ -227,4 +227,21 @@
     order: -1;
     margin-bottom: 8px;
   }
+}
+
+/* Calendar Table and Sidebar Background */
+.calendar-table-bg, .calendar-sidebar-bg {
+  background-color: #f0f6fb !important;
+}
+
+/* Calendar Button (deeper blue) */
+.calendar-btn-deep {
+  background-color: #2563eb !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* Optional: hover effect for button */
+.calendar-btn-deep:hover {
+  background-color: #1746a0 !important;
 } 

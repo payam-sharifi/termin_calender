@@ -397,6 +397,7 @@ export default function MyCalendarClient({
             <div
               className="services-list"
               style={{
+                
                 padding: "20px",
                 paddingTop: "40px",
                 maxHeight:'80vh',
@@ -406,7 +407,7 @@ export default function MyCalendarClient({
               }}
             >
            
-              <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#ACD1AF", textDecoration: 'none' }}>
+              <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
               Nue Kunde
               </Link>
 
@@ -416,7 +417,7 @@ export default function MyCalendarClient({
                   setIsNewServiceModalOpen(true);
                 }} 
                 className="btn" 
-                style={{backgroundColor:"#ACD1AF"}}
+                style={{backgroundColor:"#5d81cf"}}
               >
                 Nue Service
               </button>
@@ -426,7 +427,7 @@ export default function MyCalendarClient({
                   setIsNewServiceModalOpen(false);
                   setIsModalOpen(true);
                 }}  
-                style={{backgroundColor:"#ACD1AF"}}
+                style={{backgroundColor:"#5d81cf"}}
               >
                 Nue Termin
               </button>
