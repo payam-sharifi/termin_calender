@@ -244,4 +244,17 @@
 /* Optional: hover effect for button */
 .calendar-btn-deep:hover {
   background-color: #1746a0 !important;
+}
+
+/* Enable vertical scroll for the whole page on mobile */
+@media (max-width: 767px) {
+  html, body, #__next, main, .calendar-main-container {
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+  }
+  /* Remove overflow: hidden on mobile for any container */
+  [style*="overflow: hidden"] {
+    overflow-y: auto !important;
+  }
 } 

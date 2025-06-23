@@ -516,7 +516,9 @@ export default function MyCalendarClient({
                 return date >= today;
               }}
             /> 
-               <div className="h5">{userProfileData?.name}</div>
+               <div className="h5" style={{ fontStyle: "italic", fontFamily: "Times New Roman, Times, serif" }}>
+  {userProfileData?.name}
+</div>
               
             </div>
 
