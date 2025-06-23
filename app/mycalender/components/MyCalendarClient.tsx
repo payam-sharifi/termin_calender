@@ -526,7 +526,7 @@ export default function MyCalendarClient({
               localizer={localizer}
               defaultDate={new Date()}
               min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
-              max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
+              max={new Date(0, 0, 0, 22, 0, 0)} // 6:00 PM
               formats={formats}
               events={events}
               startAccessor={(event: any) => new Date(event.start)}

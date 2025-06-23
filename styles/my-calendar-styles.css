@@ -1,7 +1,9 @@
 /* General Container for Google Calendar-like appearance */
 .my-calendar-container {
   font-family: 'Google Sans', Arial, sans-serif;
-  background: #fff;
+  background: #5d81cf;
+  
+  max-height: 80vh;
   border-radius: 8px;
   box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   padding: 16px;
