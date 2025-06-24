@@ -27,7 +27,7 @@ export interface UserRsDataType {
 }
 
 export interface CreateUserRqDataType {
-  email: string;
+  email?: string | null;
   family: string;
   is_verified: boolean;
   name: string;
@@ -37,7 +37,9 @@ export interface CreateUserRqDataType {
   sex: string;
 }
 
-
+export interface UpdateUserRqDataType extends Partial<CreateUserRqDataType> {
+  id: string;
+}
 
 export type getAllUserRsDataType = {
   success: boolean;
@@ -46,6 +48,12 @@ export type getAllUserRsDataType = {
 };
 
 export type UserProfileRsDataType = {
+  success: boolean;
+  data: UserRsDataType
+  message: string;
+};
+
+export type UserCreateRsDataType = {
   success: boolean;
   data: UserRsDataType
   message: string;

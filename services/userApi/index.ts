@@ -2,7 +2,9 @@ import { promises } from "dns";
 import api from "../axiosConfig";
 import {
   CreateUserRqDataType,
+  UpdateUserRqDataType,
   getAllUserRsDataType,
+  UserCreateRsDataType,
   UserProfileRsDataType,
   UserRsDataType,
 } from "./user.types";
@@ -35,11 +37,18 @@ export const getOneUser = async ({
 
 
 //تایپش باید درست شود
-export const createUser = async (userData: CreateUserRqDataType) => {
+export const createUser = async (userData: CreateUserRqDataType): Promise<UserCreateRsDataType> => {
   const response = await api.post(`user`, userData);
   return response.data;
 };
 
+export const updateUser = async (
+  body: UpdateUserRqDataType
+): Promise<ResponseType> => {
+  const { id, ...data } = body;
+  const response = await api.put(`user/${id}`, data);
+  return response.data;
+};
 
 export const deleteUserById = async ({id}:{id:string}): Promise<ResponseType> => {
   const response = await api.delete(`user/${id}`,);

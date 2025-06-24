@@ -77,8 +77,8 @@ const handleLogin = async (e: React.FormEvent) => {
     { phone, password },
     {
       onSuccess: (res) => {
-        toast.success(res.message);
-        jwtToken(res.data)
+          toast.success(res.message);
+          jwtToken(res.data)
       },
       onError: (error: any) => {
         toast.error("Login fehlgeschlagen");
@@ -121,8 +121,8 @@ const handleVerifyCode = async (e: React.FormEvent) => {
     { phone, code },
     {
       onSuccess: (res) => {
-        toast.success(res.message);
-        jwtToken(res.data)
+          toast.success(res.message);
+          jwtToken(res.data)
       },
       onError: (error: any) => {
         toast.error( "Login fehlgeschlagen");
@@ -178,134 +178,134 @@ const isPasswordValid = password.length > 0;
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
         <div style={{ maxWidth: 400, width: '100%', background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.08)', padding: 32, margin: '40px 0' }}>
           <h2 className="text-center" style={{ fontWeight: 600, fontSize: 32, marginBottom: 32 }}>Login</h2>
-          <div style={{ display: 'flex', marginBottom: 24 }}>
-            <button
-              type="button"
-              className={`btn btn-light w-50${loginMethod === 'password' ? ' active' : ''}`}
+      <div style={{ display: 'flex', marginBottom: 24 }}>
+        <button
+          type="button"
+          className={`btn btn-light w-50${loginMethod === 'password' ? ' active' : ''}`}
               style={{ borderBottom: loginMethod === 'password' ? '2px solid #2563eb' : '1px solid #e5e7eb', borderRadius: '8px 0 0 8px', background: loginMethod === 'password' ? '#f1f5f9' : '#fff', color: '#0f172a', fontWeight: 500, fontSize: 16 }}
-              onClick={() => handleTabChange('password')}
-            >
-              Passwort
-            </button>
-            <button
-              type="button"
-              className={`btn btn-light w-50${loginMethod === 'sms' ? ' active' : ''}`}
+          onClick={() => handleTabChange('password')}
+        >
+          Passwort
+        </button>
+        <button
+          type="button"
+          className={`btn btn-light w-50${loginMethod === 'sms' ? ' active' : ''}`}
               style={{ borderBottom: loginMethod === 'sms' ? '2px solid #2563eb' : '1px solid #e5e7eb', borderRadius: '0 8px 8px 0', background: loginMethod === 'sms' ? '#f1f5f9' : '#fff', color: '#0f172a', fontWeight: 500, fontSize: 16 }}
-              onClick={() => handleTabChange('sms')}
-            >
-              SMS
-            </button>
-          </div>
-          {loginMethod === 'password' && (
+          onClick={() => handleTabChange('sms')}
+        >
+          SMS
+        </button>
+      </div>
+      {loginMethod === 'password' && (
             <form onSubmit={handleLogin} autoComplete="off">
-              <div className="mb-3">
+          <div className="mb-3">
                 <label htmlFor="phone" className="form-label" style={{ fontWeight: 500 }}>Phone</label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  id="phone"
-                  value={phone}
-                  onChange={e => {
-                    let val = e.target.value.replace(/^0+/, '');
-                    if (!val.startsWith('+49')) {
-                      val = '+49' + val.replace(/^\+*/, '');
-                    }
-                    setPhone(val);
+            <input
+              type="tel"
+              className="form-control"
+              id="phone"
+              value={phone}
+              onChange={e => {
+                let val = e.target.value.replace(/^0+/, '');
+                if (!val.startsWith('+49')) {
+                  val = '+49' + val.replace(/^\+*/, '');
+                }
+                setPhone(val);
                     clearFieldError('phone');
-                  }}
-                  required
+              }}
+              required
                   style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
-                />
+            />
                 {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
-              </div>
-              <div className="mb-3">
+          </div>
+          <div className="mb-3">
                 <label htmlFor="password" className="form-label" style={{ fontWeight: 500 }}>Passwort</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  value={password}
+            <input
+              type="password"
+              className="form-control"
+              id="password"
+              value={password}
                   onChange={e => { setPassword(e.target.value); clearFieldError('password'); }}
-                  required
+              required
                   style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
-                />
+            />
                 {fieldErrors.password && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.password}</div>}
-              </div>
+          </div>
               <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPhoneValid || !isPasswordValid} style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
-                {loading ? 'Einloggen...' : 'Login'}
-              </button>
-            </form>
-          )}
-          {loginMethod === 'sms' && (
+            {loading ? 'Einloggen...' : 'Login'}
+          </button>
+        </form>
+      )}
+      {loginMethod === 'sms' && (
             <form onSubmit={codeSent ? handleVerifyCode : handleSendCode} autoComplete="off">
-              <div className="mb-3">
+          <div className="mb-3">
                 <label htmlFor="phone" className="form-label" style={{ fontWeight: 500 }}>Phone</label>
-                <input
-                  type="tel"
-                  className="form-control"
-                  id="phone"
-                  value={phone}
-                  onChange={e => {
-                    let val = e.target.value.replace(/^0+/, '');
-                    if (!val.startsWith('+49')) {
-                      val = '+49' + val.replace(/^\+*/, '');
-                    }
-                    setPhone(val);
+            <input
+              type="tel"
+              className="form-control"
+              id="phone"
+              value={phone}
+              onChange={e => {
+                let val = e.target.value.replace(/^0+/, '');
+                if (!val.startsWith('+49')) {
+                  val = '+49' + val.replace(/^\+*/, '');
+                }
+                setPhone(val);
                     clearFieldError('phone');
-                  }}
-                  required
-                  disabled={codeSent}
+              }}
+              required
+              disabled={codeSent}
                   style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
-                />
+            />
                 {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
-              </div>
-              {!codeSent && (
+          </div>
+          {!codeSent && (
                 <button type="submit" className="btn btn-primary w-100" 
                   disabled={loading || !isPhoneValid}
                   style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
-                  {loading ? 'Sende Code...' : 'Code per SMS senden'}
-                </button>
-              )}
-              {codeSent && (
-                <>
-                  <div className="mb-3 d-flex justify-content-center" style={{ gap: 8 }}>
-                    {[0, 1, 2, 3].map(i => (
-                      <input
-                        key={i}
-                        id={`code-digit-${i}`}
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete={i === 0 ? "one-time-code" : undefined}
-                        maxLength={1}
-                        className="form-control text-center"
+              {loading ? 'Sende Code...' : 'Code per SMS senden'}
+            </button>
+          )}
+          {codeSent && (
+            <>
+              <div className="mb-3 d-flex justify-content-center" style={{ gap: 8 }}>
+                {[0, 1, 2, 3].map(i => (
+                  <input
+                    key={i}
+                    id={`code-digit-${i}`}
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete={i === 0 ? "one-time-code" : undefined}
+                    maxLength={1}
+                    className="form-control text-center"
                         style={{ width: 48, fontSize: 24, borderRadius: 8, border: '1px solid #e5e7eb' }}
-                        value={codeDigits[i]}
+                    value={codeDigits[i]}
                         onChange={e => { handleCodeChange(i, e.target.value); clearFieldError('code'); }}
-                        onPaste={handleCodePaste}
-                        required
-                        disabled={loading}
-                      />
-                    ))}
-                  </div>
+                    onPaste={handleCodePaste}
+                    required
+                    disabled={loading}
+                  />
+                ))}
+              </div>
                   {fieldErrors.code && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4, textAlign: 'center' }}>{fieldErrors.code}</div>}
                   <button type="submit" className="btn btn-primary w-100" disabled={loading} style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
-                    {loading ? 'Überprüfe...' : 'Code überprüfen'}
-                  </button>
-                  <div className="mt-2 text-center">
-                    <button
-                      type="button"
-                      className="btn btn-link"
-                      onClick={handleSendCode}
-                      disabled={loading}
+                {loading ? 'Überprüfe...' : 'Code überprüfen'}
+              </button>
+              <div className="mt-2 text-center">
+                <button
+                  type="button"
+                  className="btn btn-link"
+                  onClick={handleSendCode}
+                  disabled={loading}
                       style={{ color: '#2563eb', fontWeight: 500, textDecoration: 'underline', background: 'none', border: 'none', padding: 0, fontSize: 15 }}
-                    >
-                      Code erneut senden
-                    </button>
-                  </div>
-                </>
-              )}
-            </form>
+                >
+                  Code erneut senden
+                </button>
+              </div>
+            </>
           )}
+        </form>
+      )}
           <div className="mt-3 text-center" style={{ fontSize: 15 }}>
             Noch kein Konto? <Link href="/auth/register" style={{ color: '#2563eb', fontWeight: 500, textDecoration: 'underline' }}>Registrieren</Link>
           </div>

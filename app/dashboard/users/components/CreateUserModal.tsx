@@ -21,8 +21,8 @@ export default function CreateUserModal({
 }: CreateUserModalProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof CreateUserRqDataType, string>>>({});
   const [roleSearch, setRoleSearch] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [repeatPasswordError, setRepeatPasswordError] = useState("");
+  // const [repeatPassword, setRepeatPassword] = useState("");
+  // const [repeatPasswordError, setRepeatPasswordError] = useState("");
 
   const filteredRoles = useMemo(() => {
     return Object.values(ROLE).filter(role => 
@@ -60,27 +60,31 @@ export default function CreateUserModal({
     const newErrors: Partial<Record<keyof CreateUserRqDataType, string>> = {};
     if (!newUser.name) newErrors.name = "Name ist erforderlich.";
     if (!newUser.family) newErrors.family = "Nachname ist erforderlich.";
-    if (!newUser.email) {
-      newErrors.email = "E-Mail ist erforderlich.";
-    } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
+    // if (!newUser.email) {
+    //   newErrors.email = "E-Mail ist erforderlich.";
+    // } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
+    //   newErrors.email = "E-Mail ist ungültig.";
+    // }
+    if (newUser?.email && !/\S+@\S+\.\S+/.test(newUser.email)) {
       newErrors.email = "E-Mail ist ungültig.";
     }
+
     if (!newUser.phone || newUser.phone === "+49") {
       newErrors.phone = "Telefon ist erforderlich.";
     }
-    if (!newUser.password) newErrors.password = "Passwort ist erforderlich.";
-    if (newUser.password && newUser.password.length < 6) newErrors.password = "Das Passwort muss mindestens 6 Zeichen lang sein.";
+    // if (!newUser.password) newErrors.password = "Passwort ist erforderlich.";
+    // if (newUser.password && newUser.password.length < 6) newErrors.password = "Das Passwort muss mindestens 6 Zeichen lang sein.";
     if (newUser.sex === "") newErrors.sex = "Geschlecht ist erforderlich.";
     if (newUser.role === "") newErrors.role = "Rolle ist erforderlich.";
-    if (!repeatPassword) {
-      setRepeatPasswordError("Passwort wiederholen ist erforderlich.");
-      return false;
-    } else if (newUser.password !== repeatPassword) {
-      setRepeatPasswordError("Passwörter stimmen nicht überein.");
-      return false;
-    } else {
-      setRepeatPasswordError("");
-    }
+    // if (!repeatPassword) {
+    //   setRepeatPasswordError("Passwort wiederholen ist erforderlich.");
+    //   return false;
+    // } else if (newUser.password !== repeatPassword) {
+    //   setRepeatPasswordError("Passwörter stimmen nicht überein.");
+    //   return false;
+    // } else {
+    //   setRepeatPasswordError("");
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -152,7 +156,7 @@ export default function CreateUserModal({
                 <Form.Label>E-Mail</Form.Label>
                 <Form.Control
                   type="email"
-                  value={newUser.email}
+                  value={newUser.email ?? ''}
                   onChange={(e) => handleFieldChange('email', e.target.value)}
                   isInvalid={!!errors.email}
                   required
@@ -172,7 +176,7 @@ export default function CreateUserModal({
               </Form.Group>
             </Col>
             <Col md={6}>
-              <Form.Group className="mb-1">
+              {/* <Form.Group className="mb-1">
                 <Form.Label>Passwort</Form.Label>
                 <Form.Control
                   type="password"
@@ -194,7 +198,7 @@ export default function CreateUserModal({
                   isInvalid={!!repeatPasswordError}
                 />
                 <Form.Control.Feedback type="invalid">{repeatPasswordError}</Form.Control.Feedback>
-              </Form.Group>
+              </Form.Group> */}
               <Form.Group className="mb-1">
                 <Form.Label>Geschlecht</Form.Label>
                 <Form.Select

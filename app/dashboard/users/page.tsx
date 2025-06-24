@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
 import { useCreateUser } from "@/services/hooks/user/useCreateUser";
+import { useUpdateUser } from "@/services/hooks/user/useUpdateUser";
 import { useDebounce } from "@/hooks/useDebounce";
 import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
 import { toast } from "react-toastify";
@@ -21,7 +22,7 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const limit = 10;
-  const { data, isLoading } = useGetUsers(debouncedSearchTerm, limit, page);
+  const { data, isLoading,refetch} = useGetUsers(debouncedSearchTerm, limit, page);
   const users = data?.data || [];
   
   // Modal states
@@ -39,13 +40,14 @@ export default function UsersPage() {
     phone: "",
     sex: "",
     role: "",
-    is_verified: false,
+    is_verified: true,
     password: "",
   });
 
   // API hooks
   const { mutate: deleteMutated } = useDeleteUserById();
   const { mutate: createMutated } = useCreateUser();
+  const { mutate: updateMutated } = useUpdateUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function UsersPage() {
       phone: "",
       sex: "",
       role: "",
-      is_verified: false,
+      is_verified: true,
       password: "",
     });
   };
@@ -84,17 +86,46 @@ export default function UsersPage() {
       ...newUser,
       sex: newUser.sex as SEX,
       role: newUser.role as ROLE,
+      password: "1234567",
     };
+
+    // Conditionally remove email if it's empty
+    if (!newUser.email) {
+      delete (payload as Partial<typeof payload>).email;
+    }
 
     createMutated(payload, {
       onSuccess: (res: any) => {
         toast.success(res.message);
         queryClient.invalidateQueries({ queryKey: ["users"] });
+         refetch()
         handleNewUserClose();
       },
       onError: (error: any) => {
         toast.error("Möglicherweise gibt es einen Kunden mit dieser E-Mail-Adresse oder Nummer.");
         console.error("Error creating user:", error);
+      },
+    });
+  };
+
+  const handleSaveUser = (user: UserRsDataType) => {
+    const { id, created_at, updated_at, service, ...rest } = user;
+    const payload = { id, ...rest };
+    
+    if (!payload.email) {
+      delete (payload as any).email;
+    }
+
+    updateMutated(payload, {
+      onSuccess: (res: any) => {
+        toast.success(res.message);
+        queryClient.invalidateQueries({ queryKey: ["users"] });
+        refetch();
+        handleClose();
+      },
+      onError: (error: any) => {
+        toast.error("Error updating user.");
+        console.error("Error updating user:", error);
       },
     });
   };
@@ -165,6 +196,7 @@ export default function UsersPage() {
         onHide={handleClose}
         user={selectedUser}
         onDelete={handleDeleteClick}
+        onSave={handleSaveUser}
       />
 
       <CreateUserModal

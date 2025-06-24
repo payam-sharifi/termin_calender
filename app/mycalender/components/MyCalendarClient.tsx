@@ -515,7 +515,7 @@ export default function MyCalendarClient({
                 today.setHours(0, 0, 0, 0);
                 return date >= today;
               }}
-            /> 
+            />
                <div className="h5" style={{ fontStyle: "italic", fontFamily: "Times New Roman, Times, serif" }}>
   {userProfileData?.name}
 </div>

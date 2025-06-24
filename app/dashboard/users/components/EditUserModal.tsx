@@ -58,9 +58,7 @@ export default function EditUserModal({
     const newErrors: Partial<Record<keyof UserRsDataType, string>> = {};
     if (!editUser?.name) newErrors.name = "Name ist erforderlich.";
     if (!editUser?.family) newErrors.family = "Nachname ist erforderlich.";
-    if (!editUser?.email) {
-      newErrors.email = "E-Mail ist erforderlich.";
-    } else if (!/\S+@\S+\.\S+/.test(editUser.email)) {
+    if (editUser?.email && !/\S+@\S+\.\S+/.test(editUser.email)) {
       newErrors.email = "E-Mail ist ungültig.";
     }
     if (!editUser?.phone || editUser.phone === "+49") {
@@ -73,6 +71,7 @@ export default function EditUserModal({
   };
 
   const handleSave = () => {
+  
     if (validate() && onSave && editUser) {
       onSave(editUser);
       onHide();
@@ -133,7 +132,8 @@ export default function EditUserModal({
                 <Form.Label>E-Mail</Form.Label>
                 <Form.Control
                   type="email"
-                  value={editUser.email}
+                
+                  value={editUser.email ?? ''}
                   onChange={e => handleFieldChange("email", e.target.value)}
                   isInvalid={!!errors.email}
                   required

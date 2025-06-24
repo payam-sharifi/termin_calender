@@ -4,6 +4,7 @@
   background: #5d81cf;
   
   max-height: 80vh;
+ 
   border-radius: 8px;
   box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   padding: 16px;
@@ -11,6 +12,7 @@
 
 .my-calendar-container h1 {
   margin-bottom: 24px;
+  
   font-size: 2rem;
   text-align: left;
   padding-left: 16px;
