@@ -10,11 +10,11 @@ import { useDeleteUserById } from "@/services/hooks/user/useDeleteUserById";
 import { useCreateUser } from "@/services/hooks/user/useCreateUser";
 import { useUpdateUser } from "@/services/hooks/user/useUpdateUser";
 import { useDebounce } from "@/hooks/useDebounce";
-import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
 import { toast } from "react-toastify";
 import UsersTable from "./components/UsersTable";
 import EditUserModal from "./components/EditUserModal";
 import CreateUserModal from "./components/CreateUserModal";
+import SafeDeleteModal from "@/components/SafeDeleteModal";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();

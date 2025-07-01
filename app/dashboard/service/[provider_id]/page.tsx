@@ -4,7 +4,7 @@ import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetSer
 import { use, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
-import MyCalendarClient from "@/app/mycalender/components/MyCalendarClient";
+import MyCalendarClient from "@/components/MyCalendarClient";
 
 export default function ServicePage({
   params,
