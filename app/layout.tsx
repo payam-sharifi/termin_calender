@@ -36,13 +36,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <style jsx global>{`
+          html, body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          @media (max-width: 768px) {
+            html, body {
+              overflow-x: hidden;
+              overflow-y: auto;
+              -webkit-overflow-scrolling: touch;
+            }
+          }
+        `}</style>
+      </head>
       <body style={{
         minHeight: '100vh',
         width: '100vw',
         position: 'relative',
         fontFamily: 'Inter, system-ui, sans-serif',
         background: 'linear-gradient(120deg, #e0f2fe 0%, #f8fafc 100%)',
-        overflow: 'hidden'
+        overflow: 'auto'
       }}>
         {/* Abstract SVG background */}
         <svg width="100%" height="100%" style={{
