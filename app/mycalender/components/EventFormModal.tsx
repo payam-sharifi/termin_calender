@@ -19,6 +19,7 @@ import "moment/locale/de";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { toast } from "react-toastify";
 import React from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
 moment.locale("de");
 
@@ -73,11 +74,17 @@ export default function EventFormModal({
   const queryClient = useQueryClient();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
   
-  const { data: customersList, isLoading } = useGetUsers(searchTerm, 5, currentPage, "Customer");
+  const { data: customersList, isLoading } = useGetUsers(
+    debouncedSearchTerm.length >= 3 ? debouncedSearchTerm : "",
+    5,
+    currentPage,
+    "Customer"
+  );
 
   const {
     mutate: CreateSlotApi,
@@ -383,9 +390,28 @@ CreateSlotApi({
     return "";
   };
 
+  // Helper to reset user fields
+  const resetUserFields = () => {
+    setFormData((prev) => ({
+      ...prev,
+      customerName: "",
+      customerFamily: "",
+      customerEmail: "",
+      customerPhone: "",
+      customer_id: "",
+      sex: "",
+    }));
+  };
+
+  // Wrap onClose to reset user fields
+  const handleModalClose = () => {
+    resetUserFields();
+    onClose();
+  };
+
   return (
     <>
-      <Modal show={isOpen} onHide={onClose} size="lg" centered>
+      <Modal show={isOpen} onHide={handleModalClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
             {isNewServiceModal ? "Neuer Service" : "Neuer Termin"}
@@ -756,7 +782,7 @@ CreateSlotApi({
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleModalClose}>
             Abbrechen
           </Button>
           <Button

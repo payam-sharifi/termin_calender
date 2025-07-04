@@ -22,7 +22,11 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const limit = 10;
-  const { data, isLoading,refetch} = useGetUsers(debouncedSearchTerm, limit, page);
+  const { data, isLoading,refetch} = useGetUsers(
+    debouncedSearchTerm.length >= 3 ? debouncedSearchTerm : "",
+    limit,
+    page
+  );
   const users = data?.data || [];
   
   // Modal states
