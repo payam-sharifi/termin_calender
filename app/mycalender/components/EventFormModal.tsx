@@ -221,9 +221,9 @@ export default function EventFormModal({
     if (!formData.start) newErrors.start = "Startzeit ist erforderlich.";
     if (!formData.end) newErrors.end = "Endzeit ist erforderlich.";
     if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
-    if (!formData.customerFamily) newErrors.customerFamily = "Nachname ist erforderlich.";
-    if (!formData.customerEmail) newErrors.customerEmail = "E-Mail ist erforderlich.";
-    else if (!isValidEmail(formData.customerEmail)) newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+    if (formData.customerEmail && !isValidEmail(formData.customerEmail)) {
+      newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+    }
     if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
     else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
     if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
@@ -677,7 +677,7 @@ CreateSlotApi({
                     <Form.Label>Nachname</Form.Label>
                     <Form.Control
                       type="text"
-                      value={formData.customerFamily}
+                      value={formData.customerFamily ?? ""}
                       onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
@@ -685,7 +685,6 @@ CreateSlotApi({
                         }));
                         if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
                       }}
-                      required
                     />
                     {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
                   </Form.Group>
@@ -697,7 +696,7 @@ CreateSlotApi({
                     <Form.Label>E-Mail</Form.Label>
                     <Form.Control
                       type="email"
-                      value={formData.customerEmail}
+                      value={formData.customerEmail ?? ""}
                       onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
@@ -705,7 +704,6 @@ CreateSlotApi({
                         }));
                         if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
                       }}
-                      required
                     />
                     {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
                   </Form.Group>
