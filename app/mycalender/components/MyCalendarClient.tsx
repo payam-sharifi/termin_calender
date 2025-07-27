@@ -408,19 +408,13 @@ export default function MyCalendarClient({
             >
            
               <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
-              Nue Kunde
+               Kunden
+              </Link>
+              <Link href={`/dashboard/services/${provider_id}`} className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
+              Dienste
               </Link>
 
-              <button 
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setIsNewServiceModalOpen(true);
-                }} 
-                className="btn" 
-                style={{backgroundColor:"#5d81cf"}}
-              >
-                Nue Service
-              </button>
+            
               <button 
                 className="btn" 
                 onClick={() => {
@@ -438,7 +432,7 @@ export default function MyCalendarClient({
               >
                 logout
               </button>
-              {Array.isArray(services) &&
+              {/* {Array.isArray(services) &&
                 services.map((service) => (
                   <button
                     key={service.id}
@@ -479,7 +473,7 @@ export default function MyCalendarClient({
                       }}
                     />
                   </button>
-                ))}
+                ))} */}
             
             </div>
       

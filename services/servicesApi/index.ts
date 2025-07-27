@@ -11,8 +11,8 @@ export const getServicesByPrividerId = async (
 
 
 
-export const getAllServices = async (): Promise<ServiceRsDataType> => {
-  const response = await api.get(`service`);
+export const getAllServices = async (provide_id: string): Promise<ServiceRsDataType> => {
+  const response = await api.get(`service/${provide_id}`);
   return response.data;
 };
 
@@ -25,5 +25,10 @@ export const createNewServiceByProviderId = async (body:createNewService) => {
 
 export const deleteServiceById = async (serviceId: string) => {
   const response = await api.delete(`service/${serviceId}`);
+  return response.data;
+};
+
+export const updateServiceById = async (serviceId: string, body: Partial<createNewService>) => {
+  const response = await api.put(`service/${serviceId}`, body);
   return response.data;
 };

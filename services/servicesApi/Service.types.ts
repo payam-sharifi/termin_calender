@@ -21,7 +21,7 @@ export interface serviceType {
   id: string,
   provider_id: string,
   title: string,
-  providerName: string,
+  user: User,
   duration: number,
   price: number,
   color:string,

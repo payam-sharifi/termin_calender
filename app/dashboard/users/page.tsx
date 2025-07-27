@@ -114,7 +114,7 @@ export default function UsersPage() {
 
   const handleSaveUser = (user: UserRsDataType) => {
     const { id, created_at, updated_at, service, ...rest } = user;
-    const payload = { id, ...rest };
+    const payload = { id, ...rest,password:'1234567' };
     
     if (!payload.email) {
       delete (payload as any).email;

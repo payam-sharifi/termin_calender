@@ -18,7 +18,7 @@ const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
     data: onlyServiceData,
     isError: onlyServiceError,
     isLoading: onlyServiceLoading,
-  } = useGetAllServices();
+  } = useGetAllServices(provider_id);
 
   const {
     mutate: GetServices,
@@ -75,7 +75,7 @@ setDateSizeChange(false)
           id: service.id,
           provider_id: service.provider_id,
           name: service.title,
-          providerName: service.providerName,
+          providerName: service.user?.name || '',
           duration: service.duration,
           price: service.price,
           description: service.description,
