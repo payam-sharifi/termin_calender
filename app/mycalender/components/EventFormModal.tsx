@@ -225,8 +225,18 @@ export default function EventFormModal({
       newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
     }
     if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
-    else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
+   // else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
     if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
+
+    // Ensure end time is after start time
+    if (formData.start && formData.end) {
+      const startTimeMs = new Date(formData.start).getTime();
+      const endTimeMs = new Date(formData.end).getTime();
+      if (endTimeMs <= startTimeMs) {
+        newErrors.end = "Endzeit muss nach der Startzeit liegen.";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
