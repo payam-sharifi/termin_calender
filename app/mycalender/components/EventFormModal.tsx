@@ -613,7 +613,13 @@ CreateSlotApi({
                     <DatePicker
                       selected={formData.start}
                       onChange={(date: Date | null) => {
-                        if (date) setFormData((prev) => ({ ...prev, start: date }));
+                        if (date) {
+                          setFormData((prev) => {
+                            const newStart = date;
+                            const newEnd = new Date(newStart.getTime() + (formData.service?.duration || 30) * 60000);
+                            return { ...prev, start: newStart, end: newEnd };
+                          });
+                        }
                         if (errors.start) setErrors((prev: any) => ({ ...prev, start: undefined }));
                       }}
                       showTimeSelect
