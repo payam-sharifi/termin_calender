@@ -58,6 +58,7 @@ interface EventFormModalProps {
   initialData?: Event | null;
   provider_id: string;
   isNewServiceModal?: boolean;
+  checkConflict?: (eventData: any) => boolean;
 }
 
 export default function EventFormModal({
@@ -70,6 +71,7 @@ export default function EventFormModal({
   initialData,
   provider_id,
   isNewServiceModal = false,
+  checkConflict,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -78,6 +80,7 @@ export default function EventFormModal({
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
+  const [hasConflict, setHasConflict] = useState(false);
   
   const { data: customersList, isLoading } = useGetUsers(
     debouncedSearchTerm.length >= 3 ? debouncedSearchTerm : "",
@@ -249,10 +252,31 @@ export default function EventFormModal({
     // eslint-disable-next-line
   }, []);
 
+  // Function to check for conflicts and update state
+  const checkForConflicts = () => {
+    if (checkConflict && formData.start && formData.end) {
+      const conflict = checkConflict(formData);
+      setHasConflict(conflict);
+    } else {
+      setHasConflict(false);
+    }
+  };
+
+  // Check for conflicts whenever start or end time changes
+  useEffect(() => {
+    checkForConflicts();
+  }, [formData.start, formData.end, checkConflict]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     console.log(formData,"formData")
+    
+    // Check for conflicts before making API call
+    if (hasConflict) {
+      return; // Don't proceed with creating the appointment
+    }
+    
     try {
 CreateSlotApi({
     name:formData.customerName,
@@ -621,6 +645,7 @@ CreateSlotApi({
                           });
                         }
                         if (errors.start) setErrors((prev: any) => ({ ...prev, start: undefined }));
+                        setHasConflict(false); // Clear conflict when time changes
                       }}
                       showTimeSelect
                       timeFormat="HH:mm"
@@ -644,6 +669,7 @@ CreateSlotApi({
                       onChange={(date: Date | null) => {
                         if (date) setFormData((prev) => ({ ...prev, end: date }));
                         if (errors.end) setErrors((prev: any) => ({ ...prev, end: undefined }));
+                        setHasConflict(false); // Clear conflict when time changes
                       }}
                       showTimeSelect
                       timeFormat="HH:mm"
@@ -657,6 +683,7 @@ CreateSlotApi({
                       required
                     />
                     {errors.end && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.end}</div>}
+                    {hasConflict && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4, fontWeight: 'bold'}}>⚠️ Termin-Konflikt: Es gibt bereits einen Termin in diesem Zeitraum!</div>}
                   </Form.Group>
                 </Col>
               </Row>

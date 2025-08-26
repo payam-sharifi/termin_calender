@@ -81,6 +81,8 @@ export default function RootLayout({
         pauseOnHover
         draggable
         theme="colored"
+        style={{ zIndex: 9999 }}
+        toastStyle={{ zIndex: 9999 }}
       />
         </QueryClientProvider>
         </div>

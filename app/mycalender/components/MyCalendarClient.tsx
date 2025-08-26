@@ -141,6 +141,25 @@ export default function MyCalendarClient({
     setIsModalOpen(true);
   }, []);
 
+  // Conflict check function
+  const checkConflict = useCallback((eventData: any) => {
+    return events.some((existingEvent) => {
+      // Skip the current event if we're editing
+      if (isEditMode && selectedEvent && existingEvent.id === selectedEvent.id) {
+        return false;
+      }
+      
+      const newStart = new Date(eventData.start);
+      const newEnd = new Date(eventData.end);
+      const existingStart = new Date(existingEvent.start);
+      const existingEnd = new Date(existingEvent.end);
+      
+      // Check if the new event overlaps with existing event
+      // Overlap occurs when: newStart < existingEnd AND newEnd > existingStart
+      return newStart < existingEnd && newEnd > existingStart;
+    });
+  }, [events, isEditMode, selectedEvent]);
+
   const handleEventSubmit = useCallback(
     async (eventData: any) => {
       try {
@@ -163,7 +182,9 @@ export default function MyCalendarClient({
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
-      } catch (error) {}
+      } catch (error) {
+        toast.error("Fehler beim Erstellen des Termins");
+      }
     },
     [isEditMode, selectedEvent]
   );
@@ -608,6 +629,7 @@ export default function MyCalendarClient({
         selectedService={selectedService || undefined}
         services={services}
         provider_id={provider_id}
+        checkConflict={checkConflict}
         initialData={
           isEditMode
             ? selectedEvent === null
