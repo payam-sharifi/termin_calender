@@ -254,7 +254,8 @@ export default function MyCalendarClient({
   
     return {
       style: {
-        backgroundColor: event.color || "#4a90e2", 
+       // backgroundColor: event.color || "#4a90e2", 
+       backgroundColor:  "#4a90e2", 
         borderRadius: "4px",
         opacity: 0.8,
         color: "white",
@@ -351,32 +352,82 @@ export default function MyCalendarClient({
       if (currentView === Views.DAY) {
         return (
           <div
-            className="d-flex justify-content-start align-items-center"
+            className="d-flex flex-column justify-content-start"
             style={{ 
-              padding: "1px 3px", 
-              minHeight: "20px",
-              fontSize: "10px",
-              lineHeight: "1.1",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              width: "100%"
+              padding: "2px 4px", 
+              minHeight: "50px",
+              fontSize: "12px",
+              lineHeight: "1.2",
+              width: "100%",
+              height: "100%"
             }}
           >
-            <span style={{ fontWeight: "bold", marginRight: "4px", flexShrink: 0 }}>
-              {localizer.format(typedEvent.start, "HH:mm")}-{localizer.format(typedEvent.end, "HH:mm")}
-            </span>
-            <span style={{ fontWeight: "600", marginRight: "3px", flexShrink: 0 }}>
-              {typedEvent.title}
-            </span>
-            <span style={{ marginRight: "3px", flexShrink: 0 }}>
-              {typedEvent.customerName} {typedEvent.customerFamily}
-            </span>
-            {typedEvent.description && (
-              <span style={{ fontStyle: "italic", flexShrink: 0 }}>
-                -{typedEvent.description}
-              </span>
-            )}
+            {/* Time on the left side */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "flex-start", 
+              alignItems: "center",
+              marginBottom: "2px"
+            }}>
+              {/* <span style={{ 
+                fontWeight: "bold", 
+                fontSize: "11px",
+                color: "rgba(255,255,255,0.9)"
+              }}>
+                {localizer.format(typedEvent.start, "HH:mm")}-{localizer.format(typedEvent.end, "HH:mm")}
+              </span> */}
+            </div>
+            
+            {/* Event details below */}
+            <div style={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              justifyContent: "flex-start",
+              flex: 1
+            }}>
+              <div style={{ 
+                fontWeight: "600", 
+                fontSize: "15px",
+                marginBottom: "4px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }}>
+                 {typedEvent.customerName} {typedEvent.customerFamily}
+            
+              </div>
+                              <div style={{ 
+                  fontSize: "15px",
+                  marginBottom: "1px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                  <div style={{
+                    width: "16px",
+                    height: "16px",
+                    backgroundColor: typedEvent.service?.color || "red",
+                    borderRadius: "50%",
+                    border: "2px solid white",
+                    flexShrink: 0
+                  }}></div>
+                  {typedEvent.title}
+                </div>
+              {typedEvent.description && (
+                <div style={{ 
+                  fontSize: "10px",
+                  fontStyle: "italic",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                }}>
+                  {typedEvent.description}
+                </div>
+              )}
+            </div>
           </div>
         );
       }
@@ -384,9 +435,9 @@ export default function MyCalendarClient({
       // Simple display for other views
       return (
         <div style={{ 
-          padding: "1px 3px", 
-          fontSize: "10px",
-          minHeight: "18px",
+          padding: "2px 4px", 
+          fontSize: "12px",
+          minHeight: "25px",
           display: "flex",
           alignItems: "center",
           whiteSpace: "nowrap",

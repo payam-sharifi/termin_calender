@@ -88,3 +88,30 @@
     height: 100% !important;
   }
 }
+
+/* Increase height of time slots */
+.rbc-time-slot {
+  height: 60px !important; /* Increase from default ~30px to 60px */
+  min-height: 60px !important;
+}
+
+.rbc-time-content {
+  min-height: 60px !important;
+}
+
+.rbc-time-gutter .rbc-timeslot-group {
+  height: 60px !important;
+}
+
+.rbc-time-view .rbc-time-gutter .rbc-timeslot-group {
+  height: 60px !important;
+}
+
+.rbc-time-view .rbc-time-content .rbc-timeslot-group {
+  height: 60px !important;
+}
+
+/* Ensure events can expand to fill the taller slots */
+.rbc-time-view .rbc-event {
+  min-height: 50px !important;
+}
