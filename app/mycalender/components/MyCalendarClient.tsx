@@ -330,31 +330,55 @@ export default function MyCalendarClient({
       if (currentView === Views.DAY) {
         return (
           <div
-            className="d-flex  justify-content align-items-center"
-            style={{ padding: "4px" }}
+            className="d-flex justify-content-start align-items-center"
+            style={{ 
+              padding: "1px 3px", 
+              minHeight: "20px",
+              fontSize: "10px",
+              lineHeight: "1.1",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              width: "100%"
+            }}
           >
-            <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
-           {typedEvent.title} {typedEvent.customerName}{typedEvent.customerFamily}{typedEvent.description}
-            </div>
-
+            <span style={{ fontWeight: "bold", marginRight: "4px", flexShrink: 0 }}>
+              {localizer.format(typedEvent.start, "HH:mm")}-{localizer.format(typedEvent.end, "HH:mm")}
+            </span>
+            <span style={{ fontWeight: "600", marginRight: "3px", flexShrink: 0 }}>
+              {typedEvent.title}
+            </span>
+            <span style={{ marginRight: "3px", flexShrink: 0 }}>
+              {typedEvent.customerName} {typedEvent.customerFamily}
+            </span>
+            {typedEvent.description && (
+              <span style={{ fontStyle: "italic", flexShrink: 0 }}>
+                -{typedEvent.description}
+              </span>
+            )}
           </div>
         );
       }
 
       // Simple display for other views
-    //  return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
+      return (
+        <div style={{ 
+          padding: "1px 3px", 
+          fontSize: "10px",
+          minHeight: "18px",
+          display: "flex",
+          alignItems: "center",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis"
+        }}>
+          {typedEvent.title}
+        </div>
+      );
     },
   };
 
-  const formats = {
-    timeGutterFormat: "HH:mm", // 24-hour format (e.g., "08:00", "18:00")
-    eventTimeRangeFormat: ({ start, end }: any, culture: any, localizer: any) =>
-      `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(
-        end,
-        "HH:mm",
-        culture
-      )}`,
-  };
+
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -521,7 +545,10 @@ export default function MyCalendarClient({
               defaultDate={new Date()}
               min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
               max={new Date(0, 0, 0, 22, 0, 0)} // 6:00 PM
-              formats={formats}
+              formats={{
+                eventTimeRangeFormat: () => "", // Hide the default time display
+                timeGutterFormat: "HH:mm"
+              }}
               events={events}
               startAccessor={(event: any) => new Date(event.start)}
               endAccessor={(event: any) => new Date(event.end)}
