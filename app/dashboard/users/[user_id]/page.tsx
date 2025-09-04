@@ -39,6 +39,7 @@ export default function UserAppointmentsPage({
   const displayEnd = customEnd || (endTime ? formatDateInput(new Date(endTime)) : "");
 
   return (
+    
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Link href="/dashboard/users" className="btn btn-outline-primary">
