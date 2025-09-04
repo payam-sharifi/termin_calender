@@ -166,7 +166,7 @@ export default function UsersPage() {
       <Container className="py-4">
         <div className="d-flex justify-content-between align-items-center mb-4 p-2 shadow" >
          
-            <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => router.back()}>
+            <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => router.push('/dashboard')}>
               Zurück
             </button>
           
