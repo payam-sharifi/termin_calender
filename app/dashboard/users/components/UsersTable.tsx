@@ -1,6 +1,7 @@
 "use client";
 
 import { Table, Button } from "react-bootstrap";
+import Link from "next/link";
 import { UserRsDataType, ROLE, SEX } from "@/services/userApi/user.types";
 
 interface UsersTableProps {
@@ -43,7 +44,11 @@ export default function UsersTable({
           <tbody>
             {users?.map((user: UserRsDataType) => (
               <tr key={user.id}>
-                <td style={{ width: '8%' }}>{user.name}</td>
+                <td style={{ width: '8%' }}>
+                  <Link href={`/dashboard/users/${user.id}`} style={{ textDecoration: 'none' }}>
+                    {user.name}
+                  </Link>
+                </td>
                 <td style={{ width: '10%' }}>{user.family}</td>
                 <td style={{ width: '16%' }}>{user.email}</td>
                 <td style={{ width: '12%' }}>{user.phone}</td>
