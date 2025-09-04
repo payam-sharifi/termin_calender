@@ -93,6 +93,7 @@
 .rbc-time-slot {
   height: 60px !important; /* Increase from default ~30px to 60px */
   min-height: 60px !important;
+
 }
 
 .rbc-time-content {
@@ -114,4 +115,15 @@
 /* Ensure events can expand to fill the taller slots */
 .rbc-time-view .rbc-event {
   min-height: 50px !important;
+}
+
+/* Day view: small vertical gap and rounded white border like the photo */
+.rbc-time-view .rbc-day-slot .rbc-event,
+.rbc-time-view .rbc-event {
+  margin-top: 3px !important;
+  margin-bottom: 3px !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 10px !important;
+  background-clip: padding-box !important;
+  overflow: hidden;
 }

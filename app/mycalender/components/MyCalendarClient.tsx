@@ -409,11 +409,12 @@ export default function MyCalendarClient({
                   <div style={{
                     width: "16px",
                     height: "16px",
-                    backgroundColor: typedEvent.service?.color || "red",
+                    backgroundColor: typedEvent.color || "blue" ,
                     borderRadius: "50%",
                     border: "2px solid white",
                     flexShrink: 0
                   }}></div>
+                 
                   {typedEvent.title}
                 </div>
               {typedEvent.description && (
