@@ -394,7 +394,6 @@ export default function MyCalendarClient({
                 whiteSpace: "nowrap"
               }}>
                  {typedEvent.customerName} {typedEvent.customerFamily}
-            
               </div>
                               <div style={{ 
                   fontSize: "15px",
