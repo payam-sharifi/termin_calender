@@ -637,7 +637,7 @@ export default function MyCalendarClient({
               onSelectSlot={handleSelectSlot}
               // onDropFromOutside={handleDropFromOutside}
               resizable
-              step={30}
+              step={15}
               timeslots={2}
               eventPropGetter={eventStyleGetter}
               onSelectEvent={handleEventClick}

@@ -20,6 +20,7 @@ import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { toast } from "react-toastify";
 import React from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import ServiceSelect from "./ServiceSelect";
 
 moment.locale("de");
 
@@ -82,8 +83,17 @@ export default function EventFormModal({
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
   const [hasConflict, setHasConflict] = useState(false);
   
+  const formatForApiSearch = (value: string) =>
+    value
+      .trim()
+      .split(/\s+/)
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""))
+      .join(" ");
+
+  const apiSearchTerm = debouncedSearchTerm.length >= 3 ? formatForApiSearch(debouncedSearchTerm) : "";
+
   const { data: customersList, isLoading } = useGetUsers(
-    debouncedSearchTerm.length >= 3 ? debouncedSearchTerm : "",
+    apiSearchTerm,
     5,
     currentPage,
     "Customer"
@@ -587,24 +597,16 @@ CreateSlotApi({
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Label>Service</Form.Label>
-                    <Form.Select
-                      value={formData.service?.id}
-                      onChange={(e) => {
-                        handleServiceChange(e.target.value);
-                        if (errors.service) setErrors((prev: any) => ({ ...prev, service: undefined }));
-                      }}
-                      required
-                    >
-                      {Array.isArray(services) && services.length > 0 ? (
-                        services.map((service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.title}
-                          </option>
-                        ))
-                      ) : (
-                        <option disabled>Keine Services verfügbar</option>
-                      )}
-                    </Form.Select>
+                    <div>
+                      <ServiceSelect
+                        services={services}
+                        value={formData.service?.id}
+                        onChange={(id) => {
+                          handleServiceChange(id);
+                          if (errors.service) setErrors((prev: any) => ({ ...prev, service: undefined }));
+                        }}
+                      />
+                    </div>
                     {serviceWarning && (
                       <div className="text-danger  mt-2 small" style={{height:"30px",width:"auto"}}>
                         Dieser Service dauert {serviceDuration} Minuten.

@@ -22,8 +22,17 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const limit = 10;
+  const formatForApiSearch = (value: string) =>
+    value
+      .trim()
+      .split(/\s+/)
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""))
+      .join(" ");
+
+  const apiSearchTerm = debouncedSearchTerm.length >= 3 ? formatForApiSearch(debouncedSearchTerm) : "";
+
   const { data, isLoading,refetch} = useGetUsers(
-    debouncedSearchTerm.length >= 3 ? debouncedSearchTerm : "",
+    apiSearchTerm,
     limit,
     page
   );
