@@ -101,7 +101,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
                     marginRight: 10,
                   }}
                 />
-                <span style={{ color: titleColor, fontWeight: 500, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ color: titleColor, fontWeight: 500, flex: 1, minWidth: 0, whiteSpace: "normal", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                   {service.title}
                 </span>
                 <span style={{ color: "#6c757d", fontSize: 12, marginLeft: 12 }}>
