@@ -506,7 +506,16 @@ export default function EventFormModal({
                 ? "Termin bearbeiten"
                 : currentStep === 1
                   ? "Kunde wählen"
-                  : "Neuer Termin"}
+                  : (formData.customerName && formData.customerName.trim().length > 0)
+                    ? (
+                        <>
+                          Neuer Termin für {" "}
+                          <span style={{ color: 'red' }}>
+                            {formData.customerName} {formData.customerFamily || ""}
+                          </span>
+                        </>
+                      )
+                    : "Neuer Termin"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -746,7 +755,6 @@ export default function EventFormModal({
                   <Row>
                     <Col md={12}>
                       <Form.Group className="mb-3">
-                        <Form.Label>Kunde</Form.Label>
                         <CustomerSelect
                           value={formData.customer_id}
                           selectedLabel={`${formData.customerName} ${formData.customerFamily}`.trim()}
@@ -761,19 +769,12 @@ export default function EventFormModal({
                               sex: customer.sex || "",
                             }));
                             setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                            setCurrentStep(2);
                           }}
                         />
                         {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
                       </Form.Group>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Telefon</Form.Label>
-                        <Form.Control
-                          type="tel"
-                          value={formData.customerPhone}
-                          disabled
-                          readOnly
-                        />
-                      </Form.Group>
+                      {/* Telephone field hidden in Kunde wählen step */}
                     </Col>
                   </Row>
                 </>
@@ -793,18 +794,12 @@ export default function EventFormModal({
           <Button variant="secondary" onClick={handleModalClose}>
             Abbrechen
           </Button>
-          {currentStep === 1 && !isEditing && !isNewServiceModal && (
+          {currentStep === 2 && !isEditing && !isNewServiceModal && (
             <Button
-              variant="primary"
-              onClick={() => {
-                if (!formData.customer_id) {
-                  setErrors((prev: any) => ({ ...prev, customerName: "Kunde ist erforderlich." }));
-                  return;
-                }
-                setCurrentStep(2);
-              }}
+              variant="outline-secondary"
+              onClick={() => setCurrentStep(1)}
             >
-              Weiter
+              Zurück
             </Button>
           )}
           {(currentStep === 2 || isEditing || isNewServiceModal) && (
