@@ -201,6 +201,8 @@ export default function EventFormModal({
         customer_id: initialData.customer_id || "",
         sex: initialData.sex || (initialData as any).sex || "",
       });
+      // Ensure the edit modal shows the edit form (step 2) when initialData arrives asynchronously
+      setCurrentStep(2);
     }
     // Reset to step 1 when opening for new termin
     if (!initialData && !isNewServiceModal) {
