@@ -182,11 +182,13 @@ export default function MyCalendarClient({
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
+        // Immediately refresh events for the current day from backend
+        try { change(); } catch {}
       } catch (error) {
         toast.error("Fehler beim Erstellen des Termins");
       }
     },
-    [isEditMode, selectedEvent]
+    [isEditMode, selectedEvent, change]
   );
 
   const moveEvent = useCallback(
