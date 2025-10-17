@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import React from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import ServiceSelect from "./ServiceSelect";
+import CustomerSelect from "./CustomerSelect";
 
 moment.locale("de");
 
@@ -77,6 +78,7 @@ export default function EventFormModal({
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
   const isEditing = !!initialData;
+  const [currentStep, setCurrentStep] = useState<number>(isEditing || isNewServiceModal ? 2 : 1);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -199,6 +201,10 @@ export default function EventFormModal({
         customer_id: initialData.customer_id || "",
         sex: initialData.sex || (initialData as any).sex || "",
       });
+    }
+    // Reset to step 1 when opening for new termin
+    if (!initialData && !isNewServiceModal) {
+      setCurrentStep(1);
     }
   }, [initialData]);
 
@@ -486,10 +492,21 @@ export default function EventFormModal({
 
   return (
     <>
-      <Modal show={isOpen} onHide={handleModalClose} size="lg" centered>
+      <Modal
+        show={isOpen}
+        onHide={handleModalClose}
+        size={!isEditing && !isNewServiceModal && currentStep === 1 ? "sm" : "lg"}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>
-            {isNewServiceModal ? "Neuer Service" : isEditing ? "Termin bearbeiten" : "Neuer Termin"}
+            {isNewServiceModal
+              ? "Neuer Service"
+              : isEditing
+                ? "Termin bearbeiten"
+                : currentStep === 1
+                  ? "Kunde wählen"
+                  : "Neuer Termin"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -624,6 +641,7 @@ export default function EventFormModal({
             </Form>
           ) : (
             <Form onSubmit={handleSubmit}>
+              {currentStep === 2 && (
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
@@ -663,6 +681,8 @@ export default function EventFormModal({
                   </Form.Group> */}
                 </Col>
               </Row>
+              )}
+              {currentStep === 2 && (
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
@@ -720,128 +740,38 @@ export default function EventFormModal({
                   </Form.Group>
                 </Col>
               </Row>
-              {!isEditing && (
+              )}
+              {!isEditing && currentStep === 1 && (
                 <>
                   <Row>
-                    <Col md={6}>
+                    <Col md={12}>
                       <Form.Group className="mb-3">
-                        <Form.Label>Vorname</Form.Label>
-                        <div className="d-flex gap-2">
-                          <Form.Control
-                            type="text"
-                            value={formData.customerName}
-                            onChange={(e) => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                customerName: e.target.value,
-                              }));
-                              if (errors.customerName) setErrors((prev: any) => ({ ...prev, customerName: undefined }));
-                            }}
-                            required
-                          />
-                          <Button
-                            variant="outline-primary"
-                            onClick={() => setShowCustomerModal(true)}
-                            style={{ width: "40px" }}
-                          >
-                            +
-                          </Button>
-                        </div>
+                        <Form.Label>Kunde</Form.Label>
+                        <CustomerSelect
+                          value={formData.customer_id}
+                          selectedLabel={`${formData.customerName} ${formData.customerFamily}`.trim()}
+                          onChange={(customer) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              customerName: customer.name,
+                              customerFamily: customer.family,
+                              customerEmail: customer.email,
+                              customerPhone: customer.phone,
+                              customer_id: customer.id,
+                              sex: customer.sex || "",
+                            }));
+                            setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                          }}
+                        />
                         {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
                       </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Nachname</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={formData.customerFamily ?? ""}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              customerFamily: e.target.value,
-                            }));
-                            if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
-                          }}
-                        />
-                        {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>E-Mail</Form.Label>
-                        <Form.Control
-                          type="email"
-                          value={formData.customerEmail ?? ""}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              customerEmail: e.target.value,
-                            }));
-                            if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
-                          }}
-                        />
-                        {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
                       <Form.Group className="mb-3">
                         <Form.Label>Telefon</Form.Label>
                         <Form.Control
                           type="tel"
                           value={formData.customerPhone}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              customerPhone: e.target.value,
-                            }));
-                            if (errors.customerPhone) setErrors((prev: any) => ({ ...prev, customerPhone: undefined }));
-                          }}
-                          required
-                        />
-                        {errors.customerPhone && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerPhone}</div>}
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Geschlecht</Form.Label>
-                        <Form.Select
-                          value={formData.sex}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              sex: e.target.value,
-                            }));
-                            if (errors.sex) setErrors((prev: any) => ({ ...prev, sex: undefined }));
-                          }}
-                          required
-                        >
-                          <option value="">Bitte wählen</option>
-                          <option value="male">Männlich</option>
-                          <option value="female">Weiblich</option>
-                        </Form.Select>
-                        {errors.sex && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.sex}</div>}
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Beschreibung</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={3}
-                          value={formData.description}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              description: e.target.value,
-                            }))
-                          }
+                          disabled
+                          readOnly
                         />
                       </Form.Group>
                     </Col>
@@ -863,12 +793,28 @@ export default function EventFormModal({
           <Button variant="secondary" onClick={handleModalClose}>
             Abbrechen
           </Button>
-          <Button
-            variant="primary"
-            onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
-          >
-            {isNewServiceModalOpen ? "Service erstellen" : "Termin erstellen"}
-          </Button>
+          {currentStep === 1 && !isEditing && !isNewServiceModal && (
+            <Button
+              variant="primary"
+              onClick={() => {
+                if (!formData.customer_id) {
+                  setErrors((prev: any) => ({ ...prev, customerName: "Kunde ist erforderlich." }));
+                  return;
+                }
+                setCurrentStep(2);
+              }}
+            >
+              Weiter
+            </Button>
+          )}
+          {(currentStep === 2 || isEditing || isNewServiceModal) && (
+            <Button
+              variant="primary"
+              onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
+            >
+              {isNewServiceModalOpen ? "Service erstellen" : isEditing ? "Speichern" : "Termin erstellen"}
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
 
