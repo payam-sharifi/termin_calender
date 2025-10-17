@@ -75,6 +75,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
             const isActive = service.id === value;
             return (
               <button
+                type="button"
                 key={service.id}
                 className="w-100"
                 onClick={() => handleSelect(service.id)}
