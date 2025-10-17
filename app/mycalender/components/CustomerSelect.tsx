@@ -37,7 +37,7 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
         <span style={{ color: "#6c757d" }}>{value ? (selectedLabel || "Kunde ausgewählt") : "Kunde auswählen"}</span>
       </Dropdown.Toggle>
 
-      <Dropdown.Menu style={{ width: 420, paddingTop: 8, paddingBottom: 8 }} align="start">
+      <Dropdown.Menu style={{ width: 300, paddingTop: 8, paddingBottom: 8 }} align="start">
         <div className="px-3 mb-2" style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Form.Control
             size="sm"
@@ -50,7 +50,7 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
             ✓
           </Button>
         </div>
-        <div style={{ maxHeight: 360, overflowY: "auto" }}>
+        <div style={{ maxHeight: 240, overflowY: "auto" }}>
           {isLoading ? (
             <div className="px-3 py-2 text-muted">Laden...</div>
           ) : customers.length === 0 && debounced.trim().length >= 3 ? (
