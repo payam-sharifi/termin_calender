@@ -253,14 +253,32 @@ export default function MyCalendarClient({
   }, []);
 
   const eventStyleGetter = useCallback((event: any) => {
-  
+    // Determine if service is for Damen (ladies) based on service title
+    const isDamenService = (serviceTitle: string) => {
+      const damenKeywords = [
+        'maniküre', 'pediküre', 'gesichtsbehandlung', 'haarfärben', 
+        'make-up', 'eyebrow', 'wimpern', 'nagel', 'kosmetik',
+        'damen', 'frau', 'lady', 'beauty', 'schönheit'
+      ];
+      
+      const title = serviceTitle?.toLowerCase() || '';
+      return damenKeywords.some(keyword => title.includes(keyword));
+    };
+
+    // Get service title from event
+    const serviceTitle = event.service?.title || event.title || '';
+    const isDamen = isDamenService(serviceTitle);
+
+    // Set colors based on service type
+    const backgroundColor = isDamen ? '#EF6C6C' : '#388AA9'; // Light red for Damen, light blue for others
+    const textColor = '#FFFFFF'; // Dark red for Damen, dark blue for others
+
     return {
       style: {
-       // backgroundColor: event.color || "#4a90e2", 
-       backgroundColor:  "#4a90e2", 
+        backgroundColor: backgroundColor,
+        color: textColor,
         borderRadius: "4px",
-        opacity: 0.8,
-        color: "white",
+        opacity: 0.9,
         border: "0px",
         display: "block",
         padding: "2px 4px",
