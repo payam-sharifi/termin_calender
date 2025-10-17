@@ -11,6 +11,7 @@ import {
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
 import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot";
+import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeSlotDate";
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { ChromePicker, ColorResult } from "react-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -75,6 +76,7 @@ export default function EventFormModal({
   checkConflict,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
+  const isEditing = !!initialData;
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -105,6 +107,7 @@ export default function EventFormModal({
     isError,
     isSuccess,
   } = useCreateTimeSlot();
+  const { mutate: updateSlotApi } = useUpdateTimeSlotDate();
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -194,7 +197,7 @@ export default function EventFormModal({
         customerEmail: initialData.customerEmail,
         customerPhone: initialData.customerPhone,
         customer_id: initialData.customer_id || "",
-        sex: initialData.sex || "",
+        sex: initialData.sex || (initialData as any).sex || "",
       });
     }
   }, [initialData]);
@@ -233,13 +236,15 @@ export default function EventFormModal({
     if (!formData.service?.id) newErrors.service = "Service ist erforderlich.";
     if (!formData.start) newErrors.start = "Startzeit ist erforderlich.";
     if (!formData.end) newErrors.end = "Endzeit ist erforderlich.";
-    if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
-    if (formData.customerEmail && !isValidEmail(formData.customerEmail)) {
-      newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+    if (!isEditing) {
+      if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
+      if (formData.customerEmail && !isValidEmail(formData.customerEmail)) {
+        newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+      }
+      if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
+     // else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
+      if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
     }
-    if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
-   // else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
-    if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
 
     // Ensure end time is after start time
     if (formData.start && formData.end) {
@@ -288,31 +293,57 @@ export default function EventFormModal({
     }
     
     try {
-CreateSlotApi({
-    name:formData.customerName,
-    family:formData.customerFamily,
-    email:formData.customerEmail,
-    phone:formData.customerPhone,
-    customer_id:formData.customer_id,
-    start_time: formData.start.toISOString(),
-    end_time: formData.end.toISOString(),
-    service_id: formData.service.id,
-    sex:formData.sex,
-    status: "Available",
-  },
-  {
-    onSuccess: (res) => {
-      toast.success(res.message);
-      onSubmit(formData);
-        onClose();
-    },
-    onError: (error: any) => {
-      toast.error(error?.message);
-     
-    }
-  }
-
-);
+      // If editing an existing slot, call update API; otherwise create
+      if (initialData && (initialData as any).slotId) {
+        const slotId = (initialData as any).slotId as string;
+        updateSlotApi(
+          {
+            id: slotId,
+            start_time: formData.start.toISOString(),
+            end_time: formData.end.toISOString(),
+            phone: formData.customerPhone,
+            name: formData.customerName,
+            service_id: formData.service.id,
+            description: formData.description,
+          },
+          {
+            onSuccess: (res: any) => {
+              toast.success(res.message || "Termin aktualisiert");
+              onSubmit(formData);
+              onClose();
+            },
+            onError: (error: any) => {
+              toast.error(error?.message);
+            },
+          }
+        );
+      } else {
+        CreateSlotApi(
+          {
+            name: formData.customerName,
+            family: formData.customerFamily,
+            email: formData.customerEmail,
+            phone: formData.customerPhone,
+            customer_id: formData.customer_id,
+            start_time: formData.start.toISOString(),
+            end_time: formData.end.toISOString(),
+            service_id: formData.service.id,
+            sex: formData.sex,
+            status: "Available",
+            description: formData.description,
+          },
+          {
+            onSuccess: (res) => {
+              toast.success(res.message);
+              onSubmit(formData);
+              onClose();
+            },
+            onError: (error: any) => {
+              toast.error(error?.message);
+            },
+          }
+        );
+      }
       
       
     } catch (error) {console.log(error)}
@@ -458,7 +489,7 @@ CreateSlotApi({
       <Modal show={isOpen} onHide={handleModalClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            {isNewServiceModal ? "Neuer Service" : "Neuer Termin"}
+            {isNewServiceModal ? "Neuer Service" : isEditing ? "Termin bearbeiten" : "Neuer Termin"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -689,130 +720,134 @@ CreateSlotApi({
                   </Form.Group>
                 </Col>
               </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Vorname</Form.Label>
-                    <div className="d-flex gap-2">
-                      <Form.Control
-                        type="text"
-                        value={formData.customerName}
-                        onChange={(e) => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            customerName: e.target.value,
-                          }));
-                          if (errors.customerName) setErrors((prev: any) => ({ ...prev, customerName: undefined }));
-                        }}
-                        required
-                      />
-                      <Button
-                        variant="outline-primary"
-                        onClick={() => setShowCustomerModal(true)}
-                        style={{ width: "40px" }}
-                      >
-                        +
-                      </Button>
-                    </div>
-                    {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Nachname</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={formData.customerFamily ?? ""}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerFamily: e.target.value,
-                        }));
-                        if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
-                      }}
-                    />
-                    {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>E-Mail</Form.Label>
-                    <Form.Control
-                      type="email"
-                      value={formData.customerEmail ?? ""}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerEmail: e.target.value,
-                        }));
-                        if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
-                      }}
-                    />
-                    {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Telefon</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      value={formData.customerPhone}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerPhone: e.target.value,
-                        }));
-                        if (errors.customerPhone) setErrors((prev: any) => ({ ...prev, customerPhone: undefined }));
-                      }}
-                      required
-                    />
-                    {errors.customerPhone && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerPhone}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Geschlecht</Form.Label>
-                    <Form.Select
-                      value={formData.sex}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          sex: e.target.value,
-                        }));
-                        if (errors.sex) setErrors((prev: any) => ({ ...prev, sex: undefined }));
-                      }}
-                      required
-                    >
-                      <option value="">Bitte wählen</option>
-                      <option value="male">Männlich</option>
-                      <option value="female">Weiblich</option>
-                    </Form.Select>
-                    {errors.sex && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.sex}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Beschreibung</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+              {!isEditing && (
+                <>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Vorname</Form.Label>
+                        <div className="d-flex gap-2">
+                          <Form.Control
+                            type="text"
+                            value={formData.customerName}
+                            onChange={(e) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                customerName: e.target.value,
+                              }));
+                              if (errors.customerName) setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                            }}
+                            required
+                          />
+                          <Button
+                            variant="outline-primary"
+                            onClick={() => setShowCustomerModal(true)}
+                            style={{ width: "40px" }}
+                          >
+                            +
+                          </Button>
+                        </div>
+                        {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Nachname</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={formData.customerFamily ?? ""}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              customerFamily: e.target.value,
+                            }));
+                            if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
+                          }}
+                        />
+                        {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>E-Mail</Form.Label>
+                        <Form.Control
+                          type="email"
+                          value={formData.customerEmail ?? ""}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              customerEmail: e.target.value,
+                            }));
+                            if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
+                          }}
+                        />
+                        {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Telefon</Form.Label>
+                        <Form.Control
+                          type="tel"
+                          value={formData.customerPhone}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              customerPhone: e.target.value,
+                            }));
+                            if (errors.customerPhone) setErrors((prev: any) => ({ ...prev, customerPhone: undefined }));
+                          }}
+                          required
+                        />
+                        {errors.customerPhone && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerPhone}</div>}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Geschlecht</Form.Label>
+                        <Form.Select
+                          value={formData.sex}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              sex: e.target.value,
+                            }));
+                            if (errors.sex) setErrors((prev: any) => ({ ...prev, sex: undefined }));
+                          }}
+                          required
+                        >
+                          <option value="">Bitte wählen</option>
+                          <option value="male">Männlich</option>
+                          <option value="female">Weiblich</option>
+                        </Form.Select>
+                        {errors.sex && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.sex}</div>}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Beschreibung</Form.Label>
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          value={formData.description}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              description: e.target.value,
+                            }))
+                          }
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </>
+              )}
               {/* <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={onClose}>
                   Abbrechen
