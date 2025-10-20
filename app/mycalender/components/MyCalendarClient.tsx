@@ -163,6 +163,10 @@ export default function MyCalendarClient({
   const handleEventSubmit = useCallback(
     async (eventData: any) => {
       try {
+        // First refresh the backend data
+        await change();
+        
+        // Then update local state with the new event
         setEvents((prev) => {
           if (isEditMode && selectedEvent) {
             // Update existing event
@@ -179,11 +183,10 @@ export default function MyCalendarClient({
             return updatedEvents;
           }
         });
+        
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
-        // Immediately refresh events for the current day from backend
-        try { change(); } catch {}
       } catch (error) {
         toast.error("Fehler beim Erstellen des Termins");
       }
@@ -635,7 +638,7 @@ export default function MyCalendarClient({
             <DragAndDropCalendar
               localizer={localizer}
               defaultDate={new Date()}
-              min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
+              min={new Date(0, 0, 0, 9, 0, 0)} // 8:00 AM
               max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
               formats={{
                 eventTimeRangeFormat: () => "", // Hide the default time display
