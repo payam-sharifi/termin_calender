@@ -128,6 +128,7 @@
 .rbc-events-container {
   /* Let RBL handle layout */
   padding: 0 5px;
+
 }
 
 .rbc-event {
@@ -176,11 +177,14 @@
 
 .rbc-time-header,
 .rbc-time-header-content {
+ display: none;
   border-bottom: 1px solid #e0e0e0;
+  height: 5px !important;
 }
 
 .rbc-time-content {
   border-top: 1px solid #e0e0e0;
+  
 }
 
 .rbc-timeslot-group {

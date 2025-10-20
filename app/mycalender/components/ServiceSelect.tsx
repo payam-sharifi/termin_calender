@@ -40,7 +40,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
 
   return (
     <Dropdown show={open} onToggle={(next) => setOpen(!!next)}>
-      <Dropdown.Toggle variant="outline-secondary" id="service-select" disabled={disabled} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <Dropdown.Toggle variant="outline-secondary" id="service-select" disabled={disabled} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", maxWidth: "100%" }}>
         {selected && (
           <span
             style={{
@@ -50,10 +50,20 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
               borderRadius: 999,
               backgroundColor: selected.color || labelColor,
               border: "1px solid rgba(0,0,0,0.15)",
+              flexShrink: 0,
             }}
           />
         )}
-        <span style={{ color: labelColor }}>{selected ? selected.title : "Service auswählen"}</span>
+        <span style={{ 
+          color: labelColor, 
+          overflow: "hidden", 
+          textOverflow: "ellipsis", 
+          whiteSpace: "nowrap",
+          flex: 1,
+          minWidth: 0
+        }}>
+          {selected ? selected.title : "Service auswählen"}
+        </span>
       </Dropdown.Toggle>
 
       <Dropdown.Menu style={{ width: 420, paddingTop: 8, paddingBottom: 8 }} align="start">

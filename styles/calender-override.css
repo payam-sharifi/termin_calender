@@ -95,9 +95,13 @@
   min-height: 30px !important;
 
 }
-
+.rbc-time-header{
+  height: 3px !important;
+}
 .rbc-time-content {
   min-height: 30px !important;
+  padding-top: 30px !important;
+ 
 }
 
 .rbc-time-gutter .rbc-timeslot-group {
@@ -180,7 +184,7 @@
 
 .rbc-time-view .rbc-time-gutter .rbc-timeslot-group .rbc-label {
   position: relative;
-  top: 0;
+  top: -15px !important;
   transform: none;
   line-height: 30px;
   height: 30px;
