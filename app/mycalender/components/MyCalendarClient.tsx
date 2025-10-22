@@ -679,7 +679,22 @@ export default function MyCalendarClient({
               
             </div>
 
-            <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+            <DndProvider 
+              backend={TouchBackend} 
+              options={{ 
+                enableMouseEvents: true,
+                enableTouchEvents: true,
+                enableKeyboardEvents: false,
+                delay: 0,
+                delayTouchStart: 0,
+                touchSlop: 8,
+                ignoreContextMenu: true,
+                scrollAngleRanges: [
+                  { start: 30, end: 150 },
+                  { start: 210, end: 330 }
+                ]
+              }}
+            >
             <DragAndDropCalendar
               localizer={localizer}
               defaultDate={new Date()}
