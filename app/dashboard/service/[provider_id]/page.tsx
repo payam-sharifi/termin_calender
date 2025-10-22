@@ -14,6 +14,7 @@ export default function ServicePage({
   const { provider_id } = use(params);
   const {data:userData}=useGetOneUser( {id:provider_id})
 const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
+
 // Track the currently viewed date range to refetch accurately after mutations
 const today = new Date().toISOString().split("T")[0]
 const [currentRange, setCurrentRange] = useState<{start:string,end:string}>({start: today, end: today})

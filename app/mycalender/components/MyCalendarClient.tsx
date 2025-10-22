@@ -22,6 +22,8 @@ import moment from "moment";
 import "moment-timezone";
 import "@/styles/calender-override.css";
 import { useDeleteService } from "@/services/hooks/serviices/useDeleteService";
+import { DndProvider } from "react-dnd";
+import { TouchBackend } from "react-dnd-touch-backend";
 import {
   FaTimes,
   FaChevronDown,
@@ -635,6 +637,7 @@ export default function MyCalendarClient({
               
             </div>
 
+            <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
             <DragAndDropCalendar
               localizer={localizer}
               defaultDate={new Date()}
@@ -686,6 +689,7 @@ export default function MyCalendarClient({
                     : "",
               })}
             />
+            </DndProvider>
           </section>
         </main>
       </div>
