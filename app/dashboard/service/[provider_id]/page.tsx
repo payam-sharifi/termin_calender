@@ -14,6 +14,9 @@ export default function ServicePage({
   const { provider_id } = use(params);
   const {data:userData}=useGetOneUser( {id:provider_id})
 const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
+// Track the currently viewed date range to refetch accurately after mutations
+const today = new Date().toISOString().split("T")[0]
+const [currentRange, setCurrentRange] = useState<{start:string,end:string}>({start: today, end: today})
   const {
     data: onlyServiceData,
     isError: onlyServiceError,
@@ -30,21 +33,22 @@ const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
 useEffect(()=>{
   GetServices({
     provider_id,
-    start_time: new Date().toISOString().split("T")[0],
-    end_time:  new Date().toISOString().split("T")[0],
+    start_time: today,
+    end_time:  today,
   });
+  setCurrentRange({start: today, end: today})
 },[])
 
 useEffect(()=>{
   if(dateSizeChange){
   GetServices({
     provider_id,
-    start_time: new Date().toISOString().split("T")[0],
-    end_time:  new Date().toISOString().split("T")[0],
+    start_time: currentRange.start,
+    end_time:  currentRange.end,
   });
 }
 setDateSizeChange(false)
-},[dateSizeChange])
+},[dateSizeChange, currentRange, GetServices, provider_id])
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
     const formatDate = (date: Date) => {
@@ -59,6 +63,7 @@ setDateSizeChange(false)
       start_time,
       end_time,
     });
+    setCurrentRange({start: start_time, end: end_time})
   };
 
   const transformedData = (serviceWithEventData ?? []).flatMap(
