@@ -108,8 +108,9 @@ export default function EventFormModal({
     data,
     isError,
     isSuccess,
+    isPending: isCreatingSlot,
   } = useCreateTimeSlot();
-  const { mutate: updateSlotApi } = useUpdateTimeSlotDate();
+  const { mutate: updateSlotApi, isPending: isUpdatingSlot } = useUpdateTimeSlotDate();
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -808,8 +809,14 @@ export default function EventFormModal({
             <Button
               variant="primary"
               onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
+              disabled={isCreatingSlot || isUpdatingSlot}
             >
               {isNewServiceModalOpen ? "Service erstellen" : isEditing ? "Speichern" : "Termin erstellen"}
+              {(isCreatingSlot || isUpdatingSlot) && (
+                <span className="ms-2">
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </span>
+              )}
             </Button>
           )}
         </Modal.Footer>

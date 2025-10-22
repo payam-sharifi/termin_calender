@@ -125,7 +125,7 @@
 .rbc-time-view .rbc-day-slot .rbc-event,
 .rbc-time-view .rbc-event {
 
-  margin-bottom: 1px !important;
+  margin-bottom: 3px !important;
   border: 2px solid #ffffff !important;
   border-radius: 10px !important;
   background-clip: padding-box !important;
