@@ -372,6 +372,48 @@ export default function MyCalendarClient({
     event: ({ event }: { event: CalendarEvent }) => {
       if (!event) return null;
       const typedEvent = event as Event;
+      const durationMinutes = Math.max(
+        0,
+        Math.round((new Date(typedEvent.end).getTime() - new Date(typedEvent.start).getTime()) / 60000)
+      );
+
+      // Ultra-compact single-line view for 15-minute slots
+      if (durationMinutes <= 15) {
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              width: "100%",
+              height: "100%",
+              padding: "0 4px",
+              fontSize: "11px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              lineHeight: 1.1,
+            }}
+            title={`${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()}
+          >
+            <div
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: typedEvent.color || "blue",
+                borderRadius: "50%",
+                border: "2px solid white",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+              {(typedEvent.customerName || typedEvent.customerFamily)
+                ? `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()
+                : (typedEvent.title || "")}
+            </span>
+          </div>
+        );
+      }
 
       // Show more details in day view
       if (currentView === Views.DAY) {
