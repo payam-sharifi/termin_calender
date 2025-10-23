@@ -45,6 +45,7 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
             placeholder="Kunden suchen (min. 3 Zeichen)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            style={{ fontSize: '16px' }}
           />
           <Button size="sm" variant="primary" onClick={() => setOpen(false)}>
             ✓

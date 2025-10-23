@@ -838,6 +838,7 @@ export default function EventFormModal({
                 placeholder="Suche nach Name, E-Mail oder Telefon..."
                 value={searchTerm}
                 onChange={handleSearch}
+                style={{ fontSize: '16px' }}
               />
               <div 
                 className="list-group" 
