@@ -173,6 +173,28 @@
     overflow: visible !important;
   }
 
+
+  .modal .react-datepicker{
+   
+  display: flex !important;
+    transform: translate(-40%, -50%) !important;
+    width: 90vw !important;
+  
+    z-index: 9999 !important;
+    background: white !important;
+    border-radius: 0 8px 8px 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+   
+  }
+
+  .modal .react-datepicker__month-container{
+    margin: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+
   .mobile-datepicker {
     width: 100% !important;
     height: 100% !important;
