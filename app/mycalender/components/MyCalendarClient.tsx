@@ -274,9 +274,9 @@ export default function MyCalendarClient({
     const serviceTitle = event.service?.title || event.title || '';
     const isDamen = isDamenService(serviceTitle);
 
-    // Set colors based on service type
-    const backgroundColor = isDamen ? '#EF6C6C' : '#388AA9'; // Light red for Damen, light blue for others
-    const textColor = '#FFFFFF'; // Dark red for Damen, dark blue for others
+    // Set colors based on service type (reversed: blue for Damen, red for Herren)
+    const backgroundColor = isDamen ? 'rgb(108 38 38)' : '#388AA9'; // rang red for Damen,Blue  for Herren
+    const textColor = '#FFFFFF'; // White text for both
 
     return {
       style: {

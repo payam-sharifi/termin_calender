@@ -13,8 +13,8 @@ interface ServiceSelectProps {
 
 function getLabelColorByTitle(title: string): string {
   const lower = (title || "").toLowerCase();
-  if (lower.includes("damen")) return "#dc3545"; // Bootstrap primary red 
-  if (lower.includes("herren")) return "#0d6efd"; // Bootstrap danger blue
+  if (lower.includes("damen")) return "#0d6efd"; // Bootstrap danger blue
+  if (lower.includes("herren")) return "#dc3545"; // Bootstrap primary red
   return "#6c757d"; // secondary gray
 }
 

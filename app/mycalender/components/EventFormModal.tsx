@@ -28,12 +28,6 @@ moment.locale("de");
 
 // Add custom styles for weekend days
 const customStyles = `
-  .weekend-day {
-    color: red !important;
-  }
-  .react-datepicker__day--weekend {
-    color: red !important;
-  }
   .react-datepicker__day--disabled {
     color: #ccc !important;
   }
@@ -210,6 +204,13 @@ export default function EventFormModal({
       setCurrentStep(1);
     }
   }, [initialData]);
+
+  // Check if customer is selected when in step 2, go back to step 1 if not
+  useEffect(() => {
+    if (!isEditing && !isNewServiceModal && currentStep === 2 && !formData.customerName) {
+      setCurrentStep(1);
+    }
+  }, [currentStep, formData.customerName, isEditing, isNewServiceModal]);
 
   // Update provider_id when it changes
   useEffect(() => {
@@ -453,10 +454,10 @@ export default function EventFormModal({
     customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Function to check if a date is a weekend
+  // Function to check if a date is a weekend (only Sunday is disabled)
   const isWeekend = (date: Date) => {
     const day = date.getDay();
-    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    return day === 0; // 0 is Sunday
   };
 
   // Function to check if a date is in the past
@@ -466,11 +467,8 @@ export default function EventFormModal({
     return date < today;
   };
 
-  // Custom day class for DatePicker
+  // Custom day class for DatePicker (removed since only Sunday is disabled)
   const dayClassName = (date: Date) => {
-    if (isWeekend(date)) {
-      return "weekend-day";
-    }
     return "";
   };
 
@@ -809,7 +807,7 @@ export default function EventFormModal({
             <Button
               variant="primary"
               onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
-              disabled={isCreatingSlot || isUpdatingSlot}
+              disabled={isCreatingSlot || isUpdatingSlot || hasConflict || (!isEditing && !formData.customerName)}
             >
               {isNewServiceModalOpen ? "Service erstellen" : isEditing ? "Speichern" : "Termin erstellen"}
               {(isCreatingSlot || isUpdatingSlot) && (
