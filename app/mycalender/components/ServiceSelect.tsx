@@ -18,6 +18,13 @@ function getLabelColorByTitle(title: string): string {
   return "#6c757d"; // secondary gray
 }
 
+function getServiceCategory(title: string): string {
+  const lower = (title || "").toLowerCase();
+  if (lower.includes("damen")) return "Damen";
+  if (lower.includes("herren")) return "Herren";
+  return "Other";
+}
+
 export default function ServiceSelect({ services, value, onChange, disabled }: ServiceSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -32,6 +39,33 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
       [s.title, String(s.price ?? ""), String(s.duration ?? "")].some((f) => (f || "").toString().toLowerCase().includes(q))
     );
   }, [services, search]);
+
+  // Group and sort services by category
+  const groupedAndSortedServices = useMemo(() => {
+    const grouped: Record<string, serviceType[]> = {
+      Damen: [],
+      Herren: [],
+      Other: [],
+    };
+
+    // Group services by category
+    filtered.forEach((service) => {
+      const category = getServiceCategory(service.title);
+      grouped[category].push(service);
+    });
+
+    // Sort services within each category alphabetically by title
+    Object.keys(grouped).forEach((category) => {
+      grouped[category].sort((a, b) => a.title.localeCompare(b.title, "de"));
+    });
+
+    // Return in order: Damen, Herren, Other
+    return [
+      { category: "Damen", services: grouped.Damen },
+      { category: "Herren", services: grouped.Herren },
+      { category: "Other", services: grouped.Other },
+    ].filter((group) => group.services.length > 0);
+  }, [filtered]);
 
   const handleSelect = (id: string) => {
     onChange(id);
@@ -80,50 +114,73 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
           </Button>
         </div>
         <div style={{ maxHeight: 360, overflowY: "auto" }}>
-          {filtered?.map((service, idx) => {
-            const titleColor = getLabelColorByTitle(service.title);
-            const isActive = service.id === value;
-            return (
-              <button
-                type="button"
-                key={service.id}
-                className="w-100"
-                onClick={() => handleSelect(service.id)}
-                style={{
-                  background: isActive ? "#eef5ff" : "#fff",
-                  border: "none",
-                  borderTop: idx === 0 ? "none" : "1px solid #f1f3f5",
-                  padding: "12px 16px",
-                  display: "flex",
-                  alignItems: "center",
-                  width: "100%",
-                  textAlign: "left",
-                  cursor: "pointer",
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 10,
-                    height: 10,
-                    borderRadius: 999,
-                    backgroundColor: service.color || titleColor,
-                    border: "1px solid rgba(0,0,0,0.15)",
-                    marginRight: 10,
-                  }}
-                />
-                <span style={{ color: titleColor, fontWeight: 500, flex: 1, minWidth: 0, whiteSpace: "normal", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                  {service.title}
-                </span>
-                <span style={{ color: "#6c757d", fontSize: 12, marginLeft: 12 }}>
-                  {service.duration ? `${service.duration}min` : "-"} / {service.price != null ? `${service.price}€` : "-"}
-                </span>
-              </button>
-            );
-          })}
-          {!filtered || filtered.length === 0 ? (
+          {groupedAndSortedServices.length > 0 ? (
+            groupedAndSortedServices.map((group, groupIdx) => (
+              <div key={group.category}>
+                {groupIdx > 0 && (
+                  <div style={{ borderTop: "1px solid #e0e0e0", margin: "8px 0" }} />
+                )}
+                {group.category !== "Other" && (
+                  <div
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "#f8f9fa",
+                      fontWeight: 600,
+                      fontSize: 13,
+                      color: "#495057",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {group.category}
+                  </div>
+                )}
+                {group.services.map((service) => {
+                  const titleColor = getLabelColorByTitle(service.title);
+                  const isActive = service.id === value;
+                  return (
+                    <button
+                      type="button"
+                      key={service.id}
+                      className="w-100"
+                      onClick={() => handleSelect(service.id)}
+                      style={{
+                        background: isActive ? "#eef5ff" : "#fff",
+                        border: "none",
+                        borderTop: "1px solid #f1f3f5",
+                        padding: "12px 16px",
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        textAlign: "left",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 10,
+                          height: 10,
+                          borderRadius: 999,
+                          backgroundColor: service.color || titleColor,
+                          border: "1px solid rgba(0,0,0,0.15)",
+                          marginRight: 10,
+                        }}
+                      />
+                      <span style={{ color: titleColor, fontWeight: 500, flex: 1, minWidth: 0, whiteSpace: "normal", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                        {service.title}
+                      </span>
+                      <span style={{ color: "#6c757d", fontSize: 12, marginLeft: 12 }}>
+                        {service.duration ? `${service.duration}min` : "-"} / {service.price != null ? `${service.price}€` : "-"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))
+          ) : (
             <div className="px-3 py-2 text-muted">Keine Services gefunden</div>
-          ) : null}
+          )}
         </div>
       </Dropdown.Menu>
     </Dropdown>
