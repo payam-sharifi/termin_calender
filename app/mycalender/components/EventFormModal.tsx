@@ -383,8 +383,9 @@ export default function EventFormModal({
     createNewServiceMutation(newServiceFormData, {
       onSuccess: (res) => {
         toast.success(res.message);
-        // Invalidate and refetch services
+        // Invalidate and refetch services to ensure all devices have the latest data
         queryClient.invalidateQueries({ queryKey: ["getServices"] });
+        queryClient.refetchQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
         // Reset form
         setNewServiceFormData({

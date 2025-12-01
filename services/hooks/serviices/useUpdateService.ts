@@ -9,7 +9,10 @@ export const useUpdateService = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<createNewService> }) =>
       updateServiceById(id, data),
     onSuccess: () => {
+      // Invalidate all queries that start with "getServices" to ensure all devices refetch
       queryClient.invalidateQueries({ queryKey: ["getServices"] });
+      // Also refetch immediately to ensure the current device has the latest data
+      queryClient.refetchQueries({ queryKey: ["getServices"] });
     },
   });
 }; 

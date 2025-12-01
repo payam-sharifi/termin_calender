@@ -50,7 +50,10 @@ export default function EditServiceModal({
         {
           onSuccess: (res: any) => {
             toast.success(res.message);
-            onHide();
+            // Small delay to ensure the query invalidation completes
+            setTimeout(() => {
+              onHide();
+            }, 100);
           },
           onError: (error: any) => {
             toast.error("Fehler beim Aktualisieren des Dienstes.");

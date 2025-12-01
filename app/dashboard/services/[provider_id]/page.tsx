@@ -169,7 +169,11 @@ export default function ServicesPage({
 
       <EditServiceModal
         show={showEditModal}
-        onHide={handleClose}
+        onHide={() => {
+          handleClose();
+          // Refetch services after closing the edit modal to ensure latest data
+          refetch();
+        }}
         service={selectedService}
         onDelete={handleDeleteClick}
       />
