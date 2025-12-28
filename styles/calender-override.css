@@ -260,8 +260,8 @@
 
 /* Increase height of time slots */
 .rbc-time-slot {
-  height: 30px !important; /* reduced from 60px */
-  min-height: 30px !important;
+  height: 33px !important; /* reduced from 60px */
+  min-height: 33px !important;
 
 }
 .rbc-time-header{

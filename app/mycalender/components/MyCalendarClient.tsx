@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   Calendar,
   Views,
@@ -112,8 +112,28 @@ export default function MyCalendarClient({
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const {mutate}=useUpdateTimeSlotDate()
+  
+  // Use ref to track previous eventsObj to detect actual changes
+  const prevEventsObjRef = useRef<any>(null);
+  
+  // Only update events when we have valid new data
   useEffect(() => {
-    setEvents(eventsObj || []);
+    // Skip if eventsObj hasn't actually changed (reference equality)
+    if (eventsObj === prevEventsObjRef.current) {
+      return;
+    }
+    
+    // If eventsObj is undefined/null, don't update - keep current events
+    // This prevents clearing events during loading states
+    if (eventsObj === undefined || eventsObj === null) {
+      return;
+    }
+    
+    // Only update if we have an array (empty array is valid - means no events)
+    if (Array.isArray(eventsObj)) {
+      setEvents(eventsObj);
+      prevEventsObjRef.current = eventsObj;
+    }
   }, [eventsObj]);
 
 
