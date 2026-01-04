@@ -67,7 +67,9 @@
   display: flex;
   flex-direction: column;
 }
-
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid #423e3e23 !important;
+}
 
 .header {
   display: flex;
@@ -232,7 +234,7 @@
   .mobile-datepicker .react-datepicker__header {
     padding: 8px 0 !important;
     background-color: #f8f9fa !important;
-    border-bottom: 1px solid #dee2e6 !important;
+    border-bottom: 1px solid #255e98 !important;
   }
 
   .mobile-datepicker .react-datepicker__current-month {
@@ -304,6 +306,7 @@
 /* Horizontal divider lines at hour and half-hour marks only */
 .rbc-time-view .rbc-day-slot {
   position: relative;
+  background-color: #ffffff !important;
 }
 
 .rbc-time-view .rbc-day-slot::before {

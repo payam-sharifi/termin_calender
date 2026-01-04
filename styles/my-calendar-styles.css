@@ -73,6 +73,7 @@
 .rbc-agenda-view {
   border: none;
   border-radius: 8px;
+  background-color: #ffffff !important;
   /* Let RBL handle overflow and other layout properties */
 }
 
@@ -92,6 +93,7 @@
 
 .rbc-day-bg {
   border-left: 1px solid #e0e0e0;
+  background-color: #ffffff !important;
   position: relative; /* Keep if RBL uses absolute children */
 }
 
