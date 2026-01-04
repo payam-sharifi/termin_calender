@@ -110,7 +110,7 @@ export default function EventFormModal({
     description: string;
     start: Date;
     end: Date;
-    service: serviceType;
+    service: serviceType | undefined;
     customerName: string;
     customerFamily: string;
     customerEmail: string;
@@ -123,7 +123,7 @@ export default function EventFormModal({
     description: initialData?.description || "",
     start: initialData?.start || selectedSlot?.start || new Date(),
     end: initialData?.end || selectedSlot?.end || new Date(),
-    service: initialData?.service || selectedService || services[0],
+    service: initialData?.service || selectedService || (services && services.length > 0 ? services[0] : undefined),
     customerName: initialData?.customerName || "",
     customerFamily: initialData?.customerFamily || "",
     customerEmail: initialData?.customerEmail || "",
@@ -155,7 +155,7 @@ export default function EventFormModal({
   } = useCreateNewService();
 
   const [serviceWarning, setServiceWarning] = useState<boolean>(false);
-  const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service.duration||90);
+  const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service?.duration || 90);
   const [errors, setErrors] = useState<any>({});
 
   // duration
@@ -181,23 +181,33 @@ export default function EventFormModal({
         title: services[0].title,
       }));
     }
-  }, [selectedSlot, selectedService, services, setFormData]);
+  }, [selectedSlot, selectedService, services]);
 
   useEffect(() => {
     if (initialData) {
+      const isSelfReservation = (initialData as any).isSelfReservation || false;
+      // For self-reservations, use desc field for title, otherwise use title
+      const titleForForm = isSelfReservation 
+        ? ((initialData as any).desc || initialData.title || "")
+        : initialData.title;
+      // For self-reservations, description comes from desc field
+      const descriptionForForm = isSelfReservation
+        ? ((initialData as any).desc || initialData.description || "")
+        : (initialData.description || "");
+      
       setFormData({
-        title: initialData.title,
-        description: initialData.description || "",
+        title: titleForForm,
+        description: descriptionForForm,
         start: new Date(initialData.start),
         end: new Date(initialData.end),
         service: initialData.service,
-        customerName: initialData.customerName,
-        customerFamily: initialData.customerFamily,
-        customerEmail: initialData.customerEmail,
-        customerPhone: initialData.customerPhone,
+        customerName: initialData.customerName || "",
+        customerFamily: initialData.customerFamily || "",
+        customerEmail: initialData.customerEmail || "",
+        customerPhone: initialData.customerPhone || "",
         customer_id: initialData.customer_id || "",
         sex: initialData.sex || (initialData as any).sex || "",
-        is_self_reservation: false, // When editing, it's always a customer reservation
+        is_self_reservation: isSelfReservation, // Detect self-reservation from initialData
       });
       // Ensure the edit modal shows the edit form (step 2) when initialData arrives asynchronously
       setCurrentStep(2);
@@ -309,15 +319,18 @@ export default function EventFormModal({
       // If editing an existing slot, call update API; otherwise create
       if (initialData && (initialData as any).slotId) {
         const slotId = (initialData as any).slotId as string;
+        const isSelfReservation = formData.is_self_reservation;
+        // For self-reservations, we only update time (and desc if backend supports it)
+        // For regular reservations, update with customer info
         updateSlotApi(
           {
             id: slotId,
             start_time: formData.start.toISOString(),
             end_time: formData.end.toISOString(),
-            phone: formData.customerPhone,
-            name: formData.customerName,
-            service_id: formData.service.id,
-            description: formData.description,
+            phone: isSelfReservation ? "self" : formData.customerPhone, // Backend route requires phone but doesn't use it for update
+            name: isSelfReservation ? undefined : formData.customerName,
+            service_id: isSelfReservation ? undefined : formData.service?.id, // Don't update service_id for self-reservations
+            description: formData.description, // May not be supported by backend update API
           },
           {
             onSuccess: (res: any) => {
@@ -340,7 +353,7 @@ export default function EventFormModal({
           customer_id: formData.is_self_reservation ? undefined : formData.customer_id,
           start_time: formData.start.toISOString(),
           end_time: formData.end.toISOString(),
-          service_id: formData.is_self_reservation ? undefined : formData.service.id, // Will be handled by backend for self-reservation
+          service_id: formData.is_self_reservation ? undefined : formData.service?.id, // Will be handled by backend for self-reservation
           sex: formData.is_self_reservation ? undefined : formData.sex,
           status: "Available",
           is_self_reservation: formData.is_self_reservation,

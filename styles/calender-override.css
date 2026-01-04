@@ -307,31 +307,7 @@
 }
 
 .rbc-time-view .rbc-day-slot::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    /* Dark lines at full hours (every 120px = 2 slots = 1 hour) */
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 119px,
-      #333333 120px,
-      #333333 120px
-    ),
-    /* Light lines at half hours (every 60px = 1 slot = 30 minutes) */
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 59px,
-      #e0e0e0 60px,
-      #e0e0e0 60px
-    );
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 /* Remove default borders to avoid conflicts */

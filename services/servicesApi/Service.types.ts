@@ -14,7 +14,8 @@ export interface TimeSlotsType {
   start_time: string,
   end_time: string,
   status: string,
-  user:User
+  user:User,
+  desc?: string
 }
 
 export interface serviceType {

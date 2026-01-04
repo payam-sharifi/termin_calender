@@ -46,9 +46,15 @@ export default function EventDetailsModal({
 
 
   const handleDelete = () => {
-    if(event.slotId && event.customerPhone){
+    const isSelfReservation = (event as any).isSelfReservation;
+    // For self-reservations, customerPhone is empty, but we still need slotId to delete
+    // For regular reservations, both slotId and customerPhone are required
+    if(event.slotId && (isSelfReservation || event.customerPhone)){
+      // For self-reservations, use placeholder since backend route requires phone parameter
+      // but service method doesn't actually use it (only uses id)
+      const phone = isSelfReservation ? "self" : event.customerPhone;
       
-      mutate({id:event.slotId,phone:event.customerPhone}
+      mutate({id:event.slotId,phone:phone}
         ,{
           onSuccess: (res) => {
             toast.success(res.message);
@@ -61,8 +67,6 @@ export default function EventDetailsModal({
         }
       )
     }
-     
-    
   };
 
   return (
@@ -104,10 +108,10 @@ export default function EventDetailsModal({
             </Row>
           </>
         )}
-        {event.description && (
+        {(event.description || (event as any).desc) && (
           <Row className="mb-3">
             <Col md={4} className="fw-bold">Beschreibung:</Col>
-            <Col md={8}>{event.description}</Col>
+            <Col md={8}>{event.description || (event as any).desc || ""}</Col>
           </Row>
         )}
       </Modal.Body>

@@ -112,6 +112,7 @@ useEffect(()=>{
           customerFamily: isSelfReservationService ? "" : (slot.user?.family || ""),
           customerEmail: isSelfReservationService ? "" : (slot.user?.email || ""),
           customerPhone: isSelfReservationService ? "" : (slot.user?.phone || ""),
+          description: slot.desc || "", // Add description from slot.desc for display in EventDetailsModal
           desc: slot.desc,
           isSelfReservation: isSelfReservationService,
         };
