@@ -34,12 +34,15 @@ export interface TimeSlotsRqType{
   email?:string,
   phone?:string,
   sex?:string,
-  service_id: string,
+  service_id?: string,
   start_time: string,
   customer_id?:string
   end_time: string,
   status?:string,
-  description?: string
+  description?: string,
+  desc?: string, // Backend field name
+  is_self_reservation?: boolean,
+  provider_id?: string
 }
 export interface TimeSlotsRqUpdateType {
   id:string

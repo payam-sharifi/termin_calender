@@ -117,6 +117,7 @@ export default function EventFormModal({
     customerPhone: string;
     customer_id: string;
     sex: string;
+    is_self_reservation: boolean;
   }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
@@ -129,6 +130,7 @@ export default function EventFormModal({
     customerPhone: initialData?.customerPhone || "",
     customer_id: initialData?.customer_id || "",
     sex: initialData?.sex || "",
+    is_self_reservation: false,
   });
 
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] =
@@ -195,6 +197,7 @@ export default function EventFormModal({
         customerPhone: initialData.customerPhone,
         customer_id: initialData.customer_id || "",
         sex: initialData.sex || (initialData as any).sex || "",
+        is_self_reservation: false, // When editing, it's always a customer reservation
       });
       // Ensure the edit modal shows the edit form (step 2) when initialData arrives asynchronously
       setCurrentStep(2);
@@ -205,12 +208,12 @@ export default function EventFormModal({
     }
   }, [initialData]);
 
-  // Check if customer is selected when in step 2, go back to step 1 if not
+  // Check if customer is selected or self-reservation is selected when in step 2, go back to step 1 if not
   useEffect(() => {
-    if (!isEditing && !isNewServiceModal && currentStep === 2 && !formData.customerName) {
+    if (!isEditing && !isNewServiceModal && currentStep === 2 && !formData.customerName && !formData.is_self_reservation) {
       setCurrentStep(1);
     }
-  }, [currentStep, formData.customerName, isEditing, isNewServiceModal]);
+  }, [currentStep, formData.customerName, formData.is_self_reservation, isEditing, isNewServiceModal]);
 
   // Update provider_id when it changes
   useEffect(() => {
@@ -243,10 +246,10 @@ export default function EventFormModal({
 
   const validateForm = () => {
     const newErrors: any = {};
-    if (!formData.service?.id) newErrors.service = "Service ist erforderlich.";
+    if (!formData.is_self_reservation && !formData.service?.id) newErrors.service = "Service ist erforderlich.";
     if (!formData.start) newErrors.start = "Startzeit ist erforderlich.";
     if (!formData.end) newErrors.end = "Endzeit ist erforderlich.";
-    if (!isEditing) {
+    if (!isEditing && !formData.is_self_reservation) {
       if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
       if (formData.customerEmail && !isValidEmail(formData.customerEmail)) {
         newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
@@ -328,20 +331,32 @@ export default function EventFormModal({
           }
         );
       } else {
+        // Map description to desc for backend API
+        const apiBody: any = {
+          name: formData.is_self_reservation ? undefined : formData.customerName,
+          family: formData.is_self_reservation ? undefined : formData.customerFamily,
+          email: formData.is_self_reservation ? undefined : formData.customerEmail,
+          phone: formData.is_self_reservation ? undefined : formData.customerPhone,
+          customer_id: formData.is_self_reservation ? undefined : formData.customer_id,
+          start_time: formData.start.toISOString(),
+          end_time: formData.end.toISOString(),
+          service_id: formData.is_self_reservation ? undefined : formData.service.id, // Will be handled by backend for self-reservation
+          sex: formData.is_self_reservation ? undefined : formData.sex,
+          status: "Available",
+          is_self_reservation: formData.is_self_reservation,
+          provider_id: formData.is_self_reservation ? provider_id : undefined,
+        };
+        
+        // Backend expects 'desc' field, not 'description'
+        // For self-reservation, use title as description if description is empty
+        if (formData.is_self_reservation) {
+          apiBody.desc = formData.description || formData.title || "";
+        } else if (formData.description) {
+          apiBody.desc = formData.description;
+        }
+        
         CreateSlotApi(
-          {
-            name: formData.customerName,
-            family: formData.customerFamily,
-            email: formData.customerEmail,
-            phone: formData.customerPhone,
-            customer_id: formData.customer_id,
-            start_time: formData.start.toISOString(),
-            end_time: formData.end.toISOString(),
-            service_id: formData.service.id,
-            sex: formData.sex,
-            status: "Available",
-            description: formData.description,
-          },
+          apiBody,
           {
             onSuccess: (res) => {
               toast.success(res.message);
@@ -483,6 +498,8 @@ export default function EventFormModal({
       customerPhone: "",
       customer_id: "",
       sex: "",
+      is_self_reservation: false,
+      description: "",
     }));
   };
 
@@ -507,17 +524,19 @@ export default function EventFormModal({
               : isEditing
                 ? "Termin bearbeiten"
                 : currentStep === 1
-                  ? "Kunde wählen"
-                  : (formData.customerName && formData.customerName.trim().length > 0)
-                    ? (
-                        <>
-                          Neuer Termin für {" "}
-                          <span style={{ color: 'red' }}>
-                            {formData.customerName} {formData.customerFamily || ""}
-                          </span>
-                        </>
-                      )
-                    : "Neuer Termin"}
+                  ? "Reservierungsart"
+                  : formData.is_self_reservation
+                    ? "Termin für mich selbst"
+                    : (formData.customerName && formData.customerName.trim().length > 0)
+                      ? (
+                          <>
+                            Neuer Termin für {" "}
+                            <span style={{ color: 'red' }}>
+                              {formData.customerName} {formData.customerFamily || ""}
+                            </span>
+                          </>
+                        )
+                      : "Neuer Termin"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -652,7 +671,7 @@ export default function EventFormModal({
             </Form>
           ) : (
             <Form onSubmit={handleSubmit}>
-              {currentStep === 2 && (
+              {currentStep === 2 && !formData.is_self_reservation && (
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
@@ -676,7 +695,13 @@ export default function EventFormModal({
                   </Form.Group>
                 </Col>
                 <Col md={6}>
-                  {/* <Form.Group className="mb-3">
+                </Col>
+              </Row>
+              )}
+              {currentStep === 2 && formData.is_self_reservation && (
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
                     <Form.Label>Titel</Form.Label>
                     <Form.Control
                       type="text"
@@ -687,9 +712,10 @@ export default function EventFormModal({
                           title: e.target.value,
                         }))
                       }
+                      placeholder="Titel für diese Reservierung..."
                       required
                     />
-                  </Form.Group> */}
+                  </Form.Group>
                 </Col>
               </Row>
               )}
@@ -752,17 +778,60 @@ export default function EventFormModal({
                 </Col>
               </Row>
               )}
+              {currentStep === 2 && (
+                <Row>
+                  <Col md={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Beschreibung / Notizen</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Optionale Beschreibung oder Notizen..."
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              )}
               {!isEditing && currentStep === 1 && (
                 <>
                   <Row>
                     <Col md={12}>
                       <Form.Group className="mb-3">
+                        <div className="mb-3">
+                          <Button
+                            variant={formData.is_self_reservation ? "primary" : "outline-primary"}
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                is_self_reservation: true,
+                                customerName: "",
+                                customerFamily: "",
+                                customerEmail: "",
+                                customerPhone: "",
+                                customer_id: "",
+                                sex: "",
+                              }));
+                              setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                              setCurrentStep(2);
+                            }}
+                          >
+                            Für mich selbst
+                          </Button>
+                        </div>
                         <CustomerSelect
                           value={formData.customer_id}
                           selectedLabel={`${formData.customerName} ${formData.customerFamily}`.trim()}
                           onChange={(customer) => {
                             setFormData((prev) => ({
                               ...prev,
+                              is_self_reservation: false,
                               customerName: customer.name,
                               customerFamily: customer.family,
                               customerEmail: customer.email,
@@ -776,7 +845,6 @@ export default function EventFormModal({
                         />
                         {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
                       </Form.Group>
-                      {/* Telephone field hidden in Kunde wählen step */}
                     </Col>
                   </Row>
                 </>
@@ -808,7 +876,7 @@ export default function EventFormModal({
             <Button
               variant="primary"
               onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
-              disabled={isCreatingSlot || isUpdatingSlot || hasConflict || (!isEditing && !formData.customerName)}
+              disabled={isCreatingSlot || isUpdatingSlot || hasConflict || (!isEditing && !formData.customerName && !formData.is_self_reservation)}
             >
               {isNewServiceModalOpen ? "Service erstellen" : isEditing ? "Speichern" : "Termin erstellen"}
               {(isCreatingSlot || isUpdatingSlot) && (

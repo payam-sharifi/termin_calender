@@ -90,16 +90,20 @@ export default function EventDetailsModal({
         </Row>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Kunde:</Col>
-          <Col md={8}>{event.customerName} {event.customerFamily}</Col>
+          <Col md={8}>{(event as any).isSelfReservation ? "Selbst" : `${event.customerName} ${event.customerFamily}`.trim()}</Col>
         </Row>
-        <Row className="mb-3">
-          <Col md={4} className="fw-bold">E-Mail:</Col>
-          <Col md={8}>{event.customerEmail}</Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={4} className="fw-bold">Telefon:</Col>
-          <Col md={8}>{event.customerPhone}</Col>
-        </Row>
+        {!(event as any).isSelfReservation && (
+          <>
+            <Row className="mb-3">
+              <Col md={4} className="fw-bold">E-Mail:</Col>
+              <Col md={8}>{event.customerEmail}</Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4} className="fw-bold">Telefon:</Col>
+              <Col md={8}>{event.customerPhone}</Col>
+            </Row>
+          </>
+        )}
         {event.description && (
           <Row className="mb-3">
             <Col md={4} className="fw-bold">Beschreibung:</Col>

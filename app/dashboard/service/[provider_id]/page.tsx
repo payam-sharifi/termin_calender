@@ -55,7 +55,7 @@ useEffect(()=>{
     end_time:  currentRange.end,
   });
   setDateSizeChange(false)
-  }
+}
 },[dateSizeChange, currentRange, GetServices, provider_id])
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
@@ -81,38 +81,48 @@ useEffect(()=>{
   // If undefined, don't pass empty array - let the calendar keep current events
   const transformedData = serviceWithEventData 
     ? serviceWithEventData.flatMap(
-        (service, serviceIndex) =>
-          service.timeSlots.map((slot, slotIndex) => ({
-            start: new Date(slot.start_time),
-            end: new Date(slot.end_time),
-            id: `${serviceIndex}-${slotIndex}`,
-            slotId: slot.id,
-            isDraggable: true,
-            color: service.color,
-            title: service.title,
-            service: {
-              id: service.id,
-              provider_id: service.provider_id,
-              name: service.title,
-              providerName: service.user?.name || '',
-              duration: service.duration,
-              price: service.price,
-              description: service.description,
-              is_active: service.is_active,
-              timeSlots: service.timeSlots,
-            },
-            customerName: slot.user?.name,
-            customerFamily: slot.user?.family,
-            customerEmail: slot.user?.email,
-            customerPhone: slot.user?.phone,
-          }))
+    (service, serviceIndex) =>
+      service.timeSlots.map((slot, slotIndex) => {
+        // For self-reservation service, use desc (title) instead of service.title
+        const isSelfReservationService = service.title?.startsWith("___SELF_RESERVATION___") || false;
+        const eventTitle = isSelfReservationService && slot.desc ? slot.desc : (service.title || "");
+        // Use different color for self-reservation (purple/violet)
+        const eventColor = isSelfReservationService ? "#9B59B6" : service.color;
+        
+        return {
+          start: new Date(slot.start_time),
+          end: new Date(slot.end_time),
+          id: `${serviceIndex}-${slotIndex}`,
+          slotId: slot.id,
+          isDraggable: true,
+          color: eventColor,
+          title: eventTitle,
+          service: {
+            id: service.id,
+            provider_id: service.provider_id,
+            name: service.title,
+            providerName: service.user?.name || '',
+            duration: service.duration,
+            price: service.price,
+            description: service.description,
+            is_active: service.is_active,
+            timeSlots: service.timeSlots,
+          },
+          customerName: isSelfReservationService ? "Selbst" : (slot.user?.name || ""),
+          customerFamily: isSelfReservationService ? "" : (slot.user?.family || ""),
+          customerEmail: isSelfReservationService ? "" : (slot.user?.email || ""),
+          customerPhone: isSelfReservationService ? "" : (slot.user?.phone || ""),
+          desc: slot.desc,
+          isSelfReservation: isSelfReservationService,
+        };
+      })
       )
     : undefined; // Pass undefined during loading, not empty array
   
   const adjEvents1 = transformedData 
     ? transformedData.map((it: any, ind: any) => ({
-        ...it,
-        isDraggable: ind % 2 === 0,
+    ...it,
+    isDraggable: ind % 2 === 0,
       }))
     : undefined; // Pass undefined during loading
 

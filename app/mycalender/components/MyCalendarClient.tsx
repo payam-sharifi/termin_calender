@@ -278,6 +278,9 @@ export default function MyCalendarClient({
   }, []);
 
   const eventStyleGetter = useCallback((event: any) => {
+    // Check if it's a self-reservation
+    const isSelfReservation = event.isSelfReservation || false;
+    
     // Determine if service is for Damen (ladies) based on service title
     const isDamenService = (serviceTitle: string) => {
       const damenKeywords = [
@@ -295,12 +298,36 @@ export default function MyCalendarClient({
     const isDamen = isDamenService(serviceTitle);
 
     // Set colors based on service type (reversed: blue for Damen, red for Herren)
-    const backgroundColor = isDamen ? 'rgb(108 38 38)' : '#388AA9'; // rang red for Damen,Blue  for Herren
-    const textColor = '#FFFFFF'; // White text for both
+    let backgroundColor = isDamen ? 'rgb(108 38 38)' : '#388AA9'; // rang red for Damen,Blue  for Herren
+    
+    // For self-reservation, use striped pattern
+    let backgroundStyle: React.CSSProperties = {
+      backgroundColor: backgroundColor,
+    };
+    
+    if (isSelfReservation) {
+      // Create diagonal pattern: thin gray diagonal lines (like / / /) with 4px spacing
+      const backgroundColor = '#FFFFFF'; // White background
+      const stripeColor = 'rgba(128, 128, 128, 0.5)'; // Gray diagonal lines
+      backgroundStyle = {
+        background: `repeating-linear-gradient(
+          45deg,
+          ${backgroundColor},
+          ${backgroundColor} 3px,
+          ${stripeColor} 3px,
+          ${stripeColor} 4px,
+          ${backgroundColor} 4px,
+          ${backgroundColor} 7px
+        )`,
+      };
+    }
+    
+    // For self-reservation with gray background, use white text for better contrast
+    const textColor = isSelfReservation ? '#FFFFFF' : '#FFFFFF'; // White text for both
 
     return {
       style: {
-        backgroundColor: backgroundColor,
+        ...backgroundStyle,
         color: textColor,
         borderRadius: "4px",
         opacity: 0.9,
@@ -399,9 +426,25 @@ export default function MyCalendarClient({
 
       // Ultra-compact single-line view for 15-minute slots
       if (durationMinutes <= 15) {
+        const isSelfReservation = (typedEvent as any).isSelfReservation || false;
+        const baseColor = typedEvent.color || "#9B59B6";
+        
+        const backgroundStyle = isSelfReservation ? {
+          background: `repeating-linear-gradient(
+            45deg,
+            #FFFFFF,
+            #FFFFFF 3px,
+            rgba(128, 128, 128, 0.5) 3px,
+            rgba(128, 128, 128, 0.5) 4px,
+            #FFFFFF 4px,
+            #FFFFFF 7px
+          )`,
+        } : {};
+        
         return (
           <div
             style={{
+              ...backgroundStyle,
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -413,8 +456,10 @@ export default function MyCalendarClient({
               overflow: "hidden",
               textOverflow: "ellipsis",
               lineHeight: 1.1,
+              color: isSelfReservation ? '#000000' : '#FFFFFF',
+              fontWeight: isSelfReservation ? 'bold' : 'normal',
             }}
-            title={`${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()}
+            title={`${isSelfReservation ? "Selbst" : `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""}`.trim()} - ${typedEvent.title || ""}`.trim()}
           >
             <div
               style={{
@@ -427,9 +472,11 @@ export default function MyCalendarClient({
               }}
             />
             <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-              {(typedEvent.customerName || typedEvent.customerFamily)
-                ? `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()
-                : (typedEvent.title || "")}
+              {(typedEvent as any).isSelfReservation 
+                ? `Selbst - ${typedEvent.title || ""}`.trim()
+                : (typedEvent.customerName || typedEvent.customerFamily)
+                  ? `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()
+                  : (typedEvent.title || "")}
             </span>
           </div>
         );
@@ -437,16 +484,36 @@ export default function MyCalendarClient({
 
       // Show more details in day view
       if (currentView === Views.DAY) {
+        const isSelfReservation = (typedEvent as any).isSelfReservation || false;
+        const baseColor = typedEvent.color || "#9B59B6";
+        
+        const backgroundStyle = isSelfReservation ? {
+          background: `repeating-linear-gradient(
+            45deg,
+            #FFFFFF,
+            #FFFFFF 3px,
+            rgba(196, 111, 111, 0.5) 4px,
+           
+rgba(165, 63, 63, 0.2) 5px,
+            #FFFFFF 5px
+          )`,
+        } : {
+          backgroundColor: baseColor,
+        };
+        
         return (
           <div
             className="d-flex flex-column justify-content-start"
             style={{ 
+              ...backgroundStyle,
               padding: "2px 4px", 
               minHeight: "50px",
               fontSize: "12px",
               lineHeight: "1.2",
               width: "100%",
-              height: "100%"
+              height: "100%",
+              color: isSelfReservation ? '#000000' : '#FFFFFF',
+              fontWeight: isSelfReservation ? 'bold' : 'normal',
             }}
           >
             {/* Time on the left side */}
