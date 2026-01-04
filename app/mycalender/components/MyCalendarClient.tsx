@@ -281,28 +281,9 @@ export default function MyCalendarClient({
     // Check if it's a self-reservation
     const isSelfReservation = event.isSelfReservation || false;
     
-    // Determine if service is for Damen (ladies) based on service title
-    const isDamenService = (serviceTitle: string) => {
-      const damenKeywords = [
-        'maniküre', 'pediküre', 'gesichtsbehandlung', 'haarfärben', 
-        'make-up', 'eyebrow', 'wimpern', 'nagel', 'kosmetik',
-        'damen', 'frau', 'lady', 'beauty', 'schönheit'
-      ];
-      
-      const title = serviceTitle?.toLowerCase() || '';
-      return damenKeywords.some(keyword => title.includes(keyword));
-    };
-
-    // Get service title from event
-    const serviceTitle = event.service?.title || event.title || '';
-    const isDamen = isDamenService(serviceTitle);
-
-    // Set colors based on service type (reversed: blue for Damen, red for Herren)
-    let backgroundColor = isDamen ? 'rgb(108 38 38)' : '#388AA9'; // rang red for Damen,Blue  for Herren
-    
-    // For self-reservation, use striped pattern
+    // For self-reservation, use striped pattern, otherwise white background
     let backgroundStyle: React.CSSProperties = {
-      backgroundColor: backgroundColor,
+      backgroundColor: '#FFFFFF', // White background for all events
     };
     
     if (isSelfReservation) {
@@ -322,8 +303,8 @@ export default function MyCalendarClient({
       };
     }
     
-    // For self-reservation with gray background, use white text for better contrast
-    const textColor = isSelfReservation ? '#FFFFFF' : '#FFFFFF'; // White text for both
+    // Text color
+    const textColor = isSelfReservation ? '#000000' : '#000000'; // Black text for all events
 
     return {
       style: {
@@ -415,6 +396,12 @@ export default function MyCalendarClient({
     [currentDate, handleNavigate]
   );
 
+  // Helper function to determine if service is for Damen (ladies) or Herren (men)
+  const isDamenService = useCallback((serviceTitle: string) => {
+    const lower = (serviceTitle || "").toLowerCase();
+    return lower.includes("damen");
+  }, []);
+
   const components = {
     event: ({ event }: { event: CalendarEvent }) => {
       if (!event) return null;
@@ -424,11 +411,13 @@ export default function MyCalendarClient({
         Math.round((new Date(typedEvent.end).getTime() - new Date(typedEvent.start).getTime()) / 60000)
       );
 
+      // Determine service category
+      const serviceTitle = typedEvent.service?.title || typedEvent.title || '';
+      const isDamen = isDamenService(serviceTitle);
+      const isSelfReservation = (typedEvent as any).isSelfReservation || false;
+
       // Ultra-compact single-line view for 15-minute slots
       if (durationMinutes <= 15) {
-        const isSelfReservation = (typedEvent as any).isSelfReservation || false;
-        const baseColor = typedEvent.color || "#9B59B6";
-        
         const backgroundStyle = isSelfReservation ? {
           background: `repeating-linear-gradient(
             45deg,
@@ -439,7 +428,9 @@ export default function MyCalendarClient({
             #FFFFFF 4px,
             #FFFFFF 7px
           )`,
-        } : {};
+        } : {
+          backgroundColor: isDamen ? '#dc3545' : '#0d6efd', // Red for Damen, Blue for Herren
+        };
         
         return (
           <div
@@ -456,7 +447,7 @@ export default function MyCalendarClient({
               overflow: "hidden",
               textOverflow: "ellipsis",
               lineHeight: 1.1,
-              color: isSelfReservation ? '#000000' : '#FFFFFF',
+              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
               fontWeight: isSelfReservation ? 'bold' : 'normal',
             }}
             title={`${isSelfReservation ? "Selbst" : `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""}`.trim()} - ${typedEvent.title || ""}`.trim()}
@@ -484,9 +475,6 @@ export default function MyCalendarClient({
 
       // Show more details in day view
       if (currentView === Views.DAY) {
-        const isSelfReservation = (typedEvent as any).isSelfReservation || false;
-        const baseColor = typedEvent.color || "#9B59B6";
-        
         const backgroundStyle = isSelfReservation ? {
           background: `repeating-linear-gradient(
             45deg,
@@ -498,7 +486,7 @@ rgba(165, 63, 63, 0.2) 5px,
             #FFFFFF 5px
           )`,
         } : {
-          backgroundColor: baseColor,
+          backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Red for Damen, Blue for Herren
         };
         
         return (
@@ -512,7 +500,7 @@ rgba(165, 63, 63, 0.2) 5px,
               lineHeight: "1.2",
               width: "100%",
               height: "100%",
-              color: isSelfReservation ? '#000000' : '#FFFFFF',
+              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
               fontWeight: isSelfReservation ? 'bold' : 'normal',
             }}
           >
