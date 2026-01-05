@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useDeleteService } from "@/services/hooks/serviices/useDeleteService";
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { useDebounce } from "@/hooks/useDebounce";
-import SafeDeleteModal from "@/app/mycalender/components/SafeDeleteModal";
+import SafeDeleteModal from "@/components/SafeDeleteModal";
 import { toast } from "react-toastify";
 import ServicesTable from "./components/ServicesTable";
 import EditServiceModal from "./components/EditServiceModal";

@@ -15,7 +15,7 @@ export interface registerUserRqType{
    family: string;
    email: string;
    phone: string;
-   code:string
+   code?: string; // Optional - no longer required for registration
    sex: string;
    password: string;
    role?: string;

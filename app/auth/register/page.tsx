@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ROLE, SEX } from '@/services/userApi/user.types';
-import { register, sendOtp } from '@/services/auth';
-import OtpModal from './OtpModal';
+import { register } from '@/services/auth';
 import { toast } from 'react-toastify';
 
 export default function RegisterPage() {
@@ -16,13 +15,10 @@ export default function RegisterPage() {
     confirmPassword: '',
     sex: SEX.male,
   });
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [otpError, setOtpError] = useState('');
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,45 +82,28 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setOtpError('');
     if (!validate()) return;
-    setOtpLoading(true);
-    try {
-      await sendOtp({ phone: form.phone });
-      setOtpModalOpen(true);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Fehler beim Senden des OTP');
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async (code: string) => {
     setRegisterLoading(true);
-    setOtpError('');
     try {
-    const res = await register({
+      const res = await register({
         name: form.name,
         family: form.family,
         email: form.email,
         phone: form.phone,
         password: form.password,
         sex: form.sex,
-        code,
         role: ROLE.Customer,
-        is_verified:true
+        is_verified: true
       });
       
       setSuccess(true);
-      toast.success(res.message)
-      setOtpModalOpen(false);
+      toast.success(res.message);
       setTimeout(() => router.push('/auth/login'), 1000);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Registrierung fehlgeschlagen';
-      // Ensure error is a string
       const errorString = typeof errorMessage === 'string' ? errorMessage : 'Registrierung fehlgeschlagen';
       toast.error(errorString);
-      setOtpError(errorString);
+      setError(errorString);
     } finally {
       setRegisterLoading(false);
     }
@@ -238,17 +217,11 @@ export default function RegisterPage() {
           </div>
         </div>
         {error && <div className="alert alert-danger mt-3">{error}</div>}
-        {/* {success && <div className="alert alert-success mt-3">Erfolgreich registriert! Weiterleitung...</div>} */}
-        <button type="submit" className="btn btn-primary w-100 mt-3" disabled={otpLoading}>Registrieren</button>
+        {success && <div className="alert alert-success mt-3">Erfolgreich registriert! Weiterleitung...</div>}
+        <button type="submit" className="btn btn-primary w-100 mt-3" disabled={registerLoading}>
+          {registerLoading ? 'Registrierung läuft...' : 'Registrieren'}
+        </button>
       </form>
-      <OtpModal
-        open={otpModalOpen}
-        onClose={() => setOtpModalOpen(false)}
-        onSubmit={handleOtpSubmit}
-        phone={form.phone}
-        loading={registerLoading}
-        error={otpError}
-      />
       <div className="mt-3 text-center">
         Bereits ein Konto? <a href="/auth/login">Login</a>
       </div>
