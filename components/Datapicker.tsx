@@ -38,7 +38,18 @@ export default function GermanDatePicker({ selected, onChange, minDate, filterDa
       </InputGroup>
 
       {open && (
-        <div style={{ position: "absolute", zIndex: 1000 }}>
+        <div 
+          style={{ 
+            position: "fixed", 
+            zIndex: 1000,
+            width: "100vw",
+           
+            left: "0",
+            top: "0",
+            transform: "none"
+          }}
+          className="mobile-datepicker-container"
+        >
           <DatePicker
             selected={selected}
             onChange={(date) => {
@@ -51,6 +62,7 @@ export default function GermanDatePicker({ selected, onChange, minDate, filterDa
             onClickOutside={() => setOpen(false)}
             minDate={minDate}
             filterDate={filterDate}
+            className="mobile-datepicker"
           />
         </div>
       )}

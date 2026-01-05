@@ -28,4 +28,4 @@ jobs:
             pm2 delete termin-next-app || true
             PORT=4500 pm2 start npm --name "termin-next-app" --watch -- start
             pm2 save
-            pm2 startup
+            

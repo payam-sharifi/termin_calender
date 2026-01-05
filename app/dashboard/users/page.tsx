@@ -22,7 +22,20 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const limit = 10;
-  const { data, isLoading,refetch} = useGetUsers(debouncedSearchTerm, limit, page);
+  const formatForApiSearch = (value: string) =>
+    value
+      .trim()
+      .split(/\s+/)
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""))
+      .join(" ");
+
+  const apiSearchTerm = debouncedSearchTerm.length >= 3 ? formatForApiSearch(debouncedSearchTerm) : "";
+
+  const { data, isLoading,refetch} = useGetUsers(
+    apiSearchTerm,
+    limit,
+    page
+  );
   const users = data?.data || [];
   
   // Modal states
@@ -110,7 +123,7 @@ export default function UsersPage() {
 
   const handleSaveUser = (user: UserRsDataType) => {
     const { id, created_at, updated_at, service, ...rest } = user;
-    const payload = { id, ...rest };
+    const payload = { id, ...rest,password:'1234567' };
     
     if (!payload.email) {
       delete (payload as any).email;
@@ -162,7 +175,7 @@ export default function UsersPage() {
       <Container className="py-4">
         <div className="d-flex justify-content-between align-items-center mb-4 p-2 shadow" >
          
-            <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => router.back()}>
+            <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => router.push('/dashboard')}>
               Zurück
             </button>
           

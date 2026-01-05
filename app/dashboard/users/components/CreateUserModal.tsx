@@ -50,9 +50,9 @@ export default function CreateUserModal({
 
   const handlePhoneChange = (value: string) => {
     let val = value.replace(/^0+/, "");
-    if (!val.startsWith("+49")) {
-      val = "+49" + val.replace(/^\+*/, "");
-    }
+//    if (!val.startsWith("+49")) {
+  //    val = "+49" + val.replace(/^\+*/, "");
+   // }
     handleFieldChange("phone", val);
   };
 
@@ -169,7 +169,7 @@ export default function CreateUserModal({
                   type="tel"
                   value={newUser.phone}
                   onChange={e => handlePhoneChange(e.target.value)}
-                  isInvalid={!!errors.phone}
+                 // isInvalid={!!errors.phone}
                   required
                 />
                 <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>

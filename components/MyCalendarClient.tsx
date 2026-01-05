@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   Calendar,
   Views,
@@ -22,6 +22,8 @@ import moment from "moment";
 import "moment-timezone";
 import "@/styles/calender-override.css";
 import { useDeleteService } from "@/services/hooks/serviices/useDeleteService";
+import { DndProvider } from "react-dnd";
+import { TouchBackend } from "react-dnd-touch-backend";
 import {
   FaTimes,
   FaChevronDown,
@@ -110,8 +112,28 @@ export default function MyCalendarClient({
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const {mutate}=useUpdateTimeSlotDate()
+  
+  // Use ref to track previous eventsObj to detect actual changes
+  const prevEventsObjRef = useRef<any>(null);
+  
+  // Only update events when we have valid new data
   useEffect(() => {
-    setEvents(eventsObj || []);
+    // Skip if eventsObj hasn't actually changed (reference equality)
+    if (eventsObj === prevEventsObjRef.current) {
+      return;
+    }
+    
+    // If eventsObj is undefined/null, don't update - keep current events
+    // This prevents clearing events during loading states
+    if (eventsObj === undefined || eventsObj === null) {
+      return;
+    }
+    
+    // Only update if we have an array (empty array is valid - means no events)
+    if (Array.isArray(eventsObj)) {
+      setEvents(eventsObj);
+      prevEventsObjRef.current = eventsObj;
+    }
   }, [eventsObj]);
 
 
@@ -141,9 +163,32 @@ export default function MyCalendarClient({
     setIsModalOpen(true);
   }, []);
 
+  // Conflict check function
+  const checkConflict = useCallback((eventData: any) => {
+    return events.some((existingEvent) => {
+      // Skip the current event if we're editing
+      if (isEditMode && selectedEvent && existingEvent.id === selectedEvent.id) {
+        return false;
+      }
+      
+      const newStart = new Date(eventData.start);
+      const newEnd = new Date(eventData.end);
+      const existingStart = new Date(existingEvent.start);
+      const existingEnd = new Date(existingEvent.end);
+      
+      // Check if the new event overlaps with existing event
+      // Overlap occurs when: newStart < existingEnd AND newEnd > existingStart
+      return newStart < existingEnd && newEnd > existingStart;
+    });
+  }, [events, isEditMode, selectedEvent]);
+
   const handleEventSubmit = useCallback(
     async (eventData: any) => {
       try {
+        // First refresh the backend data
+        await change();
+        
+        // Then update local state with the new event
         setEvents((prev) => {
           if (isEditMode && selectedEvent) {
             // Update existing event
@@ -160,67 +205,80 @@ export default function MyCalendarClient({
             return updatedEvents;
           }
         });
+        
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
-      } catch (error) {}
+      } catch (error) {
+        toast.error("Fehler beim Erstellen des Termins");
+      }
     },
-    [isEditMode, selectedEvent]
+    [isEditMode, selectedEvent, change]
   );
 
   const moveEvent = useCallback(
     ({ event, start, end }: any) => {
  
       const typedEvent = event as any;
-      setEvents((prev) => {
-        const existing = prev.find((ev) => ev.id === typedEvent.id);
-        if (!existing) return prev;
-        const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-        if(existing?.slotId){
-          mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
-            ,{
-              onSuccess: (res) => {
-                toast.success(res.message);
-                  change()
-                return [...filtered, { ...existing, start, end }];
-              },
-              onError: (error: any) => {
-                toast.error(error?.message);
-              }
-            }
-          )
+      const existing = events.find((ev) => ev.id === typedEvent.id);
+      if (!existing || !existing?.slotId) return;
+      
+      mutate(
+        {
+          id: existing.slotId,
+          start_time: start,
+          end_time: end,
+          phone: typedEvent.customerPhone,
+          name: typedEvent.customerName
+        },
+        {
+          onSuccess: (res) => {
+            toast.success(res.message);
+            setEvents((prev) => {
+              const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
+              return [...filtered, { ...existing, start, end }];
+            });
+            change();
+          },
+          onError: (error: any) => {
+            toast.error(error?.message);
+          }
         }
-        return [];
-      });
+      );
     },
-    [setEvents]
+    [events, mutate, change]
   );
 
   const resizeEvent = useCallback(
     ({ event, start, end }: any) => {
       const typedEvent = event as any;
-      setEvents((prev) => {
-        const existing = prev.find((ev) => ev.id === typedEvent.id);
-        if (!existing) return prev;
-        const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-      if(existing?.slotId){
-        mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
-          ,{
-            onSuccess: (res) => {
-              toast.success(res.message);
-                change()
+      const existing = events.find((ev) => ev.id === typedEvent.id);
+      if (!existing || !existing?.slotId) return;
+      
+      mutate(
+        {
+          id: existing.slotId,
+          start_time: start,
+          end_time: end,
+          phone: typedEvent.customerPhone,
+          name: typedEvent.customerName
+        },
+        {
+          onSuccess: (res) => {
+            toast.success(res.message);
+            setEvents((prev) => {
+              const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
               return [...filtered, { ...existing, start, end }];
-            },
-            onError: (error: any) => {
-              toast.error(error?.message);
-            }
+            });
+            change();
+          },
+          onError: (error: any) => {
+            toast.error(error?.message);
           }
-        )
-      }
-       return []
-      });
+        }
+      );
     },
-    [setEvents]
+    [events, mutate, change]
   );
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
@@ -229,14 +287,51 @@ export default function MyCalendarClient({
     setIsDetailsModalOpen(true);
   }, []);
 
+  // Helper function to determine if service is for Damen (ladies) or Herren (men)
+  const isDamenService = useCallback((serviceTitle: string) => {
+    const lower = (serviceTitle || "").toLowerCase();
+    return lower.includes("damen");
+  }, []);
+
   const eventStyleGetter = useCallback((event: any) => {
-  
+    // Check if it's a self-reservation
+    const isSelfReservation = event.isSelfReservation || false;
+    
+    // Determine service category
+    const serviceTitle = event.service?.title || event.title || '';
+    const isDamen = isDamenService(serviceTitle);
+    
+    // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
+    let backgroundStyle: React.CSSProperties = {
+      backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Same colors as event component
+    };
+    
+    if (isSelfReservation) {
+      // Create diagonal pattern: thin gray diagonal lines (like / / /) with 4px spacing
+      const backgroundColor = '#FFFFFF'; // White background
+      const stripeColor = 'rgba(128, 128, 128, 0.5)'; // Gray diagonal lines
+      backgroundStyle = {
+        background: `repeating-linear-gradient(
+          45deg,
+          ${backgroundColor},
+          ${backgroundColor} 3px,
+          ${stripeColor} 3px,
+          ${stripeColor} 4px,
+          ${backgroundColor} 4px,
+          ${backgroundColor} 7px
+        )`,
+      };
+    }
+    
+    // Text color
+    const textColor = isSelfReservation ? '#000000' : '#FFFFFF'; // White text on colored background, black for self-reservation
+
     return {
       style: {
-        backgroundColor: event.color || "#4a90e2", 
+        ...backgroundStyle,
+        color: textColor,
         borderRadius: "4px",
-        opacity: 0.8,
-        color: "white",
+        opacity: 0.9,
         border: "0px",
         display: "block",
         padding: "2px 4px",
@@ -246,7 +341,7 @@ export default function MyCalendarClient({
         whiteSpace: "nowrap",
       },
     };
-  }, []);
+  }, [isDamenService]);
 
   const handleDropFromOutside = useCallback(
     ({ start, end, allDay, allday, event }: any) => {
@@ -325,36 +420,193 @@ export default function MyCalendarClient({
     event: ({ event }: { event: CalendarEvent }) => {
       if (!event) return null;
       const typedEvent = event as Event;
+      const durationMinutes = Math.max(
+        0,
+        Math.round((new Date(typedEvent.end).getTime() - new Date(typedEvent.start).getTime()) / 60000)
+      );
+
+      // Determine service category
+      const serviceTitle = typedEvent.service?.title || typedEvent.title || '';
+      const isDamen = isDamenService(serviceTitle);
+      const isSelfReservation = (typedEvent as any).isSelfReservation || false;
+
+      // Ultra-compact single-line view for 15-minute slots
+      if (durationMinutes <= 15) {
+        const backgroundStyle = isSelfReservation ? {
+          background: `repeating-linear-gradient(
+            45deg,
+            #FFFFFF,
+            #FFFFFF 3px,
+            rgba(128, 128, 128, 0.5) 3px,
+            rgba(128, 128, 128, 0.5) 4px,
+            #FFFFFF 4px,
+            #FFFFFF 7px
+          )`,
+        } : {
+          backgroundColor: isDamen ? '#dc3545' : '#0d6efd', // Red for Damen, Blue for Herren
+        };
+        
+        return (
+          <div
+            style={{
+              ...backgroundStyle,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              width: "100%",
+              height: "100%",
+              padding: "0 4px",
+              fontSize: "11px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              lineHeight: 1.1,
+              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
+              fontWeight: isSelfReservation ? 'bold' : 'normal',
+            }}
+            title={`${isSelfReservation ? "Selbst" : `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""}`.trim()} - ${typedEvent.title || ""}`.trim()}
+          >
+            <div
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: typedEvent.color || "blue",
+                borderRadius: "50%",
+                border: "2px solid white",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+              {(typedEvent as any).isSelfReservation 
+                ? `Selbst - ${typedEvent.title || ""}`.trim()
+                : (typedEvent.customerName || typedEvent.customerFamily)
+                  ? `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()
+                  : (typedEvent.title || "")}
+            </span>
+          </div>
+        );
+      }
 
       // Show more details in day view
       if (currentView === Views.DAY) {
+        const backgroundStyle = isSelfReservation ? {
+          background: `repeating-linear-gradient(
+            45deg,
+rgb(255, 255, 255),
+            #FFFFFF 3px,
+            rgba(196, 111, 111, 0.5) 4px,
+           
+rgba(165, 63, 63, 0.2) 5px,
+            #FFFFFF 5px
+          )`,
+        } : {
+          backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Red for Damen, Blue for Herren
+        };
+        
         return (
           <div
-            className="d-flex  justify-content align-items-center"
-            style={{ padding: "4px" }}
+            className="d-flex flex-column justify-content-start"
+            style={{ 
+              ...backgroundStyle,
+              padding: "2px 4px", 
+              minHeight: "50px",
+              fontSize: "12px",
+              lineHeight: "1.2",
+              width: "100%",
+              height: "100%",
+              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
+              fontWeight: isSelfReservation ? 'bold' : 'normal',
+            }}
           >
-            <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
-           {typedEvent.title} {typedEvent.customerName}{typedEvent.customerFamily}{typedEvent.description}
+            {/* Time on the left side */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "flex-start", 
+              alignItems: "center",
+              marginBottom: "2px"
+            }}>
+              {/* <span style={{ 
+                fontWeight: "bold", 
+                fontSize: "11px",
+                color: "rgba(255,255,255,0.9)"
+              }}>
+                {localizer.format(typedEvent.start, "HH:mm")}-{localizer.format(typedEvent.end, "HH:mm")}
+              </span> */}
             </div>
-
+            
+            {/* Event details below */}
+            <div style={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              justifyContent: "flex-start",
+              flex: 1
+            }}>
+              <div style={{ 
+                fontWeight: "600", 
+                fontSize: "15px",
+                marginBottom: "4px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }}>
+                 {typedEvent.customerName} {typedEvent.customerFamily}
+              </div>
+                              <div style={{ 
+                  fontSize: "15px",
+                  marginBottom: "1px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}>
+                  <div style={{
+                    width: "16px",
+                    height: "16px",
+                    backgroundColor: typedEvent.color || "blue" ,
+                    borderRadius: "50%",
+                    border: "2px solid white",
+                    flexShrink: 0
+                  }}></div>
+                 
+                  {typedEvent.title}
+                </div>
+              {typedEvent.description && (
+                <div style={{ 
+                  fontSize: "10px",
+                  fontStyle: "italic",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                }}>
+                  {typedEvent.description}
+                </div>
+              )}
+            </div>
           </div>
         );
       }
 
       // Simple display for other views
-    //  return <div style={{ padding: "2px" }}>{typedEvent.title}</div>;
+      return (
+        <div style={{ 
+          padding: "2px 4px", 
+          fontSize: "12px",
+          minHeight: "25px",
+          display: "flex",
+          alignItems: "center",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis"
+        }}>
+          {typedEvent.title}
+        </div>
+      );
     },
   };
 
-  const formats = {
-    timeGutterFormat: "HH:mm", // 24-hour format (e.g., "08:00", "18:00")
-    eventTimeRangeFormat: ({ start, end }: any, culture: any, localizer: any) =>
-      `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(
-        end,
-        "HH:mm",
-        culture
-      )}`,
-  };
+
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -363,25 +615,21 @@ export default function MyCalendarClient({
   };
 
   const handleConfirmDelete = useCallback(async () => {
-   
     if (serviceToDelete) {
-
-     deleteService(serviceToDelete,{
-      onSuccess(res) {
-        toast.success("Dienst erfolgreich gelöscht")
-        toast.success(res.message)
-       setServiceToDelete(null);
-     },onError(res){
-      toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält")
-      toast.error(res.message) 
-    }
-    },
-  
-  
-  );
-
-      setOpenDeleteModal(false);
-      queryClient.invalidateQueries({ queryKey: ["services"] });
+      deleteService(serviceToDelete, {
+        onSuccess(res) {
+          toast.success("Dienst erfolgreich gelöscht");
+          toast.success(res.message);
+          setServiceToDelete(null);
+          setOpenDeleteModal(false);
+          queryClient.invalidateQueries({ queryKey: ["services"] });
+        },
+        onError(res) {
+          toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält");
+          toast.error(res.message);
+          setOpenDeleteModal(false);
+        }
+      });
     }
   }, [deleteService, serviceToDelete, queryClient]);
 
@@ -408,19 +656,13 @@ export default function MyCalendarClient({
             >
            
               <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
-              Nue Kunde
+               Kunden
+              </Link>
+              <Link href={`/dashboard/services/${provider_id}`} className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
+              Dienste
               </Link>
 
-              <button 
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setIsNewServiceModalOpen(true);
-                }} 
-                className="btn" 
-                style={{backgroundColor:"#5d81cf"}}
-              >
-                Nue Service
-              </button>
+            
               <button 
                 className="btn" 
                 onClick={() => {
@@ -438,7 +680,7 @@ export default function MyCalendarClient({
               >
                 logout
               </button>
-              {Array.isArray(services) &&
+              {/* {Array.isArray(services) &&
                 services.map((service) => (
                   <button
                     key={service.id}
@@ -479,7 +721,7 @@ export default function MyCalendarClient({
                       }}
                     />
                   </button>
-                ))}
+                ))} */}
             
             </div>
       
@@ -522,12 +764,31 @@ export default function MyCalendarClient({
               
             </div>
 
+            <DndProvider 
+              backend={TouchBackend} 
+              options={{ 
+                enableMouseEvents: true,
+                enableTouchEvents: true,
+                enableKeyboardEvents: false,
+                delay: 0,
+                delayTouchStart: 0,
+                touchSlop: 8,
+                ignoreContextMenu: true,
+                scrollAngleRanges: [
+                  { start: 30, end: 150 },
+                  { start: 210, end: 330 }
+                ]
+              }}
+            >
             <DragAndDropCalendar
               localizer={localizer}
               defaultDate={new Date()}
-              min={new Date(0, 0, 0, 8, 0, 0)} // 8:00 AM
-              max={new Date(0, 0, 0, 22, 0, 0)} // 6:00 PM
-              formats={formats}
+              min={new Date(0, 0, 0, 9, 0, 0)} // 8:00 AM
+              max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
+              formats={{
+                eventTimeRangeFormat: () => "", // Hide the default time display
+                timeGutterFormat: "HH:mm"
+              }}
               events={events}
               startAccessor={(event: any) => new Date(event.start)}
               endAccessor={(event: any) => new Date(event.end)}
@@ -543,7 +804,7 @@ export default function MyCalendarClient({
               onSelectSlot={handleSelectSlot}
               // onDropFromOutside={handleDropFromOutside}
               resizable
-              step={30}
+              step={15}
               timeslots={2}
               eventPropGetter={eventStyleGetter}
               onSelectEvent={handleEventClick}
@@ -570,6 +831,7 @@ export default function MyCalendarClient({
                     : "",
               })}
             />
+            </DndProvider>
           </section>
         </main>
       </div>
@@ -587,6 +849,7 @@ export default function MyCalendarClient({
         selectedService={selectedService || undefined}
         services={services}
         provider_id={provider_id}
+        checkConflict={checkConflict}
         initialData={
           isEditMode
             ? selectedEvent === null

@@ -120,8 +120,11 @@ export default function RegisterPage() {
       setOtpModalOpen(false);
       setTimeout(() => router.push('/auth/login'), 1000);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registrierung fehlgeschlagen')
-      setOtpError(err.response?.data?.message || 'Registrierung fehlgeschlagen');
+      const errorMessage = err.response?.data?.message || 'Registrierung fehlgeschlagen';
+      // Ensure error is a string
+      const errorString = typeof errorMessage === 'string' ? errorMessage : 'Registrierung fehlgeschlagen';
+      toast.error(errorString);
+      setOtpError(errorString);
     } finally {
       setRegisterLoading(false);
     }

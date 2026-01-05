@@ -11,6 +11,7 @@ import {
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
 import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot";
+import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeSlotDate";
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { ChromePicker, ColorResult } from "react-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,17 +20,14 @@ import "moment/locale/de";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 import { toast } from "react-toastify";
 import React from "react";
+import { useDebounce } from "@/hooks/useDebounce";
+import ServiceSelect from "./ServiceSelect";
+import CustomerSelect from "./CustomerSelect";
 
 moment.locale("de");
 
 // Add custom styles for weekend days
 const customStyles = `
-  .weekend-day {
-    color: red !important;
-  }
-  .react-datepicker__day--weekend {
-    color: red !important;
-  }
   .react-datepicker__day--disabled {
     color: #ccc !important;
   }
@@ -57,6 +55,7 @@ interface EventFormModalProps {
   initialData?: Event | null;
   provider_id: string;
   isNewServiceModal?: boolean;
+  checkConflict?: (eventData: any) => boolean;
 }
 
 export default function EventFormModal({
@@ -69,46 +68,69 @@ export default function EventFormModal({
   initialData,
   provider_id,
   isNewServiceModal = false,
+  checkConflict,
 }: EventFormModalProps) {
   const queryClient = useQueryClient();
+  const isEditing = !!initialData;
+  const [currentStep, setCurrentStep] = useState<number>(isEditing || isNewServiceModal ? 2 : 1);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
+  const [hasConflict, setHasConflict] = useState(false);
   
-  const { data: customersList, isLoading } = useGetUsers(searchTerm, 5, currentPage, "Customer");
+  const formatForApiSearch = (value: string) =>
+    value
+      .trim()
+      .split(/\s+/)
+      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ""))
+      .join(" ");
+
+  const apiSearchTerm = debouncedSearchTerm.length >= 3 ? formatForApiSearch(debouncedSearchTerm) : "";
+
+  const { data: customersList, isLoading } = useGetUsers(
+    apiSearchTerm,
+    5,
+    currentPage,
+    "Customer"
+  );
 
   const {
     mutate: CreateSlotApi,
     data,
     isError,
     isSuccess,
+    isPending: isCreatingSlot,
   } = useCreateTimeSlot();
+  const { mutate: updateSlotApi, isPending: isUpdatingSlot } = useUpdateTimeSlotDate();
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
     start: Date;
     end: Date;
-    service: serviceType;
+    service: serviceType | undefined;
     customerName: string;
     customerFamily: string;
     customerEmail: string;
     customerPhone: string;
     customer_id: string;
     sex: string;
+    is_self_reservation: boolean;
   }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
     start: initialData?.start || selectedSlot?.start || new Date(),
     end: initialData?.end || selectedSlot?.end || new Date(),
-    service: initialData?.service || selectedService || services[0],
+    service: initialData?.service || selectedService || (services && services.length > 0 ? services[0] : undefined),
     customerName: initialData?.customerName || "",
     customerFamily: initialData?.customerFamily || "",
     customerEmail: initialData?.customerEmail || "",
     customerPhone: initialData?.customerPhone || "",
     customer_id: initialData?.customer_id || "",
     sex: initialData?.sex || "",
+    is_self_reservation: false,
   });
 
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] =
@@ -133,7 +155,7 @@ export default function EventFormModal({
   } = useCreateNewService();
 
   const [serviceWarning, setServiceWarning] = useState<boolean>(false);
-  const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service.duration||90);
+  const [serviceDuration, setServiceDuration] = useState<number>(initialData?.service?.duration || 90);
   const [errors, setErrors] = useState<any>({});
 
   // duration
@@ -159,25 +181,49 @@ export default function EventFormModal({
         title: services[0].title,
       }));
     }
-  }, [selectedSlot, selectedService, services, setFormData]);
+  }, [selectedSlot, selectedService, services]);
 
   useEffect(() => {
     if (initialData) {
+      const isSelfReservation = (initialData as any).isSelfReservation || false;
+      // For self-reservations, use desc field for title, otherwise use title
+      const titleForForm = isSelfReservation 
+        ? ((initialData as any).desc || initialData.title || "")
+        : initialData.title;
+      // For self-reservations, description comes from desc field
+      const descriptionForForm = isSelfReservation
+        ? ((initialData as any).desc || initialData.description || "")
+        : (initialData.description || "");
+      
       setFormData({
-        title: initialData.title,
-        description: initialData.description || "",
+        title: titleForForm,
+        description: descriptionForForm,
         start: new Date(initialData.start),
         end: new Date(initialData.end),
         service: initialData.service,
-        customerName: initialData.customerName,
-        customerFamily: initialData.customerFamily,
-        customerEmail: initialData.customerEmail,
-        customerPhone: initialData.customerPhone,
+        customerName: initialData.customerName || "",
+        customerFamily: initialData.customerFamily || "",
+        customerEmail: initialData.customerEmail || "",
+        customerPhone: initialData.customerPhone || "",
         customer_id: initialData.customer_id || "",
-        sex: initialData.sex || "",
+        sex: initialData.sex || (initialData as any).sex || "",
+        is_self_reservation: isSelfReservation, // Detect self-reservation from initialData
       });
+      // Ensure the edit modal shows the edit form (step 2) when initialData arrives asynchronously
+      setCurrentStep(2);
+    }
+    // Reset to step 1 when opening for new termin
+    if (!initialData && !isNewServiceModal) {
+      setCurrentStep(1);
     }
   }, [initialData]);
+
+  // Check if customer is selected or self-reservation is selected when in step 2, go back to step 1 if not
+  useEffect(() => {
+    if (!isEditing && !isNewServiceModal && currentStep === 2 && !formData.customerName && !formData.is_self_reservation) {
+      setCurrentStep(1);
+    }
+  }, [currentStep, formData.customerName, formData.is_self_reservation, isEditing, isNewServiceModal]);
 
   // Update provider_id when it changes
   useEffect(() => {
@@ -210,16 +256,28 @@ export default function EventFormModal({
 
   const validateForm = () => {
     const newErrors: any = {};
-    if (!formData.service?.id) newErrors.service = "Service ist erforderlich.";
+    if (!formData.is_self_reservation && !formData.service?.id) newErrors.service = "Service ist erforderlich.";
     if (!formData.start) newErrors.start = "Startzeit ist erforderlich.";
     if (!formData.end) newErrors.end = "Endzeit ist erforderlich.";
-    if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
-    if (!formData.customerFamily) newErrors.customerFamily = "Nachname ist erforderlich.";
-    if (!formData.customerEmail) newErrors.customerEmail = "E-Mail ist erforderlich.";
-    else if (!isValidEmail(formData.customerEmail)) newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
-    if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
-    else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
-    if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
+    if (!isEditing && !formData.is_self_reservation) {
+      if (!formData.customerName) newErrors.customerName = "Vorname ist erforderlich.";
+      if (formData.customerEmail && !isValidEmail(formData.customerEmail)) {
+        newErrors.customerEmail = "Ungültige E-Mail-Adresse.";
+      }
+      if (!formData.customerPhone) newErrors.customerPhone = "Telefon ist erforderlich.";
+     // else if (!isValidGermanMobile(formData.customerPhone)) newErrors.customerPhone = "Ungültige deutsche Mobilnummer. Muss mit +49 beginnen.";
+      if (!formData.sex) newErrors.sex = "Geschlecht ist erforderlich.";
+    }
+
+    // Ensure end time is after start time
+    if (formData.start && formData.end) {
+      const startTimeMs = new Date(formData.start).getTime();
+      const endTimeMs = new Date(formData.end).getTime();
+      if (endTimeMs <= startTimeMs) {
+        newErrors.end = "Endzeit muss nach der Startzeit liegen.";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -232,36 +290,98 @@ export default function EventFormModal({
     // eslint-disable-next-line
   }, []);
 
+  // Function to check for conflicts and update state
+  const checkForConflicts = () => {
+    if (checkConflict && formData.start && formData.end) {
+      const conflict = checkConflict(formData);
+      setHasConflict(conflict);
+    } else {
+      setHasConflict(false);
+    }
+  };
+
+  // Check for conflicts whenever start or end time changes
+  useEffect(() => {
+    checkForConflicts();
+  }, [formData.start, formData.end, checkConflict]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     console.log(formData,"formData")
-    try {
-CreateSlotApi({
-    name:formData.customerName,
-    family:formData.customerFamily,
-    email:formData.customerEmail,
-    phone:formData.customerPhone,
-    customer_id:formData.customer_id,
-    start_time: formData.start.toISOString(),
-    end_time: formData.end.toISOString(),
-    service_id: formData.service.id,
-    sex:formData.sex,
-    status: "Available",
-  },
-  {
-    onSuccess: (res) => {
-      toast.success(res.message);
-      onSubmit(formData);
-        onClose();
-    },
-    onError: (error: any) => {
-      toast.error(error?.message);
-     
+    
+    // Check for conflicts before making API call
+    if (hasConflict) {
+      return; // Don't proceed with creating the appointment
     }
-  }
-
-);
+    
+    try {
+      // If editing an existing slot, call update API; otherwise create
+      if (initialData && (initialData as any).slotId) {
+        const slotId = (initialData as any).slotId as string;
+        const isSelfReservation = formData.is_self_reservation;
+        // For self-reservations, we only update time (and desc if backend supports it)
+        // For regular reservations, update with customer info
+        updateSlotApi(
+          {
+            id: slotId,
+            start_time: formData.start.toISOString(),
+            end_time: formData.end.toISOString(),
+            phone: isSelfReservation ? "self" : formData.customerPhone, // Backend route requires phone but doesn't use it for update
+            name: isSelfReservation ? undefined : formData.customerName,
+            service_id: isSelfReservation ? undefined : formData.service?.id, // Don't update service_id for self-reservations
+            description: formData.description, // May not be supported by backend update API
+          },
+          {
+            onSuccess: (res: any) => {
+              toast.success(res.message || "Termin aktualisiert");
+              onSubmit(formData);
+              onClose();
+            },
+            onError: (error: any) => {
+              toast.error(error?.message);
+            },
+          }
+        );
+      } else {
+        // Map description to desc for backend API
+        const apiBody: any = {
+          name: formData.is_self_reservation ? undefined : formData.customerName,
+          family: formData.is_self_reservation ? undefined : formData.customerFamily,
+          email: formData.is_self_reservation ? undefined : formData.customerEmail,
+          phone: formData.is_self_reservation ? undefined : formData.customerPhone,
+          customer_id: formData.is_self_reservation ? undefined : formData.customer_id,
+          start_time: formData.start.toISOString(),
+          end_time: formData.end.toISOString(),
+          service_id: formData.is_self_reservation ? undefined : formData.service?.id, // Will be handled by backend for self-reservation
+          sex: formData.is_self_reservation ? undefined : formData.sex,
+          status: "Available",
+          is_self_reservation: formData.is_self_reservation,
+          provider_id: formData.is_self_reservation ? provider_id : undefined,
+        };
+        
+        // Backend expects 'desc' field, not 'description'
+        // For self-reservation, use title as description if description is empty
+        if (formData.is_self_reservation) {
+          apiBody.desc = formData.description || formData.title || "";
+        } else if (formData.description) {
+          apiBody.desc = formData.description;
+        }
+        
+        CreateSlotApi(
+          apiBody,
+          {
+            onSuccess: (res) => {
+              toast.success(res.message);
+              onSubmit(formData);
+              onClose();
+            },
+            onError: (error: any) => {
+              toast.error(error?.message);
+            },
+          }
+        );
+      }
       
       
     } catch (error) {console.log(error)}
@@ -291,8 +411,9 @@ CreateSlotApi({
     createNewServiceMutation(newServiceFormData, {
       onSuccess: (res) => {
         toast.success(res.message);
-        // Invalidate and refetch services
+        // Invalidate and refetch services to ensure all devices have the latest data
         queryClient.invalidateQueries({ queryKey: ["getServices"] });
+        queryClient.refetchQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
         // Reset form
         setNewServiceFormData({
@@ -362,10 +483,10 @@ CreateSlotApi({
     customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Function to check if a date is a weekend
+  // Function to check if a date is a weekend (only Sunday is disabled)
   const isWeekend = (date: Date) => {
     const day = date.getDay();
-    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    return day === 0; // 0 is Sunday
   };
 
   // Function to check if a date is in the past
@@ -375,20 +496,60 @@ CreateSlotApi({
     return date < today;
   };
 
-  // Custom day class for DatePicker
+  // Custom day class for DatePicker (removed since only Sunday is disabled)
   const dayClassName = (date: Date) => {
-    if (isWeekend(date)) {
-      return "weekend-day";
-    }
     return "";
+  };
+
+  // Helper to reset user fields
+  const resetUserFields = () => {
+    setFormData((prev) => ({
+      ...prev,
+      customerName: "",
+      customerFamily: "",
+      customerEmail: "",
+      customerPhone: "",
+      customer_id: "",
+      sex: "",
+      is_self_reservation: false,
+      description: "",
+    }));
+  };
+
+  // Wrap onClose to reset user fields
+  const handleModalClose = () => {
+    resetUserFields();
+    onClose();
   };
 
   return (
     <>
-      <Modal show={isOpen} onHide={onClose} size="lg" centered>
+      <Modal
+        show={isOpen}
+        onHide={handleModalClose}
+        size={!isEditing && !isNewServiceModal && currentStep === 1 ? "sm" : "lg"}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>
-            {isNewServiceModal ? "Neuer Service" : "Neuer Termin"}
+            {isNewServiceModal
+              ? "Neuer Service"
+              : isEditing
+                ? "Termin bearbeiten"
+                : currentStep === 1
+                  ? "Reservierungsart"
+                  : formData.is_self_reservation
+                    ? "Termin für mich selbst"
+                    : (formData.customerName && formData.customerName.trim().length > 0)
+                      ? (
+                          <>
+                            Neuer Termin für {" "}
+                            <span style={{ color: 'red' }}>
+                              {formData.customerName} {formData.customerFamily || ""}
+                            </span>
+                          </>
+                        )
+                      : "Neuer Termin"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -523,28 +684,21 @@ CreateSlotApi({
             </Form>
           ) : (
             <Form onSubmit={handleSubmit}>
+              {currentStep === 2 && !formData.is_self_reservation && (
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Label>Service</Form.Label>
-                    <Form.Select
-                      value={formData.service?.id}
-                      onChange={(e) => {
-                        handleServiceChange(e.target.value);
-                        if (errors.service) setErrors((prev: any) => ({ ...prev, service: undefined }));
-                      }}
-                      required
-                    >
-                      {Array.isArray(services) && services.length > 0 ? (
-                        services.map((service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.title}
-                          </option>
-                        ))
-                      ) : (
-                        <option disabled>Keine Services verfügbar</option>
-                      )}
-                    </Form.Select>
+                    <div>
+                      <ServiceSelect
+                        services={services}
+                        value={formData.service?.id}
+                        onChange={(id) => {
+                          handleServiceChange(id);
+                          if (errors.service) setErrors((prev: any) => ({ ...prev, service: undefined }));
+                        }}
+                      />
+                    </div>
                     {serviceWarning && (
                       <div className="text-danger  mt-2 small" style={{height:"30px",width:"auto"}}>
                         Dieser Service dauert {serviceDuration} Minuten.
@@ -554,7 +708,13 @@ CreateSlotApi({
                   </Form.Group>
                 </Col>
                 <Col md={6}>
-                  {/* <Form.Group className="mb-3">
+                </Col>
+              </Row>
+              )}
+              {currentStep === 2 && formData.is_self_reservation && (
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
                     <Form.Label>Titel</Form.Label>
                     <Form.Control
                       type="text"
@@ -565,11 +725,14 @@ CreateSlotApi({
                           title: e.target.value,
                         }))
                       }
+                      placeholder="Titel für diese Reservierung..."
                       required
                     />
-                  </Form.Group> */}
+                  </Form.Group>
                 </Col>
               </Row>
+              )}
+              {currentStep === 2 && (
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
@@ -577,8 +740,15 @@ CreateSlotApi({
                     <DatePicker
                       selected={formData.start}
                       onChange={(date: Date | null) => {
-                        if (date) setFormData((prev) => ({ ...prev, start: date }));
+                        if (date) {
+                          setFormData((prev) => {
+                            const newStart = date;
+                            const newEnd = new Date(newStart.getTime() + (formData.service?.duration || 30) * 60000);
+                            return { ...prev, start: newStart, end: newEnd };
+                          });
+                        }
                         if (errors.start) setErrors((prev: any) => ({ ...prev, start: undefined }));
+                        setHasConflict(false); // Clear conflict when time changes
                       }}
                       showTimeSelect
                       timeFormat="HH:mm"
@@ -602,6 +772,7 @@ CreateSlotApi({
                       onChange={(date: Date | null) => {
                         if (date) setFormData((prev) => ({ ...prev, end: date }));
                         if (errors.end) setErrors((prev: any) => ({ ...prev, end: undefined }));
+                        setHasConflict(false); // Clear conflict when time changes
                       }}
                       showTimeSelect
                       timeFormat="HH:mm"
@@ -615,135 +786,82 @@ CreateSlotApi({
                       required
                     />
                     {errors.end && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.end}</div>}
+                    {hasConflict && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4, fontWeight: 'bold'}}>⚠️ Termin-Konflikt: Es gibt bereits einen Termin in diesem Zeitraum!</div>}
                   </Form.Group>
                 </Col>
               </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Vorname</Form.Label>
-                    <div className="d-flex gap-2">
+              )}
+              {currentStep === 2 && (
+                <Row>
+                  <Col md={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Beschreibung / Notizen</Form.Label>
                       <Form.Control
-                        type="text"
-                        value={formData.customerName}
-                        onChange={(e) => {
+                        as="textarea"
+                        rows={3}
+                        value={formData.description}
+                        onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
-                            customerName: e.target.value,
-                          }));
-                          if (errors.customerName) setErrors((prev: any) => ({ ...prev, customerName: undefined }));
-                        }}
-                        required
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Optionale Beschreibung oder Notizen..."
                       />
-                      <Button
-                        variant="outline-primary"
-                        onClick={() => setShowCustomerModal(true)}
-                        style={{ width: "40px" }}
-                      >
-                        +
-                      </Button>
-                    </div>
-                    {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Nachname</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={formData.customerFamily}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerFamily: e.target.value,
-                        }));
-                        if (errors.customerFamily) setErrors((prev: any) => ({ ...prev, customerFamily: undefined }));
-                      }}
-                      required
-                    />
-                    {errors.customerFamily && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerFamily}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>E-Mail</Form.Label>
-                    <Form.Control
-                      type="email"
-                      value={formData.customerEmail}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerEmail: e.target.value,
-                        }));
-                        if (errors.customerEmail) setErrors((prev: any) => ({ ...prev, customerEmail: undefined }));
-                      }}
-                      required
-                    />
-                    {errors.customerEmail && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerEmail}</div>}
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Telefon</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      value={formData.customerPhone}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          customerPhone: e.target.value,
-                        }));
-                        if (errors.customerPhone) setErrors((prev: any) => ({ ...prev, customerPhone: undefined }));
-                      }}
-                      required
-                    />
-                    {errors.customerPhone && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerPhone}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Geschlecht</Form.Label>
-                    <Form.Select
-                      value={formData.sex}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          sex: e.target.value,
-                        }));
-                        if (errors.sex) setErrors((prev: any) => ({ ...prev, sex: undefined }));
-                      }}
-                      required
-                    >
-                      <option value="">Bitte wählen</option>
-                      <option value="male">Männlich</option>
-                      <option value="female">Weiblich</option>
-                    </Form.Select>
-                    {errors.sex && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.sex}</div>}
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Beschreibung</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              )}
+              {!isEditing && currentStep === 1 && (
+                <>
+                  <Row>
+                    <Col md={12}>
+                      <Form.Group className="mb-3">
+                        <div className="mb-3">
+                          <Button
+                            variant={formData.is_self_reservation ? "primary" : "outline-primary"}
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                is_self_reservation: true,
+                                customerName: "",
+                                customerFamily: "",
+                                customerEmail: "",
+                                customerPhone: "",
+                                customer_id: "",
+                                sex: "",
+                              }));
+                              setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                              setCurrentStep(2);
+                            }}
+                          >
+                            Für mich selbst
+                          </Button>
+                        </div>
+                        <CustomerSelect
+                          value={formData.customer_id}
+                          selectedLabel={`${formData.customerName} ${formData.customerFamily}`.trim()}
+                          onChange={(customer) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              is_self_reservation: false,
+                              customerName: customer.name,
+                              customerFamily: customer.family,
+                              customerEmail: customer.email,
+                              customerPhone: customer.phone,
+                              customer_id: customer.id,
+                              sex: customer.sex || "",
+                            }));
+                            setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                            setCurrentStep(2);
+                          }}
+                        />
+                        {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </>
+              )}
               {/* <div className="d-flex justify-content-end gap-2">
                 <Button variant="secondary" onClick={onClose}>
                   Abbrechen
@@ -756,15 +874,31 @@ CreateSlotApi({
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleModalClose}>
             Abbrechen
           </Button>
-          <Button
-            variant="primary"
-            onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
-          >
-            {isNewServiceModalOpen ? "Service erstellen" : "Termin erstellen"}
-          </Button>
+          {currentStep === 2 && !isEditing && !isNewServiceModal && (
+            <Button
+              variant="outline-secondary"
+              onClick={() => setCurrentStep(1)}
+            >
+              Zurück
+            </Button>
+          )}
+          {(currentStep === 2 || isEditing || isNewServiceModal) && (
+            <Button
+              variant="primary"
+              onClick={isNewServiceModalOpen ? handleCreateNewService : handleSubmit}
+              disabled={isCreatingSlot || isUpdatingSlot || hasConflict || (!isEditing && !formData.customerName && !formData.is_self_reservation)}
+            >
+              {isNewServiceModalOpen ? "Service erstellen" : isEditing ? "Speichern" : "Termin erstellen"}
+              {(isCreatingSlot || isUpdatingSlot) && (
+                <span className="ms-2">
+                  <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </span>
+              )}
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
 
@@ -784,6 +918,7 @@ CreateSlotApi({
                 placeholder="Suche nach Name, E-Mail oder Telefon..."
                 value={searchTerm}
                 onChange={handleSearch}
+                style={{ fontSize: '16px' }}
               />
               <div 
                 className="list-group" 

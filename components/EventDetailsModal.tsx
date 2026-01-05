@@ -46,9 +46,15 @@ export default function EventDetailsModal({
 
 
   const handleDelete = () => {
-    if(event.slotId && event.customerPhone){
+    const isSelfReservation = (event as any).isSelfReservation;
+    // For self-reservations, customerPhone is empty, but we still need slotId to delete
+    // For regular reservations, both slotId and customerPhone are required
+    if(event.slotId && (isSelfReservation || event.customerPhone)){
+      // For self-reservations, use placeholder since backend route requires phone parameter
+      // but service method doesn't actually use it (only uses id)
+      const phone = isSelfReservation ? "self" : event.customerPhone;
       
-      mutate({id:event.slotId,phone:event.customerPhone}
+      mutate({id:event.slotId,phone:phone}
         ,{
           onSuccess: (res) => {
             toast.success(res.message);
@@ -61,8 +67,6 @@ export default function EventDetailsModal({
         }
       )
     }
-     
-    
   };
 
   return (
@@ -90,20 +94,24 @@ export default function EventDetailsModal({
         </Row>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Kunde:</Col>
-          <Col md={8}>{event.customerName} {event.customerFamily}</Col>
+          <Col md={8}>{(event as any).isSelfReservation ? "Selbst" : `${event.customerName} ${event.customerFamily}`.trim()}</Col>
         </Row>
-        <Row className="mb-3">
-          <Col md={4} className="fw-bold">E-Mail:</Col>
-          <Col md={8}>{event.customerEmail}</Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={4} className="fw-bold">Telefon:</Col>
-          <Col md={8}>{event.customerPhone}</Col>
-        </Row>
-        {event.description && (
+        {!(event as any).isSelfReservation && (
+          <>
+            <Row className="mb-3">
+              <Col md={4} className="fw-bold">E-Mail:</Col>
+              <Col md={8}>{event.customerEmail}</Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4} className="fw-bold">Telefon:</Col>
+              <Col md={8}>{event.customerPhone}</Col>
+            </Row>
+          </>
+        )}
+        {(event.description || (event as any).desc) && (
           <Row className="mb-3">
             <Col md={4} className="fw-bold">Beschreibung:</Col>
-            <Col md={8}>{event.description}</Col>
+            <Col md={8}>{event.description || (event as any).desc || ""}</Col>
           </Row>
         )}
       </Modal.Body>
@@ -118,9 +126,9 @@ export default function EventDetailsModal({
         <Button variant="secondary" onClick={onClose} className="me-2">
           Schließen
         </Button>
-        {/* <Button variant="primary" onClick={() => onEdit(event)}>
+        <Button variant="primary" onClick={() => onEdit(event)}>
           Bearbeiten
-        </Button> */}
+        </Button>
       </Modal.Footer>
     </Modal>
 
