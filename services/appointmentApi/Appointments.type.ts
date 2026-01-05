@@ -16,8 +16,27 @@ export interface CreateAppointmentRqDataType {
 
 
 export interface getAppointmentsRqByDateAndUserId {
-  userId?:string
-  start_Time?:string
-  end_Time?:string
+  // Legacy support
+  userId?: string;
+  start_Time?: string;
+  end_Time?: string;
+  // New fields (matching backend DTO)
+  provider_id?: string;
+  customer_id?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface AppointmentPaginationResponse {
+  data: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 }
 
