@@ -220,55 +220,65 @@ export default function MyCalendarClient({
     ({ event, start, end }: any) => {
  
       const typedEvent = event as any;
-      setEvents((prev) => {
-        const existing = prev.find((ev) => ev.id === typedEvent.id);
-        if (!existing) return prev;
-        const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-        if(existing?.slotId){
-          mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
-            ,{
-              onSuccess: (res) => {
-                toast.success(res.message);
-                  change()
-                return [...filtered, { ...existing, start, end }];
-              },
-              onError: (error: any) => {
-                toast.error(error?.message);
-              }
-            }
-          )
+      const existing = events.find((ev) => ev.id === typedEvent.id);
+      if (!existing || !existing?.slotId) return;
+      
+      mutate(
+        {
+          id: existing.slotId,
+          start_time: start,
+          end_time: end,
+          phone: typedEvent.customerPhone,
+          name: typedEvent.customerName
+        },
+        {
+          onSuccess: (res) => {
+            toast.success(res.message);
+            setEvents((prev) => {
+              const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
+              return [...filtered, { ...existing, start, end }];
+            });
+            change();
+          },
+          onError: (error: any) => {
+            toast.error(error?.message);
+          }
         }
-        return [];
-      });
+      );
     },
-    [setEvents]
+    [events, mutate, change]
   );
 
   const resizeEvent = useCallback(
     ({ event, start, end }: any) => {
       const typedEvent = event as any;
-      setEvents((prev) => {
-        const existing = prev.find((ev) => ev.id === typedEvent.id);
-        if (!existing) return prev;
-        const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
-      if(existing?.slotId){
-        mutate({id: existing.slotId, start_time: start, end_time: end,phone:typedEvent.customerPhone,name:typedEvent.customerName}
-          ,{
-            onSuccess: (res) => {
-              toast.success(res.message);
-                change()
+      const existing = events.find((ev) => ev.id === typedEvent.id);
+      if (!existing || !existing?.slotId) return;
+      
+      mutate(
+        {
+          id: existing.slotId,
+          start_time: start,
+          end_time: end,
+          phone: typedEvent.customerPhone,
+          name: typedEvent.customerName
+        },
+        {
+          onSuccess: (res) => {
+            toast.success(res.message);
+            setEvents((prev) => {
+              const filtered = prev.filter((ev) => ev.id !== typedEvent.id);
               return [...filtered, { ...existing, start, end }];
-            },
-            onError: (error: any) => {
-              toast.error(error?.message);
-            }
+            });
+            change();
+          },
+          onError: (error: any) => {
+            toast.error(error?.message);
           }
-        )
-      }
-       return []
-      });
+        }
+      );
     },
-    [setEvents]
+    [events, mutate, change]
   );
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
@@ -605,25 +615,21 @@ rgba(165, 63, 63, 0.2) 5px,
   };
 
   const handleConfirmDelete = useCallback(async () => {
-   
     if (serviceToDelete) {
-
-     deleteService(serviceToDelete,{
-      onSuccess(res) {
-        toast.success("Dienst erfolgreich gelöscht")
-        toast.success(res.message)
-       setServiceToDelete(null);
-     },onError(res){
-      toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält")
-      toast.error(res.message) 
-    }
-    },
-  
-  
-  );
-
-      setOpenDeleteModal(false);
-      queryClient.invalidateQueries({ queryKey: ["services"] });
+      deleteService(serviceToDelete, {
+        onSuccess(res) {
+          toast.success("Dienst erfolgreich gelöscht");
+          toast.success(res.message);
+          setServiceToDelete(null);
+          setOpenDeleteModal(false);
+          queryClient.invalidateQueries({ queryKey: ["services"] });
+        },
+        onError(res) {
+          toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält");
+          toast.error(res.message);
+          setOpenDeleteModal(false);
+        }
+      });
     }
   }, [deleteService, serviceToDelete, queryClient]);
 
