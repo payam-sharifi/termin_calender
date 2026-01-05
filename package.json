@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack  -p 4500",
+    "dev": "next dev --turbopack  -p 7500",
     "build": "next build",
-    "start": "next start -p 4500",
+    "start": "next start -p 7500",
     "lint": "next lint",
     "generate-icons": "node scripts/generate-icons.js",
     "create-placeholder-icon": "node scripts/create-placeholder-icon.js"
