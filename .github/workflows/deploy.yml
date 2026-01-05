@@ -29,4 +29,4 @@ jobs:
             pm2 delete pwa-termin-frontend || true
             PORT=7500 pm2 start npm --name "pwa-termin-frontend" --watch -- start
             pm2 save
-            
+            pm2 startup
