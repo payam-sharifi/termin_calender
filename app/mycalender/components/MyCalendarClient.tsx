@@ -277,13 +277,23 @@ export default function MyCalendarClient({
     setIsDetailsModalOpen(true);
   }, []);
 
+  // Helper function to determine if service is for Damen (ladies) or Herren (men)
+  const isDamenService = useCallback((serviceTitle: string) => {
+    const lower = (serviceTitle || "").toLowerCase();
+    return lower.includes("damen");
+  }, []);
+
   const eventStyleGetter = useCallback((event: any) => {
     // Check if it's a self-reservation
     const isSelfReservation = event.isSelfReservation || false;
     
-    // For self-reservation, use striped pattern, otherwise white background
+    // Determine service category
+    const serviceTitle = event.service?.title || event.title || '';
+    const isDamen = isDamenService(serviceTitle);
+    
+    // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
     let backgroundStyle: React.CSSProperties = {
-      backgroundColor: '#FFFFFF', // White background for all events
+      backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Same colors as event component
     };
     
     if (isSelfReservation) {
@@ -304,7 +314,7 @@ export default function MyCalendarClient({
     }
     
     // Text color
-    const textColor = isSelfReservation ? '#000000' : '#000000'; // Black text for all events
+    const textColor = isSelfReservation ? '#000000' : '#FFFFFF'; // White text on colored background, black for self-reservation
 
     return {
       style: {
@@ -321,7 +331,7 @@ export default function MyCalendarClient({
         whiteSpace: "nowrap",
       },
     };
-  }, []);
+  }, [isDamenService]);
 
   const handleDropFromOutside = useCallback(
     ({ start, end, allDay, allday, event }: any) => {
@@ -395,12 +405,6 @@ export default function MyCalendarClient({
     },
     [currentDate, handleNavigate]
   );
-
-  // Helper function to determine if service is for Damen (ladies) or Herren (men)
-  const isDamenService = useCallback((serviceTitle: string) => {
-    const lower = (serviceTitle || "").toLowerCase();
-    return lower.includes("damen");
-  }, []);
 
   const components = {
     event: ({ event }: { event: CalendarEvent }) => {
@@ -478,7 +482,7 @@ export default function MyCalendarClient({
         const backgroundStyle = isSelfReservation ? {
           background: `repeating-linear-gradient(
             45deg,
-            #FFFFFF,
+rgb(255, 255, 255),
             #FFFFFF 3px,
             rgba(196, 111, 111, 0.5) 4px,
            
