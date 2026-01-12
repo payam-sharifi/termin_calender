@@ -27,6 +27,6 @@ jobs:
             npm install
             npm run build
             pm2 delete pwa-termin-frontend || true
-            PORT=7500 pm2 start npm --name "pwa-termin-frontend" --watch -- start
+            PORT=7500 pm2 start /termin/pwa-termin/client/node_modules/next/dist/bin/next --name "pwa-termin-frontend" -- start
             pm2 save
             pm2 startup
