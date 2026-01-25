@@ -24,9 +24,11 @@ export default function EventDetailsModal({
   onDelete,
   onEdit,
 }: EventDetailsModalProps) {
-  if (!event) return null;
   const {mutate}=useDeleteTimeSlotById()
   const [openDeleteModal,setOpenDeleteModal]=useState<boolean>(false)
+  if (!event) {
+    return null;
+  }
   const formatTime = (date: Date) => {
     return new Date(date).toLocaleTimeString('de-DE', {
       hour: '2-digit',
