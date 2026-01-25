@@ -17,6 +17,11 @@ useEffect(() => {
       }
     });
   }
+  caches.keys().then((names) => {
+    for (let name of names) {
+      caches.delete(name);
+    }
+  });
 }, []);
 
 useEffect(()=>{
