@@ -45,7 +45,8 @@ const pwaConfig = withPWA({
   workboxOptions: {
     // CRITICAL: Disable navigation fallback to prevent Service Worker from intercepting
     // React Server Component requests. Navigation fallback can cause RSC hydration failures.
-    navigateFallback: false,
+    // Set to null to disable (Workbox requires null or string, not false)
+    navigateFallback: null,
     
     // Safety measure: Explicitly deny RSC routes from any navigation handling
     // This ensures these routes are NEVER intercepted by the Service Worker
