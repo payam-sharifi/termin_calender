@@ -34,8 +34,34 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // پیدا کردن تمام سرویس‌ورکرهای ثبت شده
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+          // حذف (Unregister) کردن ورکر
+          registration.unregister().then((success) => {
+            if (success) {
+              console.log('PWA Service Worker uninstalled successfully.');
+              // پاک کردن کش‌های قدیمی مرتبط با PWA
+              if ('caches' in window) {
+                caches.keys().then((names) => {
+                  for (let name of names) caches.delete(name);
+                });
+              }
+              // ریلود کردن صفحه برای لود شدن نسخه جدید از سرور
+              window.location.reload();
+              
+            }
+          });
+        }
+      });
+    }
+  }, []);
+
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <style jsx global>{`
           html, body {
