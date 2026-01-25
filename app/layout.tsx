@@ -10,9 +10,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import useDecoder from "@/hooks/useDecoder";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import React from "react";
+import ServiceWorkerCleanup from "@/components/ServiceWorkerCleanup";
+import GlobalErrorLogger from "@/components/GlobalErrorLogger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,35 +34,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    // Only run on client side
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      // پیدا کردن تمام سرویس‌ورکرهای ثبت شده
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (let registration of registrations) {
-          // حذف (Unregister) کردن ورکر
-          registration.unregister().then((success) => {
-            if (success) {
-              console.log('PWA Service Worker uninstalled successfully.');
-              // پاک کردن کش‌های قدیمی مرتبط با PWA
-              if ('caches' in window) {
-                caches.keys().then((names) => {
-                  for (let name of names) caches.delete(name);
-                });
-              }
-              // ریلود کردن صفحه برای لود شدن نسخه جدید از سرور
-              window.location.reload();
-              
-            }
-          });
-        }
-      });
-    }
-  }, []);
-
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
+        {/* PWA-related meta tags have been removed to prevent white screen issues */}
+        {/* No manifest.json link, apple-touch-icon, or theme-color tags */}
         <style jsx global>{`
           html, body {
             overflow-x: hidden;
@@ -86,6 +62,12 @@ export default function RootLayout({
         background: 'linear-gradient(120deg, #e0f2fe 0%, #f8fafc 100%)',
         overflow: 'auto'
       }}>
+        {/* Service Worker Cleanup - Runs once on mount to unregister all SWs and clear caches */}
+        <ServiceWorkerCleanup />
+        
+        {/* Global Error Logger - Captures all errors to help diagnose white screen issues */}
+        <GlobalErrorLogger />
+        
         {/* Abstract SVG background */}
         <svg width="100%" height="100%" style={{
           position: 'fixed',

@@ -13,20 +13,32 @@ const useDecoder = () => {
   const pathname = usePathname();
   useEffect(() => {
     const checkAuth = () => {
-      // Check for token in localStorage
-      const t = typeof window !== 'undefined' ? localStorage.getItem('termin-token') : null;
-      setToken(t);
-   
-      if(token){
-        const decoded = jwtDecode<{ id: string }>(token);
-             setIsUserId(decoded.id);
-            localStorage.setItem('termin-token', token);
-            document.cookie = `termin-token=${token}; path=/; max-age=3600`; 
-
-          //  router.push(`/service/${decoded.id}`);
+      // Only run on client side
+      if (typeof window === 'undefined') {
+        setIsLoading(false);
+        return;
       }
 
-      
+      // Check for token in localStorage
+      const t = localStorage.getItem('termin-token');
+      setToken(t);
+   
+      if(t){
+        try {
+          const decoded = jwtDecode<{ id: string }>(t);
+          setIsUserId(decoded.id);
+          // Safely set localStorage and cookie
+          localStorage.setItem('termin-token', t);
+          document.cookie = `termin-token=${t}; path=/; max-age=3600`; 
+          //  router.push(`/service/${decoded.id}`);
+        } catch (error) {
+          console.error('[useDecoder] Error decoding token:', error);
+          // Clear invalid token
+          localStorage.removeItem('termin-token');
+          setToken(null);
+        }
+      }
+
       setIsLoading(false);
     };
 
