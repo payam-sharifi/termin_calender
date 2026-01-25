@@ -43,11 +43,33 @@ const pwaConfig = withPWA({
   sw: "/sw.js",
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
-    // هیچ caching ای انجام نشه
+    // Exclude Next.js internal routes from service worker
+    // These are critical for App Router and RSC (React Server Components)
+    exclude: [
+      /^\/_next\/.*/, // Next.js internal routes (_next/static, _next/data, etc.)
+      /^\/_rsc\/.*/, // React Server Components requests
+      /^\/api\/.*/, // API routes (if any)
+      /^\/.*\.(?:json|xml|txt)$/, // JSON/XML/TXT files
+    ],
+    // Runtime caching - NetworkOnly for all routes
     runtimeCaching: [
       {
-        urlPattern: /^\/.*$/, // همه مسیرها
-        handler: "NetworkOnly", // همه request ها مستقیم به network میرن
+        // Exclude Next.js internal routes and RSC requests
+        urlPattern: ({ url }) => {
+          // Don't cache Next.js internal routes
+          if (url.pathname.startsWith('/_next/')) return false;
+          if (url.pathname.startsWith('/_rsc/')) return false;
+          if (url.pathname.startsWith('/api/')) return false;
+          // Don't cache service worker itself
+          if (url.pathname === '/sw.js') return false;
+          // Don't cache manifest
+          if (url.pathname === '/manifest.json') return false;
+          return true;
+        },
+        handler: "NetworkOnly", // All requests go directly to network
+        options: {
+          cacheName: "app-cache",
+        },
       },
     ],
   },

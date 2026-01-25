@@ -19,6 +19,11 @@ export default function OfflinePage() {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
+    // Only run on client
+    if (typeof window === "undefined" || typeof navigator === "undefined") {
+      return;
+    }
+
     // Check initial online status
     setIsOnline(navigator.onLine);
 

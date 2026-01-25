@@ -6,6 +6,7 @@ import axios from 'axios';
 // #endregion
 
 // Get base URL dynamically based on current hostname
+// Lazy-loaded to avoid SSR issues
 function getBaseURL(): string {
   // If environment variable is set, use it
   if (process.env.NEXT_PUBLIC_API_BASE_URL) {
@@ -18,26 +19,43 @@ function getBaseURL(): string {
     const protocol = window.location.protocol;
     
     // If accessing via network IP (not localhost), use same IP for backend
-   
+    // Build backend URL based on current hostname
+    if (hostname && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `${protocol}//${hostname}:4001/`;
+    }
   }
   
   // Default to localhost for development
   return 'http://localhost:4001/';
 }
 
-const baseURL = getBaseURL();
+// Lazy-load baseURL to avoid SSR issues
+// Only call getBaseURL() when actually needed (on client side)
+let baseURL: string | null = null;
+function getBaseURLLazy(): string {
+  if (baseURL === null) {
+    baseURL = getBaseURL();
+  }
+  return baseURL;
+}
 
 // #region agent log
 
 // #endregion
 
 const api = axios.create({
-  baseURL,
+  baseURL: getBaseURLLazy(),
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
+
+// Update baseURL dynamically on client side if needed
+if (typeof window !== 'undefined') {
+  // Update baseURL after mount to ensure window is available
+  api.defaults.baseURL = getBaseURLLazy();
+}
 
 // #region agent log
 

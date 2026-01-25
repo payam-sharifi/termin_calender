@@ -14,6 +14,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
+import ServiceWorkerCleanup from "@/components/ServiceWorkerCleanup";
+import GlobalErrorLogger from "@/components/GlobalErrorLogger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -175,6 +177,8 @@ export default function RootLayout({
         <div style={{ position: 'relative', zIndex: 1 }}>
         <QueryClientProvider client={queryClient}>  
           {children}
+          <ServiceWorkerCleanup />
+          <GlobalErrorLogger />
           <PWAUpdatePrompt />
           <ToastContainer
         position="top-right"
