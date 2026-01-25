@@ -118,7 +118,7 @@ export default function RootLayout({
   }, []);
 
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         {/* PWA Meta Tags */}
         <meta name="application-name" content="Termin Calendar" />
