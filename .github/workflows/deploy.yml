@@ -25,7 +25,7 @@ jobs:
             cd /termin/termin_calender
             git pull origin master
             npm run build
-            pm2 delete termin-next-app || true
-            PORT=4500 pm2 start npm --name "termin-next-app" --watch -- start
+            pm2 delete termin-frontend || true
+            PORT=4500 pm2 start /termin/termin_calender/node_modules/next/dist/bin/next --name "termin-frontend" -- start
             pm2 save
             
