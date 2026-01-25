@@ -43,30 +43,58 @@ const pwaConfig = withPWA({
   sw: "/sw.js",
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
-    // Exclude Next.js internal routes from service worker
-    // These are critical for App Router and RSC (React Server Components)
+    // CRITICAL: Disable navigation fallback to prevent Service Worker from intercepting
+    // React Server Component requests. Navigation fallback can cause RSC hydration failures.
+    navigateFallback: false,
+    
+    // Safety measure: Explicitly deny RSC routes from any navigation handling
+    // This ensures these routes are NEVER intercepted by the Service Worker
+    navigateFallbackDenylist: [
+      /^\/_next\/.*/,      // Next.js internal routes (_next/static, _next/data, _next/image, etc.)
+      /^\/_rsc\/.*/,       // React Server Components requests - CRITICAL for App Router
+      /^\/api\/.*/,        // API routes
+      /^\/sw\.js$/,        // Service worker itself
+      /^\/manifest\.json$/, // Manifest file
+    ],
+    
+    // Exclude Next.js internal routes from build-time precaching
+    // These routes should NEVER be precached as they are dynamic and versioned
     exclude: [
-      /^\/_next\/.*/, // Next.js internal routes (_next/static, _next/data, etc.)
-      /^\/_rsc\/.*/, // React Server Components requests
-      /^\/api\/.*/, // API routes (if any)
+      /^\/_next\/.*/,      // Next.js internal routes (_next/static, _next/data, etc.)
+      /^\/_rsc\/.*/,       // React Server Components requests
+      /^\/api\/.*/,        // API routes
       /^\/.*\.(?:json|xml|txt)$/, // JSON/XML/TXT files
     ],
-    // Runtime caching - NetworkOnly for all routes
+    
+    // Runtime caching - ONLY for non-RSC routes
+    // RSC routes are explicitly excluded and will bypass the Service Worker entirely
     runtimeCaching: [
       {
-        // Exclude Next.js internal routes and RSC requests
+        // CRITICAL: This pattern MUST return false for RSC routes
+        // When false, the route is NOT registered with Workbox and will bypass the Service Worker
         urlPattern: ({ url }) => {
-          // Don't cache Next.js internal routes
-          if (url.pathname.startsWith('/_next/')) return false;
-          if (url.pathname.startsWith('/_rsc/')) return false;
-          if (url.pathname.startsWith('/api/')) return false;
-          // Don't cache service worker itself
-          if (url.pathname === '/sw.js') return false;
-          // Don't cache manifest
-          if (url.pathname === '/manifest.json') return false;
+          const pathname = url.pathname;
+          
+          // NEVER intercept React Server Component routes
+          if (pathname.startsWith('/_rsc/')) return false;
+          
+          // NEVER intercept Next.js internal routes (includes _next/data, _next/image, etc.)
+          if (pathname.startsWith('/_next/')) return false;
+          
+          // NEVER intercept API routes
+          if (pathname.startsWith('/api/')) return false;
+          
+          // NEVER intercept service worker itself
+          if (pathname === '/sw.js') return false;
+          
+          // NEVER intercept manifest
+          if (pathname === '/manifest.json') return false;
+          
+          // Only cache non-critical static assets and page navigations
+          // Note: Even these use NetworkOnly, so they go directly to network
           return true;
         },
-        handler: "NetworkOnly", // All requests go directly to network
+        handler: "NetworkOnly", // All matching requests go directly to network (no caching)
         options: {
           cacheName: "app-cache",
         },
