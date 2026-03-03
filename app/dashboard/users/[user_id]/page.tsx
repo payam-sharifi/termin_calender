@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { use, useState } from "react";
 import Link from "next/link";
 import { Container, Card, Form, Button } from "react-bootstrap";
 import { useGetUserTimeSlots } from "@/services/hooks/timeSlots/useGetUserTimeSlots";
@@ -11,10 +10,7 @@ export default function UserAppointmentsPage({
 }: {
   params: Promise<{ user_id: string }>;
 }) {
-  const resolved = useMemo(() => params, [params]);
-  // Using a client component; unwrap the param via useMemo to avoid re-renders
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const userId = (resolved as any).user_id as string;
+  const { user_id: userId } = use(params);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [startTime, setStartTime] = useState<string>("");
