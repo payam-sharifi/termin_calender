@@ -2,7 +2,7 @@
 
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { CreateUserRqDataType, ROLE, SEX } from "@/services/userApi/user.types";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 interface CreateUserModalProps {
   show: boolean;
@@ -21,6 +21,8 @@ export default function CreateUserModal({
 }: CreateUserModalProps) {
   const [errors, setErrors] = useState<Partial<Record<keyof CreateUserRqDataType, string>>>({});
   const [roleSearch, setRoleSearch] = useState("");
+  const [fullNameInput, setFullNameInput] = useState("");
+  const prevShowRef = useRef(false);
   // const [repeatPassword, setRepeatPassword] = useState("");
   // const [repeatPasswordError, setRepeatPasswordError] = useState("");
 
@@ -37,12 +39,37 @@ export default function CreateUserModal({
     // eslint-disable-next-line
   }, [show]);
 
+  useEffect(() => {
+    if (show && !prevShowRef.current) {
+      setFullNameInput([newUser.name, newUser.family].filter(Boolean).join(" "));
+    }
+    prevShowRef.current = show;
+    // Only sync when modal opens, not on every newUser change (would overwrite user typing)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
+
   const handleFieldChange = (field: keyof CreateUserRqDataType, value: any) => {
     onUserChange({ ...newUser, [field]: value });
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleFullNameChange = (value: string) => {
+    setFullNameInput(value);
+    const parts = value.trim().split(/\s+/);
+    const name = parts[0] ?? "";
+    const family = parts.slice(1).join(" ") ?? "";
+    onUserChange({ ...newUser, name, family });
+    if (errors.name || errors.family) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.name;
+        delete newErrors.family;
         return newErrors;
       });
     }
@@ -58,8 +85,7 @@ export default function CreateUserModal({
 
   const validate = () => {
     const newErrors: Partial<Record<keyof CreateUserRqDataType, string>> = {};
-    if (!newUser.name) newErrors.name = "Name ist erforderlich.";
-    if (!newUser.family) newErrors.family = "Nachname ist erforderlich.";
+    if (!newUser.name) newErrors.name = "Vollständiger Name ist erforderlich.";
     // if (!newUser.email) {
     //   newErrors.email = "E-Mail ist erforderlich.";
     // } else if (!/\S+@\S+\.\S+/.test(newUser.email)) {
@@ -131,26 +157,16 @@ export default function CreateUserModal({
           <Row>
             <Col md={6}>
               <Form.Group className="mb-1">
-                <Form.Label>Name</Form.Label>
+                <Form.Label>Vollständiger Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={newUser.name}
-                  onChange={(e) => handleFieldChange('name', e.target.value)}
+                  placeholder="z.B. Max Mustermann"
+                  value={fullNameInput}
+                  onChange={(e) => handleFullNameChange(e.target.value)}
                   isInvalid={!!errors.name}
                   required
                 />
                 <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-1">
-                <Form.Label>Familienname</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newUser.family}
-                  onChange={(e) => handleFieldChange('family', e.target.value)}
-                  isInvalid={!!errors.family}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">{errors.family}</Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-1">
                 <Form.Label>E-Mail</Form.Label>

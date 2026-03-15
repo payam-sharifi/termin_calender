@@ -97,6 +97,7 @@ export default function UsersPage() {
   const handleCreateUser = () => {
     const payload = {
       ...newUser,
+      family: newUser.family ?? "",
       sex: newUser.sex as SEX,
       role: newUser.role as ROLE,
       password: "1234567",

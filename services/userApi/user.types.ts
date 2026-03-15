@@ -28,7 +28,7 @@ export interface UserRsDataType {
 
 export interface CreateUserRqDataType {
   email?: string | null;
-  family: string;
+  family?: string; // optional - derived from fullName
   is_verified: boolean;
   name: string;
   password: string;
