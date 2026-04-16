@@ -46,16 +46,16 @@ const DragAndDropCalendar = withDragAndDrop(Calendar);
 // Add custom styles for weekend days
 const customStyles = `
   .rbc-off-range-bg {
-    background: #f5f5f5;
+    background: rgba(28, 29, 38, 0.45);
   }
   .rbc-today {
-    background-color: #e6f1e7;
+    background-color: rgba(228, 76, 101, 0.1);
   }
   .rbc-day-sat, .rbc-day-sun {
-    color: red;
+    color: #e76278;
   }
   .rbc-event {
-    background-color: #4a90e2;
+    background-color: #e44c65;
     border: none;
   }
 `;
@@ -303,7 +303,7 @@ export default function MyCalendarClient({
     
     // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
     let backgroundStyle: React.CSSProperties = {
-      backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Same colors as event component
+      backgroundColor: isDamen ? '#e44c65' : '#5a6272',
     };
     
     if (isSelfReservation) {
@@ -443,7 +443,7 @@ export default function MyCalendarClient({
             #FFFFFF 7px
           )`,
         } : {
-          backgroundColor: isDamen ? '#dc3545' : '#0d6efd', // Red for Damen, Blue for Herren
+          backgroundColor: isDamen ? '#e44c65' : '#5a6272',
         };
         
         return (
@@ -500,7 +500,7 @@ rgba(165, 63, 63, 0.2) 5px,
             #FFFFFF 5px
           )`,
         } : {
-          backgroundColor: isDamen ? '#753C88' : '#3C74C5', // Red for Damen, Blue for Herren
+          backgroundColor: isDamen ? '#e44c65' : '#5a6272',
         };
         
         return (
@@ -655,21 +655,20 @@ rgba(165, 63, 63, 0.2) 5px,
               }}
             >
            
-              <Link href="/dashboard/users" className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
+              <Link href="/dashboard/users" className="btn btn-primary text-white" style={{ textDecoration: "none" }}>
                Kunden
               </Link>
-              <Link href={`/dashboard/services/${provider_id}`} className="btn"  style={{backgroundColor:"#5d81cf", textDecoration: 'none' }}>
+              <Link href={`/dashboard/services/${provider_id}`} className="btn btn-primary text-white" style={{ textDecoration: "none" }}>
               Dienste
               </Link>
 
             
               <button 
-                className="btn" 
+                className="btn btn-primary" 
                 onClick={() => {
                   setIsNewServiceModalOpen(false);
                   setIsModalOpen(true);
                 }}  
-                style={{backgroundColor:"#5d81cf"}}
               >
                 Nue Termin
               </button>

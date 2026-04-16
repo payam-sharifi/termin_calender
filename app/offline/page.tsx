@@ -53,6 +53,7 @@ export default function OfflinePage() {
 
   return (
     <div
+      className="termin-auth-shell"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -60,18 +61,14 @@ export default function OfflinePage() {
         alignItems: "center",
         justifyContent: "center",
         padding: "20px",
-        background: "linear-gradient(120deg, #e0f2fe 0%, #f8fafc 100%)",
-        fontFamily: "Inter, system-ui, sans-serif",
       }}
     >
       <div
+        className="termin-auth-card"
         style={{
           textAlign: "center",
           maxWidth: "500px",
-          background: "white",
           padding: "40px",
-          borderRadius: "16px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         }}
       >
         {/* Offline Icon */}
@@ -87,9 +84,9 @@ export default function OfflinePage() {
         <h1
           style={{
             fontSize: "28px",
-            fontWeight: "bold",
+            fontWeight: 300,
             marginBottom: "16px",
-            color: "#1e293b",
+            color: "#ffffff",
           }}
         >
           You're Offline
@@ -98,7 +95,7 @@ export default function OfflinePage() {
         <p
           style={{
             fontSize: "16px",
-            color: "#64748b",
+            color: "rgba(255,255,255,0.75)",
             marginBottom: "32px",
             lineHeight: "1.6",
           }}
@@ -158,7 +155,7 @@ export default function OfflinePage() {
               fontSize: "16px",
               fontWeight: "600",
               color: "white",
-              background: isOnline ? "#0ea5e9" : "#94a3b8",
+              background: isOnline ? "#e44c65" : "#94a3b8",
               border: "none",
               borderRadius: "8px",
               cursor: isOnline ? "pointer" : "not-allowed",
@@ -166,13 +163,13 @@ export default function OfflinePage() {
             }}
             onMouseEnter={(e) => {
               if (isOnline) {
-                e.currentTarget.style.background = "#0284c7";
+                e.currentTarget.style.background = "#e13652";
                 e.currentTarget.style.transform = "scale(1.05)";
               }
             }}
             onMouseLeave={(e) => {
               if (isOnline) {
-                e.currentTarget.style.background = "#0ea5e9";
+                e.currentTarget.style.background = "#e44c65";
                 e.currentTarget.style.transform = "scale(1)";
               }
             }}
@@ -186,19 +183,19 @@ export default function OfflinePage() {
               padding: "12px 24px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#0ea5e9",
-              background: "white",
-              border: "2px solid #0ea5e9",
+              color: "#e44c65",
+              background: "transparent",
+              border: "2px solid rgba(255,255,255,0.35)",
               borderRadius: "8px",
               cursor: "pointer",
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#f0f9ff";
+              e.currentTarget.style.background = "rgba(228, 76, 101, 0.15)";
               e.currentTarget.style.transform = "scale(1.05)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "white";
+              e.currentTarget.style.background = "transparent";
               e.currentTarget.style.transform = "scale(1)";
             }}
           >
@@ -211,10 +208,10 @@ export default function OfflinePage() {
           style={{
             marginTop: "32px",
             padding: "16px",
-            background: "#f1f5f9",
+            background: "rgba(255,255,255,0.06)",
             borderRadius: "8px",
             fontSize: "14px",
-            color: "#475569",
+            color: "rgba(255,255,255,0.75)",
             textAlign: "left",
           }}
         >

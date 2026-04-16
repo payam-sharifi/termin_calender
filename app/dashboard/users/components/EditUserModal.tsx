@@ -80,25 +80,6 @@ export default function EditUserModal({
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered dialogClassName="modal-50w-80h">
-      <style jsx global>{`
-        @media (min-width: 992px) {
-          .modal-50w-80h .modal-dialog {
-            max-width: 50vw !important;
-            width: 50vw !important;
-            height: 90vh !important;
-            min-height: 90vh !important;
-            margin: auto;
-          }
-          .modal-50w-80h .modal-content {
-            height: 90vh !important;
-            min-height: 90vh !important;
-            overflow-y: auto;
-          }
-        }
-        .modal-50w-80h .modal-content {
-          background-color: #f8f9fa;
-        }
-      `}</style>
       <Modal.Header closeButton>
         <Modal.Title>Benutzer bearbeiten</Modal.Title>
       </Modal.Header>

@@ -34,7 +34,9 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
   return (
     <Dropdown show={open} onToggle={(next) => setOpen(!!next)}>
       <Dropdown.Toggle variant="outline-secondary" id="customer-select" disabled={disabled} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ color: "#6c757d" }}>{value ? (selectedLabel || "Kunde ausgewählt") : "Kunde auswählen"}</span>
+        <span style={{ color: value ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.55)" }}>
+          {value ? (selectedLabel || "Kunde ausgewählt") : "Kunde auswählen"}
+        </span>
       </Dropdown.Toggle>
 
       <Dropdown.Menu style={{ width: 300, paddingTop: 8, paddingBottom: 8 }} align="start">
@@ -66,20 +68,21 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
                   className="w-100"
                   onClick={() => handleSelect(customer)}
                   style={{
-                    background: isActive ? "#eef5ff" : "#fff",
+                    background: isActive ? "rgba(228, 76, 101, 0.2)" : "rgba(255,255,255,0.04)",
                     border: "none",
-                    borderTop: idx === 0 ? "none" : "1px solid #f1f3f5",
+                    borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
                     padding: "12px 16px",
                     display: "flex",
                     alignItems: "center",
                     width: "100%",
                     textAlign: "left",
                     cursor: "pointer",
+                    color: "rgba(255,255,255,0.9)",
                   }}
                 >
                   <span style={{ fontWeight: 500, flex: 1, minWidth: 0, overflow: "hidden" }}>
                     {customer.name} {customer.family}
-                    <span style={{ color: "#6c757d", marginLeft: 8, fontSize: 12 }}>{customer.phone || customer.email}</span>
+                    <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: 8, fontSize: 12 }}>{customer.phone || customer.email}</span>
                   </span>
                 </button>
               );

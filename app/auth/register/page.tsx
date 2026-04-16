@@ -110,8 +110,8 @@ export default function RegisterPage() {
   };
 
   return (
-  <div className="m-4"style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-    <div className='shadow p-4 ' style={{width:"80vw "}} >
+  <div className="termin-auth-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px 16px' }}>
+    <div className="termin-register-card p-4 m-4" style={{ width: 'min(96vw, 900px)', position: 'relative', zIndex: 1 }}>
       <h2 className="text-center">Registrieren</h2>
       <form onSubmit={handleRegister} noValidate>
         <div className="row">

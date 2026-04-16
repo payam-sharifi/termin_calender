@@ -9,7 +9,7 @@
   text-align: center;
   margin-bottom: 1rem;
   font-size: 1.5rem;
-  color: #333;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .servicesGrid {
@@ -78,7 +78,7 @@
 }
 
 .detailValue {
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   text-align: left;
 }
 

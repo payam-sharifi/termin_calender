@@ -5,7 +5,7 @@
   
 }
 .rbc-today {
-  background-color: #ffffff !important;
+  background-color: rgba(228, 76, 101, 0.08) !important;
 }
 /* Sidebar: visible on desktop, hidden on mobile */
 
@@ -17,10 +17,10 @@
   top: 0;
   height: 100%;
   width: 200px;
-  background-color: #f0f6fb;
+  background-color: #272833;
   padding: 1rem;
   overflow-y: auto;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
   transform: translateX(-100%);
   transform: translateX(0); /* visible by default */
   transition: transform 0.3s ease-in-out;
@@ -33,19 +33,19 @@
 }
 /* Calendar Table and Sidebar Background */
 .calendar-table-bg, .calendar-sidebar-bg {
-  background-color: #f0f6fb !important;
+  background-color: #272833 !important;
 }
 
 /* Calendar Button (deeper blue) */
 .calendar-btn-deep {
-  background-color: #2563eb !important;
+  background-color: #e44c65 !important;
   color: #fff !important;
   border: none !important;
 }
 
 /* Optional: hover effect for button */
 .calendar-btn-deep:hover {
-  background-color: #1746a0 !important;
+  background-color: #e13652 !important;
 }
 
 /* Main content: flexible on desktop, full width on mobile */
@@ -53,7 +53,7 @@
   flex: 1;
   padding: 1rem;
   overflow: hidden;
-  background-color: #f0f6fb;
+  background-color: #272833;
   display: flex;
   flex-direction: column;
 }
@@ -63,12 +63,90 @@
   margin-left: 200px;
   padding: 1rem;
   overflow: hidden;
-  background-color: #f0f6fb;
+  background-color: #272833;
   display: flex;
   flex-direction: column;
 }
 .rbc-day-slot .rbc-time-slot {
   border-top: 1px solid #423e3e23 !important;
+}
+
+/* Toolbar above the grid (Today / nav / view) — white text on dark chrome */
+.rbc-toolbar button {
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 4px;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08) !important;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.rbc-toolbar button:hover {
+  background-color: rgba(228, 76, 101, 0.35) !important;
+  color: #ffffff !important;
+  border-color: rgba(228, 76, 101, 0.65) !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #e44c65 !important;
+  color: #ffffff !important;
+  border-color: #e44c65 !important;
+}
+
+.rbc-toolbar .rbc-toolbar-label {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Drawer / sidebar — same treatment as toolbar (white text, glass + coral) */
+.sidebar .btn,
+.sidebar a.btn {
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08) !important;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  width: 100%;
+  text-align: center;
+  text-decoration: none !important;
+}
+
+.sidebar .btn:hover,
+.sidebar a.btn:hover {
+  background-color: rgba(228, 76, 101, 0.35) !important;
+  color: #ffffff !important;
+  border-color: rgba(228, 76, 101, 0.65) !important;
+}
+
+.sidebar .btn-primary,
+.sidebar a.btn-primary {
+  background-color: #e44c65 !important;
+  border-color: #e44c65 !important;
+  color: #ffffff !important;
+}
+
+.sidebar .btn-primary:hover,
+.sidebar a.btn-primary:hover {
+  background-color: #e76278 !important;
+  border-color: #e76278 !important;
+  color: #ffffff !important;
+}
+
+.sidebar .btn-danger {
+  background: rgba(220, 53, 69, 0.42) !important;
+  border-color: rgba(220, 53, 69, 0.55) !important;
+  color: #ffffff !important;
+}
+
+.sidebar .btn-danger:hover {
+  background: rgba(220, 53, 69, 0.58) !important;
+  border-color: rgba(220, 53, 69, 0.72) !important;
+  color: #ffffff !important;
 }
 
 .header {

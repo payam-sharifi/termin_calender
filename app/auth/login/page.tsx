@@ -170,27 +170,21 @@ const isPhoneValid = isValidGermanMobile(phone);
 const isPasswordValid = password.length > 0;
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', position: 'relative', fontFamily: 'Inter, system-ui, sans-serif', background: 'linear-gradient(120deg, #e0f2fe 0%, #f8fafc 100%)', overflow: 'hidden' }}>
-      {/* Abstract SVG background */}
-      <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, zIndex: 0 }} viewBox="0 0 1440 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e0f2fe" fillOpacity="1" d="M0,160L60,170.7C120,181,240,203,360,197.3C480,192,600,160,720,133.3C840,107,960,85,1080,101.3C1200,117,1320,171,1380,197.3L1440,224L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-      </svg>
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ maxWidth: 400, width: '100%', background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.08)', padding: 32, margin: '40px 0' }}>
-          <h2 className="text-center" style={{ fontWeight: 600, fontSize: 32, marginBottom: 32 }}>Login</h2>
-      <div style={{ display: 'flex', marginBottom: 24 }}>
+    <div className="termin-auth-shell">
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '40px 16px' }}>
+        <div className="termin-auth-card" style={{ maxWidth: 400 }}>
+          <h2 className="text-center" style={{ fontSize: 32, marginBottom: 32 }}>Login</h2>
+      <div className="termin-auth-tabs">
         <button
           type="button"
-          className={`btn btn-light w-50${loginMethod === 'password' ? ' active' : ''}`}
-              style={{ borderBottom: loginMethod === 'password' ? '2px solid #2563eb' : '1px solid #e5e7eb', borderRadius: '8px 0 0 8px', background: loginMethod === 'password' ? '#f1f5f9' : '#fff', color: '#0f172a', fontWeight: 500, fontSize: 16 }}
+          className={`w-50${loginMethod === 'password' ? ' active' : ''}`}
           onClick={() => handleTabChange('password')}
         >
           Passwort
         </button>
         <button
           type="button"
-          className={`btn btn-light w-50${loginMethod === 'sms' ? ' active' : ''}`}
-              style={{ borderBottom: loginMethod === 'sms' ? '2px solid #2563eb' : '1px solid #e5e7eb', borderRadius: '0 8px 8px 0', background: loginMethod === 'sms' ? '#f1f5f9' : '#fff', color: '#0f172a', fontWeight: 500, fontSize: 16 }}
+          className={`w-50${loginMethod === 'sms' ? ' active' : ''}`}
           onClick={() => handleTabChange('sms')}
         >
           SMS
@@ -214,7 +208,7 @@ const isPasswordValid = password.length > 0;
                     clearFieldError('phone');
               }}
               required
-                  style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
+                  style={{ borderRadius: 8, fontSize: 16 }}
             />
                 {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
           </div>
@@ -227,11 +221,11 @@ const isPasswordValid = password.length > 0;
               value={password}
                   onChange={e => { setPassword(e.target.value); clearFieldError('password'); }}
               required
-                  style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
+                  style={{ borderRadius: 8, fontSize: 16 }}
             />
                 {fieldErrors.password && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.password}</div>}
           </div>
-              <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPhoneValid || !isPasswordValid} style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
+              <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPhoneValid || !isPasswordValid} style={{ borderRadius: 8, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
             {loading ? 'Einloggen...' : 'Login'}
           </button>
         </form>
@@ -255,14 +249,14 @@ const isPasswordValid = password.length > 0;
               }}
               required
               disabled={codeSent}
-                  style={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 16 }}
+                  style={{ borderRadius: 8, fontSize: 16 }}
             />
                 {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
           </div>
           {!codeSent && (
                 <button type="submit" className="btn btn-primary w-100" 
                   disabled={loading || !isPhoneValid}
-                  style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
+                  style={{ borderRadius: 8, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
               {loading ? 'Sende Code...' : 'Code per SMS senden'}
             </button>
           )}
@@ -278,7 +272,7 @@ const isPasswordValid = password.length > 0;
                     autoComplete={i === 0 ? "one-time-code" : undefined}
                     maxLength={1}
                     className="form-control text-center"
-                        style={{ width: 48, fontSize: 24, borderRadius: 8, border: '1px solid #e5e7eb' }}
+                        style={{ width: 48, fontSize: 24, borderRadius: 8 }}
                     value={codeDigits[i]}
                         onChange={e => { handleCodeChange(i, e.target.value); clearFieldError('code'); }}
                     onPaste={handleCodePaste}
@@ -288,7 +282,7 @@ const isPasswordValid = password.length > 0;
                 ))}
               </div>
                   {fieldErrors.code && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4, textAlign: 'center' }}>{fieldErrors.code}</div>}
-                  <button type="submit" className="btn btn-primary w-100" disabled={loading} style={{ background: '#2563eb', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
+                  <button type="submit" className="btn btn-primary w-100" disabled={loading} style={{ borderRadius: 8, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
                 {loading ? 'Überprüfe...' : 'Code überprüfen'}
               </button>
               <div className="mt-2 text-center">
@@ -297,7 +291,7 @@ const isPasswordValid = password.length > 0;
                   className="btn btn-link"
                   onClick={handleSendCode}
                   disabled={loading}
-                      style={{ color: '#2563eb', fontWeight: 500, textDecoration: 'underline', background: 'none', border: 'none', padding: 0, fontSize: 15 }}
+                      style={{ fontWeight: 500, textDecoration: 'underline', background: 'none', border: 'none', padding: 0, fontSize: 15 }}
                 >
                   Code erneut senden
                 </button>
@@ -307,7 +301,7 @@ const isPasswordValid = password.length > 0;
         </form>
       )}
           <div className="mt-3 text-center" style={{ fontSize: 15 }}>
-            Noch kein Konto? <Link href="/auth/register" style={{ color: '#2563eb', fontWeight: 500, textDecoration: 'underline' }}>Registrieren</Link>
+            Noch kein Konto? <Link href="/auth/register" style={{ fontWeight: 500, textDecoration: 'underline' }}>Registrieren</Link>
           </div>
         </div>
       </div>

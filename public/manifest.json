@@ -4,8 +4,8 @@
   "description": "Professional appointment booking and calendar management system",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#e0f2fe",
-  "theme_color": "#0ea5e9",
+  "background_color": "#1c1d26",
+  "theme_color": "#e44c65",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

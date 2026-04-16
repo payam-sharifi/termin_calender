@@ -87,7 +87,7 @@ export default function PWAUpdatePrompt() {
             onClick={handleUpdate}
             style={{
               padding: "6px 12px",
-              background: "#0ea5e9",
+              background: "#e44c65",
               color: "white",
               border: "none",
               borderRadius: "4px",
@@ -106,8 +106,8 @@ export default function PWAUpdatePrompt() {
             style={{
               padding: "6px 12px",
               background: "transparent",
-              color: "#64748b",
-              border: "1px solid #cbd5e1",
+              color: "rgba(255,255,255,0.65)",
+              border: "1px solid rgba(255,255,255,0.25)",
               borderRadius: "4px",
               cursor: "pointer",
               fontSize: "14px",

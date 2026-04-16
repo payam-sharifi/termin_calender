@@ -1,0 +1,543 @@
+/**
+ * Bookflow / Appventure frontend alignment (Landed theme palette).
+ * Source reference: appventure_frontend public/css/main.css
+ */
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,300,100italic,300italic");
+
+:root {
+  --av-bg: #1c1d26;
+  --av-panel: #272833;
+  --av-panel-2: #2e3140;
+  --av-accent: #e44c65;
+  --av-accent-hover: #e76278;
+  --av-accent-active: #e13652;
+  --av-text: rgba(255, 255, 255, 0.75);
+  --av-heading: #ffffff;
+  --av-border: rgba(255, 255, 255, 0.12);
+  --av-input-bg: rgba(255, 255, 255, 0.06);
+  --av-calendar-chrome: #323542;
+
+  /* Bootstrap 5 bridge */
+  --bs-primary: #e44c65;
+  --bs-primary-rgb: 228, 76, 101;
+  --bs-link-color: #e44c65;
+  --bs-link-hover-color: #e76278;
+  --bs-body-bg: #1c1d26;
+  --bs-body-color: rgba(255, 255, 255, 0.85);
+  --bs-secondary-color: rgba(255, 255, 255, 0.55);
+  --bs-border-color: var(--av-border);
+  --bs-emphasis-color: #fff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto", Helvetica, Arial, sans-serif !important;
+  font-weight: 300;
+  color: var(--av-text) !important;
+  background-color: var(--av-bg) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  color: var(--av-heading);
+  font-weight: 300;
+}
+
+a {
+  color: var(--av-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+a:hover {
+  color: var(--av-accent-hover);
+}
+
+/* Primary buttons — match Landed `.button.primary` */
+.btn-primary {
+  --bs-btn-bg: var(--av-accent);
+  --bs-btn-border-color: var(--av-accent);
+  --bs-btn-hover-bg: var(--av-accent-hover);
+  --bs-btn-hover-border-color: var(--av-accent-hover);
+  --bs-btn-active-bg: var(--av-accent-active);
+  --bs-btn-active-border-color: var(--av-accent-active);
+  font-weight: 300;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--av-accent);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.35);
+  --bs-btn-hover-bg: rgba(228, 76, 101, 0.15);
+  --bs-btn-hover-border-color: var(--av-accent);
+  --bs-btn-hover-color: var(--av-accent-hover);
+  --bs-btn-active-bg: rgba(228, 76, 101, 0.25);
+  --bs-btn-active-border-color: var(--av-accent);
+}
+
+.btn-secondary {
+  --bs-btn-bg: rgba(255, 255, 255, 0.1);
+  --bs-btn-border-color: var(--av-border);
+  --bs-btn-color: rgba(255, 255, 255, 0.92);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.16);
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.28);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.2);
+  --bs-btn-active-border-color: rgba(255, 255, 255, 0.32);
+  --bs-btn-active-color: #ffffff;
+}
+
+.btn-danger {
+  --bs-btn-color: #ffffff;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-active-color: #ffffff;
+}
+
+.text-primary {
+  color: var(--av-accent) !important;
+}
+
+.spinner-border.text-primary {
+  --bs-spinner-color: var(--av-accent);
+}
+
+/* Forms on dark surfaces */
+.form-control,
+.form-select {
+  background-color: var(--av-input-bg);
+  border-color: var(--av-border);
+  color: var(--av-heading);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(228, 76, 101, 0.5);
+  color: var(--av-heading);
+  box-shadow: 0 0 0 0.2rem rgba(228, 76, 101, 0.2);
+}
+
+.form-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.invalid-feedback {
+  color: #f5a5ae;
+}
+
+.form-text {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.form-check-label {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.form-switch .form-check-input {
+  --bs-form-switch-bg: rgba(255, 255, 255, 0.25);
+}
+
+.form-select option {
+  background-color: var(--av-panel);
+  color: var(--av-heading);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+}
+
+/* Cards & tables */
+.card {
+  background-color: var(--av-panel);
+  border-color: var(--av-border);
+  color: var(--av-text);
+}
+
+.card-header {
+  background-color: var(--av-panel-2);
+  border-bottom-color: var(--av-border);
+  color: var(--av-heading);
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--av-text);
+  border-color: var(--av-border);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Landed-style buttons (optional use alongside Bootstrap) */
+input[type="submit"].button-landed,
+input[type="button"].button-landed,
+button.button-landed,
+a.button-landed {
+  appearance: none;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  color: #ffffff !important;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 300;
+  min-height: 3em;
+  line-height: 3em;
+  padding: 0 2.25em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+input[type="submit"].button-landed.primary,
+input[type="button"].button-landed.primary,
+button.button-landed.primary,
+a.button-landed.primary {
+  background-color: var(--av-accent);
+  box-shadow: none;
+  color: #ffffff !important;
+}
+
+input[type="submit"].button-landed.primary:hover,
+button.button-landed.primary:hover,
+a.button-landed.primary:hover {
+  background-color: var(--av-accent-hover);
+}
+
+/* Auth / light inset panels (login card on dark page) */
+.termin-auth-shell {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: var(--av-bg);
+  box-sizing: border-box;
+}
+
+.termin-auth-card {
+  max-width: 420px;
+  width: 100%;
+  background: var(--av-panel);
+  border-radius: 8px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+  padding: 32px;
+  border: 1px solid var(--av-border);
+  color: var(--av-text);
+}
+
+.termin-auth-card h2 {
+  color: var(--av-heading);
+  font-weight: 300;
+}
+
+.termin-auth-tabs {
+  display: flex;
+  margin-bottom: 24px;
+}
+
+.termin-auth-tabs button {
+  width: 50%;
+  border: 0;
+  border-bottom: 1px solid var(--av-border) !important;
+  background: var(--av-panel-2) !important;
+  color: var(--av-text) !important;
+  font-weight: 300;
+  padding: 10px 12px;
+}
+
+.termin-auth-tabs button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.termin-auth-tabs button:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.termin-auth-tabs button.active {
+  border-bottom: 2px solid var(--av-accent) !important;
+  background: var(--av-input-bg) !important;
+  color: var(--av-heading) !important;
+}
+
+/* Register wide card */
+.termin-register-card {
+  background: var(--av-panel);
+  border-radius: 8px;
+  border: 1px solid var(--av-border);
+  color: var(--av-text);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+}
+
+.alert-danger {
+  --bs-alert-bg: rgba(220, 53, 69, 0.2);
+  --bs-alert-border-color: rgba(220, 53, 69, 0.45);
+  --bs-alert-color: #f8b4bd;
+}
+
+.alert-success {
+  --bs-alert-bg: rgba(25, 135, 84, 0.2);
+  --bs-alert-border-color: rgba(25, 135, 84, 0.45);
+  --bs-alert-color: #a3e0c3;
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--av-panel);
+  --bs-dropdown-border-color: var(--av-border);
+  --bs-dropdown-link-color: rgba(255, 255, 255, 0.88);
+  --bs-dropdown-link-hover-bg: rgba(228, 76, 101, 0.18);
+  --bs-dropdown-link-hover-color: #ffffff;
+  --bs-dropdown-link-active-bg: var(--av-accent);
+  --bs-dropdown-link-active-color: #ffffff;
+  --bs-dropdown-header-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--av-border);
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
+.dropdown-item {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: rgba(228, 76, 101, 0.18);
+  color: #ffffff;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: var(--av-accent);
+  color: #ffffff;
+}
+
+.dropdown-item-text,
+.dropdown-menu .text-muted {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.dropdown-divider {
+  border-top-color: var(--av-border);
+  opacity: 1;
+}
+
+.dropdown-item.disabled,
+.dropdown-item:disabled {
+  color: rgba(255, 255, 255, 0.35) !important;
+  pointer-events: none;
+}
+
+/* Dropdown toggles (e.g. service / customer pickers) — readable on dark */
+.btn-outline-secondary {
+  --bs-btn-color: rgba(255, 255, 255, 0.9);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.28);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.1);
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.42);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.14);
+  --bs-btn-active-border-color: rgba(255, 255, 255, 0.5);
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-disabled-color: rgba(255, 255, 255, 0.35);
+  --bs-btn-disabled-border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Modals (react-bootstrap) */
+.modal {
+  --bs-modal-bg: var(--av-panel);
+  --bs-modal-border-color: var(--av-border);
+  --bs-modal-color: rgba(255, 255, 255, 0.88);
+  --bs-modal-header-border-color: var(--av-border);
+  --bs-modal-footer-border-color: var(--av-border);
+}
+
+.modal-content {
+  background-color: var(--av-panel);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--av-border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.modal-header {
+  border-bottom-color: var(--av-border);
+}
+
+.modal-title {
+  color: var(--av-heading);
+}
+
+.modal-body {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.modal-body .text-muted,
+.modal .text-muted {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.modal-footer {
+  border-top-color: var(--av-border);
+}
+
+.modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+  opacity: 0.75;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.modal-backdrop {
+  --bs-backdrop-opacity: 0.7;
+}
+
+/* Create / Edit user modals — `dialogClassName="modal-50w-80h"` on Modal */
+@media (min-width: 992px) {
+  .modal-50w-80h .modal-dialog {
+    max-width: 50vw !important;
+    width: 50vw !important;
+    height: 90vh !important;
+    min-height: 90vh !important;
+    margin: auto;
+  }
+  .modal-50w-80h .modal-content {
+    height: 90vh !important;
+    min-height: 90vh !important;
+    overflow-y: auto;
+  }
+}
+
+.modal-50w-80h .modal-content {
+  background-color: var(--av-panel);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Custom overlay modals (e.g. SafeDeleteModal) */
+.termin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1055;
+  padding: 16px;
+}
+
+.termin-modal-panel {
+  background-color: var(--av-panel);
+  color: rgba(255, 255, 255, 0.88);
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid var(--av-border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.termin-modal-panel h3 {
+  color: var(--av-heading);
+  margin: 0 0 16px 0;
+}
+
+.termin-modal-panel p {
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.termin-modal-panel .btn-outline-muted {
+  padding: 8px 16px;
+  border: 1px solid var(--av-border);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.termin-modal-panel .btn-outline-muted:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* react-datepicker popovers (often portaled to body) */
+.react-datepicker-popper {
+  z-index: 1060 !important;
+}
+
+.react-datepicker {
+  background-color: var(--av-panel) !important;
+  border: 1px solid var(--av-border) !important;
+  font-family: inherit !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.react-datepicker__header {
+  background-color: var(--av-panel-2) !important;
+  border-bottom: 1px solid var(--av-border) !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.react-datepicker__day {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(228, 76, 101, 0.25) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--av-accent) !important;
+  color: #ffffff !important;
+}
+
+.react-datepicker__day--disabled,
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Loading screens */
+.termin-loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--av-bg);
+}
+
+.termin-loading-screen .termin-loading-text {
+  color: var(--av-accent);
+}

@@ -1,7 +1,7 @@
 /* General Container for Google Calendar-like appearance */
 .my-calendar-container {
   font-family: 'Google Sans', Arial, sans-serif;
-  background: #5d81cf;
+  background: #272833;
   
   max-height: 80vh;
  
@@ -37,25 +37,27 @@
 }
 
 .rbc-toolbar button {
-  border: 1px solid #dadce0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 4px;
-  color: #3c4043;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 500;
   padding: 8px 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.08);
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
   cursor: pointer;
 }
 
 .rbc-toolbar button:hover {
-  background-color: #f6f9fe;
+  background-color: rgba(228, 76, 101, 0.35);
+  color: #ffffff;
+  border-color: rgba(228, 76, 101, 0.65);
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #1a73e8;
-  color: white;
-  border-color: #1a73e8;
+  background-color: #e44c65;
+  color: #ffffff;
+  border-color: #e44c65;
 }
 
 /* Center month/year label */
@@ -64,7 +66,7 @@
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;
-  color: #3c4043;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 /* Calendar Grid (minimal layout overrides) */
@@ -134,7 +136,7 @@
 }
 
 .rbc-event {
-  background-color: #1a73e8;
+  background-color: #e44c65;
   border: none;
   border-radius: 4px;
   padding: 2px 4px;
@@ -155,7 +157,7 @@
 }
 
 .rbc-event:hover {
-  background-color: #1557b0;
+  background-color: #e13652;
 }
 
 /* Today's date */
@@ -164,12 +166,12 @@
 /* Selected day (Day 8 in the image has a light blue background) */
 .rbc-day-bg.rbc-selected-cell,
 .rbc-day-bg.rbc-selected {
-  background-color: #e8f0fe;
+  background-color: rgba(228, 76, 101, 0.12);
 }
 
 /* Selected slot (for new event creation) */
 .rbc-slot-selection {
-  background-color: rgba(26, 115, 232, 0.2);
+  background-color: rgba(228, 76, 101, 0.2);
 }
 
 /* Time slots (for week/day view) */
@@ -241,19 +243,19 @@
 
 /* Calendar Table and Sidebar Background */
 .calendar-table-bg, .calendar-sidebar-bg {
-  background-color: #f0f6fb !important;
+  background-color: #272833 !important;
 }
 
 /* Calendar Button (deeper blue) */
 .calendar-btn-deep {
-  background-color: #2563eb !important;
+  background-color: #e44c65 !important;
   color: #fff !important;
   border: none !important;
 }
 
 /* Optional: hover effect for button */
 .calendar-btn-deep:hover {
-  background-color: #1746a0 !important;
+  background-color: #e13652 !important;
 }
 
 /* Enable vertical scroll for the whole page on mobile */

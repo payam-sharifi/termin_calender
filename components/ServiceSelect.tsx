@@ -13,9 +13,9 @@ interface ServiceSelectProps {
 
 function getLabelColorByTitle(title: string): string {
   const lower = (title || "").toLowerCase();
-  if (lower.includes("damen")) return "#0d6efd"; // Bootstrap danger blue
-  if (lower.includes("herren")) return "#dc3545"; // Bootstrap primary red
-  return "#6c757d"; // secondary gray
+  if (lower.includes("damen")) return "#e44c65";
+  if (lower.includes("herren")) return "#5a6272";
+  return "rgba(255,255,255,0.55)";
 }
 
 function getServiceCategory(title: string): string {
@@ -30,7 +30,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
   const [search, setSearch] = useState("");
 
   const selected = useMemo(() => services?.find((s) => s.id === value) || null, [services, value]);
-  const labelColor = selected ? getLabelColorByTitle(selected.title) : "#6c757d";
+  const labelColor = selected ? getLabelColorByTitle(selected.title) : "rgba(255,255,255,0.55)";
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -118,16 +118,16 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
             groupedAndSortedServices.map((group, groupIdx) => (
               <div key={group.category}>
                 {groupIdx > 0 && (
-                  <div style={{ borderTop: "1px solid #e0e0e0", margin: "8px 0" }} />
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", margin: "8px 0" }} />
                 )}
                 {group.category !== "Other" && (
                   <div
                     style={{
                       padding: "8px 16px",
-                      backgroundColor: "#f8f9fa",
+                      backgroundColor: "rgba(255,255,255,0.06)",
                       fontWeight: 600,
                       fontSize: 13,
-                      color: "#495057",
+                      color: "rgba(255,255,255,0.75)",
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
                     }}
@@ -145,9 +145,9 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
                       className="w-100"
                       onClick={() => handleSelect(service.id)}
                       style={{
-                        background: isActive ? "#eef5ff" : "#fff",
+                        background: isActive ? "rgba(228, 76, 101, 0.15)" : "rgba(255,255,255,0.04)",
                         border: "none",
-                        borderTop: "1px solid #f1f3f5",
+                        borderTop: "1px solid rgba(255,255,255,0.08)",
                         padding: "12px 16px",
                         display: "flex",
                         alignItems: "center",
@@ -170,7 +170,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
                       <span style={{ color: titleColor, fontWeight: 500, flex: 1, minWidth: 0, whiteSpace: "normal", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                         {service.title}
                       </span>
-                      <span style={{ color: "#6c757d", fontSize: 12, marginLeft: 12 }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginLeft: 12 }}>
                         {service.duration ? `${service.duration}min` : "-"} / {service.price != null ? `${service.price}€` : "-"}
                       </span>
                     </button>

@@ -17,23 +17,13 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      width: '100vw',
-      background: 'linear-gradient(120deg, #e0f2fe 0%, #f8fafc 100%)'
-    }}>
+    <div className="termin-loading-screen">
       {isRedirecting && (
-        <div style={{
-          textAlign: 'center',
-          color: '#0ea5e9'
-        }}>
+        <div style={{ textAlign: 'center' }}>
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p style={{ marginTop: '1rem', color: '#0ea5e9' }}>در حال بارگذاری...</p>
+          <p className="termin-loading-text" style={{ marginTop: '1rem' }}>در حال بارگذاری...</p>
         </div>
       )}
     </div>
