@@ -704,7 +704,7 @@ export default function EventFormModal({
                         Dieser Service dauert {serviceDuration} Minuten.
                       </div>
                     )}
-                    {errors.service && <div style={{background: '#fff', color: 'red', fontSize: '0.5em', marginTop: 4}}>{errors.service}</div>}
+                    {errors.service && <div className="invalid-feedback d-block">{errors.service}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -761,7 +761,7 @@ export default function EventFormModal({
                       dayClassName={dayClassName}
                       required
                     />
-                    {errors.start && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.start}</div>}
+                    {errors.start && <div className="invalid-feedback d-block">{errors.start}</div>}
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -785,8 +785,12 @@ export default function EventFormModal({
                       dayClassName={dayClassName}
                       required
                     />
-                    {errors.end && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.end}</div>}
-                    {hasConflict && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4, fontWeight: 'bold'}}>⚠️ Termin-Konflikt: Es gibt bereits einen Termin in diesem Zeitraum!</div>}
+                    {errors.end && <div className="invalid-feedback d-block">{errors.end}</div>}
+                    {hasConflict && (
+                      <div className="text-danger small mt-2 fw-bold">
+                        ⚠️ Termin-Konflikt: Es gibt bereits einen Termin in diesem Zeitraum!
+                      </div>
+                    )}
                   </Form.Group>
                 </Col>
               </Row>
@@ -856,7 +860,7 @@ export default function EventFormModal({
                             setCurrentStep(2);
                           }}
                         />
-                        {errors.customerName && <div style={{background: '#fff', color: 'red', fontSize: '0.85em', marginTop: 4}}>{errors.customerName}</div>}
+                        {errors.customerName && <div className="invalid-feedback d-block">{errors.customerName}</div>}
                       </Form.Group>
                     </Col>
                   </Row>

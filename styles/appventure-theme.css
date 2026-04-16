@@ -497,7 +497,8 @@ a.button-landed.primary:hover {
 }
 
 .react-datepicker__current-month,
-.react-datepicker__day-name {
+.react-datepicker__day-name,
+.react-datepicker-time__header {
   color: rgba(255, 255, 255, 0.88) !important;
 }
 
@@ -526,6 +527,70 @@ a.button-landed.primary:hover {
 
 .react-datepicker__triangle {
   display: none;
+}
+
+/* Time column (showTimeSelect) — default lib uses white bg / dark text */
+.react-datepicker__time-container {
+  border-left: 1px solid var(--av-border) !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background: var(--av-panel-2) !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list {
+  background: var(--av-panel) !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item:hover {
+  background-color: rgba(228, 76, 101, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--selected {
+  background-color: var(--av-accent) !important;
+  color: #ffffff !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--selected:hover {
+  background-color: var(--av-accent-hover) !important;
+  color: #ffffff !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--disabled {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item--disabled:hover {
+  background-color: transparent !important;
 }
 
 /* Loading screens */
