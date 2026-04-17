@@ -68,7 +68,28 @@
   flex-direction: column;
 }
 .rbc-day-slot .rbc-time-slot {
-  border-top: 1px solid #423e3e23 !important;
+  border-top: 1px solid var(--av-calendar-slot-line) !important;
+}
+
+/* Day/week grid: light warm surface (matches app palette, not stark white) */
+.rbc-time-view {
+  background-color: var(--av-calendar-surface) !important;
+  border: 1px solid var(--av-calendar-border-on-surface) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-time-view .rbc-time-gutter {
+  background-color: var(--av-calendar-surface-gutter) !important;
+}
+
+.rbc-time-view .rbc-time-content {
+  background-color: var(--av-calendar-surface) !important;
+  border-left: 1px solid var(--av-calendar-border-on-surface) !important;
+}
+
+.rbc-time-view .rbc-time-gutter .rbc-timeslot-group .rbc-label {
+  color: var(--av-calendar-text-on-surface) !important;
 }
 
 /* Toolbar above the grid (Today / nav / view) — white text on dark chrome */
@@ -447,12 +468,12 @@
   min-height: 24px !important;
 }
 
-/* Day view: small vertical gap and rounded white border like the photo */
+/* Day view: small vertical gap and rounded border on event pills */
 .rbc-time-view .rbc-day-slot .rbc-event,
 .rbc-time-view .rbc-event {
 
   margin-bottom: 3px !important;
-  border: 2px solid #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.92) !important;
   border-radius: 10px !important;
   background-clip: padding-box !important;
   overflow: hidden;
@@ -461,7 +482,7 @@
 /* Horizontal divider lines at hour and half-hour marks only */
 .rbc-time-view .rbc-day-slot {
   position: relative;
-  background-color: #ffffff !important;
+  background-color: var(--av-calendar-surface) !important;
 }
 
 .rbc-time-view .rbc-day-slot::before {

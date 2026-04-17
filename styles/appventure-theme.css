@@ -16,6 +16,12 @@
   --av-border: rgba(255, 255, 255, 0.12);
   --av-input-bg: rgba(255, 255, 255, 0.06);
   --av-calendar-chrome: #323542;
+  /* Big calendar day grid: light surface (harmonizes with dark page chrome #1c1d26 / #272833) */
+  --av-calendar-surface: #f0ebe3;
+  --av-calendar-surface-gutter: #e4e0d6;
+  --av-calendar-border-on-surface: rgba(28, 29, 38, 0.14);
+  --av-calendar-text-on-surface: #3a3842;
+  --av-calendar-slot-line: rgba(28, 29, 38, 0.09);
 
   /* Bootstrap 5 bridge */
   --bs-primary: #c5a059;
@@ -768,15 +774,15 @@ a.button-landed.primary:hover {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .kunden-termin-datepicker-panel {
-  background: var(--av-panel);
-  border: 1px solid var(--av-border);
+  background: var(--av-calendar-surface);
+  border: 1px solid var(--av-calendar-border-on-surface);
   border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  padding: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   max-width: min(100vw - 32px, 360px);
   width: 100%;
 }
@@ -788,21 +794,21 @@ a.button-landed.primary:hover {
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__header {
-  background-color: var(--av-panel-2);
-  border-bottom: 1px solid var(--av-border);
+  background-color: var(--av-calendar-surface-gutter);
+  border-bottom: 1px solid var(--av-calendar-border-on-surface);
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__current-month,
 .kunden-termin-datepicker-panel .react-datepicker__day-name {
-  color: var(--av-heading);
+  color: var(--av-calendar-text-on-surface);
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__day {
-  color: var(--av-text);
+  color: var(--av-calendar-text-on-surface);
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__day:hover {
-  background-color: rgba(197, 160, 89, 0.25);
+  background-color: rgba(197, 160, 89, 0.28);
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__day--selected,
@@ -812,5 +818,5 @@ a.button-landed.primary:hover {
 }
 
 .kunden-termin-datepicker-panel .react-datepicker__navigation-icon::before {
-  border-color: rgba(255, 255, 255, 0.85);
+  border-color: var(--av-calendar-text-on-surface);
 }
