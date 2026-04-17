@@ -23,6 +23,7 @@ jobs:
           timeout: 5m
           script: |
             cd /termin/pwa-termin/client
+            git stash
             git pull 
             npm install 
             npm run build -- --webpack
