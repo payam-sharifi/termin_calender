@@ -16,6 +16,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [router]);
 
+  
   return (
     <div className="termin-loading-screen">
       {isRedirecting && (
