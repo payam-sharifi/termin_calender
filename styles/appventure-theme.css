@@ -758,3 +758,59 @@ a.button-landed.primary:hover {
 .termin-loading-screen .termin-loading-text {
   color: var(--av-accent);
 }
+
+/* Kunden-Termine: centered day picker overlay (replaces native date input popup) */
+.kunden-termin-datepicker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.kunden-termin-datepicker-panel {
+  background: var(--av-panel);
+  border: 1px solid var(--av-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  max-width: min(100vw - 32px, 360px);
+  width: 100%;
+}
+
+.kunden-termin-datepicker-panel .react-datepicker {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__header {
+  background-color: var(--av-panel-2);
+  border-bottom: 1px solid var(--av-border);
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__current-month,
+.kunden-termin-datepicker-panel .react-datepicker__day-name {
+  color: var(--av-heading);
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__day {
+  color: var(--av-text);
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__day:hover {
+  background-color: rgba(197, 160, 89, 0.25);
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__day--selected,
+.kunden-termin-datepicker-panel .react-datepicker__day--keyboard-selected {
+  background-color: var(--av-accent) !important;
+  color: #1c1d26 !important;
+}
+
+.kunden-termin-datepicker-panel .react-datepicker__navigation-icon::before {
+  border-color: rgba(255, 255, 255, 0.85);
+}

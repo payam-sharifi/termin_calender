@@ -1,7 +1,10 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
+import DatePicker from "react-datepicker";
+import { registerLocale } from "react-datepicker";
+import { de } from "date-fns/locale/de";
 import {
   Container,
   Card,
@@ -12,6 +15,111 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { useGetUserTimeSlots } from "@/services/hooks/timeSlots/useGetUserTimeSlots";
+
+registerLocale("de", de);
+
+function ymdToLocalDate(ymd: string): Date {
+  if (!ymd) return new Date();
+  const [y, m, day] = ymd.split("-").map((x) => parseInt(x, 10));
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(day))
+    return new Date();
+  return new Date(y, m - 1, day, 12, 0, 0, 0);
+}
+
+/** Opens react-datepicker in a centered overlay (native type="date" cannot be centered). */
+function CenteredKundenDatePicker({
+  id,
+  label,
+  valueYmd,
+  onApply,
+}: {
+  id: string;
+  label: string;
+  valueYmd: string;
+  onApply: (date: Date) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  const display =
+    valueYmd.trim() !== ""
+      ? ymdToLocalDate(valueYmd).toLocaleDateString("de-DE")
+      : "Datum wählen";
+
+  return (
+    <>
+      <div className="d-flex align-items-center gap-2 flex-shrink-0">
+        <Form.Label htmlFor={id} className="mb-0 text-nowrap">
+          {label}
+        </Form.Label>
+        <Button
+          type="button"
+          variant="outline-secondary"
+          id={id}
+          className="d-inline-flex align-items-center gap-2 text-start"
+          style={{ minWidth: "10.5rem", maxWidth: "14rem" }}
+          onClick={() => setOpen(true)}
+        >
+          <span className="text-truncate">{display}</span>
+          <i className="bi bi-calendar3 flex-shrink-0" aria-hidden />
+        </Button>
+      </div>
+      {open && (
+        <div
+          className="kunden-termin-datepicker-overlay"
+          role="presentation"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="kunden-termin-datepicker-panel"
+            role="dialog"
+            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DatePicker
+              selected={ymdToLocalDate(valueYmd)}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  onApply(date);
+                  setOpen(false);
+                }
+              }}
+              inline
+              locale="de"
+              calendarStartDay={1}
+            />
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              className="w-100"
+              onClick={() => setOpen(false)}
+            >
+              Schließen
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 /** First word of service title, max 5 letters + "..."; full title on hover / click. */
 function ServiceDienstLabel({ appt }: { appt: any }) {
@@ -113,55 +221,55 @@ export default function UserAppointmentsPage({
             </div>
           )}
           <div className="d-flex align-items-center flex-wrap gap-3 mb-3">
-            <div className="d-flex align-items-center gap-2 flex-shrink-0">
-              <Form.Label className="mb-0 text-nowrap">
-                Start (Datum)
-              </Form.Label>
-              <Form.Control
-                type="date"
-                style={{ maxWidth: "12rem" }}
-                value={customStart}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setCustomStart(v);
-                  if (v) {
-                    const [y, m, day] = v
-                      .split("-")
-                      .map((x) => parseInt(x, 10));
-                    const dt = new Date(y, m - 1, day, 0, 0, 0, 0);
-                    setStartTime(dt.toISOString());
-                    setPage(1);
-                  } else {
-                    setStartTime("");
-                  }
-                }}
-              />
-            </div>
-            <div className="d-flex align-items-center gap-2 flex-shrink-0">
-              <Form.Label className="mb-0 text-nowrap">Ende (Datum)</Form.Label>
-              <Form.Control
-                type="date"
-                style={{ maxWidth: "12rem" }}
-                value={customEnd}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setCustomEnd(v);
-                  if (v) {
-                    const [y, m, day] = v
-                      .split("-")
-                      .map((x) => parseInt(x, 10));
-                    const dt = new Date(y, m - 1, day, 23, 59, 59, 999);
-                    setEndTime(dt.toISOString());
-                    setPage(1);
-                  } else {
-                    setEndTime("");
-                  }
-                }}
-              />
-            </div>
+            <CenteredKundenDatePicker
+              id="kunden-filter-start"
+              label="Start (Datum)"
+              valueYmd={customStart}
+              onApply={(date) => {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const ymd = `${y}-${m}-${day}`;
+                setCustomStart(ymd);
+                const dt = new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  0,
+                  0,
+                  0,
+                  0,
+                );
+                setStartTime(dt.toISOString());
+                setPage(1);
+              }}
+            />
+            <CenteredKundenDatePicker
+              id="kunden-filter-ende"
+              label="Ende (Datum)"
+              valueYmd={customEnd}
+              onApply={(date) => {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const ymd = `${y}-${m}-${day}`;
+                setCustomEnd(ymd);
+                const dt = new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  23,
+                  59,
+                  59,
+                  999,
+                );
+                setEndTime(dt.toISOString());
+                setPage(1);
+              }}
+            />
           </div>
 
-          <div className="d-flex align-items-center gap-2 flex-wrap">
+          <div className="d-flex align-items-center justify-content-center gap-2 flex-wrap">
             <Button
               variant="outline-primary"
               className="flex-shrink-0"
@@ -198,6 +306,7 @@ export default function UserAppointmentsPage({
             </Button>
             <Button
               variant="outline-secondary"
+              style={{ color: "#c5a059" }}
               className="flex-shrink-0"
               onClick={() => {
                 setStartTime("");

@@ -16,7 +16,12 @@ type Props = {
   filterDate?: (date: Date) => boolean;
 };
 
-export default function GermanDatePicker({ selected, onChange, minDate, filterDate }: Props) {
+export default function GermanDatePicker({
+  selected,
+  onChange,
+  minDate,
+  filterDate,
+}: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,26 +31,29 @@ export default function GermanDatePicker({ selected, onChange, minDate, filterDa
           onClick={() => setOpen((prev) => !prev)}
           style={{
             cursor: "pointer",
-        
+
             border: "1px #ced4da",
             borderRadius: "4px",
             padding: "1px 2px",
           }}
         >
-          <i className="bi bi-calendar3" style={{ fontSize: "1.2rem", cursor: "pointer" }}></i>
+          <i
+            className="bi bi-calendar3"
+            style={{ fontSize: "1.2rem", cursor: "pointer" }}
+          ></i>
         </InputGroup.Text>
       </InputGroup>
 
       {open && (
-        <div 
-          style={{ 
-            position: "fixed", 
+        <div
+          style={{
+            position: "fixed",
             zIndex: 1000,
             width: "100vw",
-           
+
             left: "0",
             top: "0",
-            transform: "none"
+            transform: "none",
           }}
           className="mobile-datepicker-container"
         >
