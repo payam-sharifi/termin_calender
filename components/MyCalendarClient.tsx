@@ -757,9 +757,17 @@ rgba(165, 63, 63, 0.2) 5px,
                 return date >= today;
               }}
             />
-               <div className="h5" style={{ fontStyle: "italic", fontFamily: "Times New Roman, Times, serif" }}>
-  {userProfileData?.name}
-</div>
+               <div
+                  className="h5"
+                  style={{
+                    fontStyle: "italic",
+                    fontWeight: "bold",
+                    fontFamily: "Times New Roman, Times, serif",
+                    color: "#c5a059",
+                  }}
+                >
+                  {userProfileData?.name}
+                </div>
               
             </div>
 
