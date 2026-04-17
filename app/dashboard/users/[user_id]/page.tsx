@@ -16,10 +16,8 @@ import { useGetUserTimeSlots } from "@/services/hooks/timeSlots/useGetUserTimeSl
 /** First word of service title, max 5 letters + "..."; full title on hover / click. */
 function ServiceDienstLabel({ appt }: { appt: any }) {
   const fullTitle =
-    String(appt.service?.title ?? "").trim() ||
-    String(appt.service_id ?? "—");
-  const firstWord =
-    fullTitle.split(/\s+/).filter(Boolean)[0] || fullTitle;
+    String(appt.service?.title ?? "").trim() || String(appt.service_id ?? "—");
+  const firstWord = fullTitle.split(/\s+/).filter(Boolean)[0] || fullTitle;
   const short =
     firstWord.length > 5 ? `${firstWord.slice(0, 5)}...` : firstWord;
 
@@ -28,9 +26,7 @@ function ServiceDienstLabel({ appt }: { appt: any }) {
       placement="top"
       delay={{ show: 200, hide: 150 }}
       trigger={["hover", "focus", "click"]}
-      overlay={
-        <Tooltip id={`dienst-tt-${appt.id}`}>{fullTitle}</Tooltip>
-      }
+      overlay={<Tooltip id={`dienst-tt-${appt.id}`}>{fullTitle}</Tooltip>}
     >
       <span
         className="fw-medium"
@@ -116,9 +112,59 @@ export default function UserAppointmentsPage({
               {displayEnd || "—"}
             </div>
           )}
-          <div className="d-flex flex-wrap gap-2 mb-3">
+          <div className="d-flex align-items-center flex-wrap gap-3 mb-3">
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
+              <Form.Label className="mb-0 text-nowrap">
+                Start (Datum)
+              </Form.Label>
+              <Form.Control
+                type="date"
+                style={{ maxWidth: "12rem" }}
+                value={customStart}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCustomStart(v);
+                  if (v) {
+                    const [y, m, day] = v
+                      .split("-")
+                      .map((x) => parseInt(x, 10));
+                    const dt = new Date(y, m - 1, day, 0, 0, 0, 0);
+                    setStartTime(dt.toISOString());
+                    setPage(1);
+                  } else {
+                    setStartTime("");
+                  }
+                }}
+              />
+            </div>
+            <div className="d-flex align-items-center gap-2 flex-shrink-0">
+              <Form.Label className="mb-0 text-nowrap">Ende (Datum)</Form.Label>
+              <Form.Control
+                type="date"
+                style={{ maxWidth: "12rem" }}
+                value={customEnd}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCustomEnd(v);
+                  if (v) {
+                    const [y, m, day] = v
+                      .split("-")
+                      .map((x) => parseInt(x, 10));
+                    const dt = new Date(y, m - 1, day, 23, 59, 59, 999);
+                    setEndTime(dt.toISOString());
+                    setPage(1);
+                  } else {
+                    setEndTime("");
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="d-flex align-items-center gap-2 flex-wrap">
             <Button
               variant="outline-primary"
+              className="flex-shrink-0"
               onClick={() => {
                 const today = new Date();
                 const start = new Date(
@@ -151,71 +197,8 @@ export default function UserAppointmentsPage({
               Heute
             </Button>
             <Button
-              variant="outline-primary"
-              onClick={() => {
-                const now = new Date();
-                const start = new Date(
-                  now.getFullYear(),
-                  now.getMonth(),
-                  now.getDate(),
-                );
-                const endDate = new Date(start);
-                endDate.setDate(endDate.getDate() + 6);
-                const end = new Date(
-                  endDate.getFullYear(),
-                  endDate.getMonth(),
-                  endDate.getDate(),
-                  23,
-                  59,
-                  59,
-                  999,
-                );
-                setStartTime(start.toISOString());
-                setEndTime(end.toISOString());
-                const formatDateInput = (d: Date) => {
-                  const y = d.getFullYear();
-                  const m = String(d.getMonth() + 1).padStart(2, "0");
-                  const day = String(d.getDate()).padStart(2, "0");
-                  return `${y}-${m}-${day}`;
-                };
-                setCustomStart(formatDateInput(start));
-                setCustomEnd(formatDateInput(end));
-                setPage(1);
-              }}
-            >
-              Nächste 7 Tage
-            </Button>
-            <Button
-              variant="outline-primary"
-              onClick={() => {
-                const now = new Date();
-                const start = new Date(now.getFullYear(), now.getMonth(), 1);
-                const end = new Date(
-                  now.getFullYear(),
-                  now.getMonth() + 1,
-                  0,
-                  23,
-                  59,
-                  59,
-                  999,
-                );
-                setStartTime(start.toISOString());
-                setEndTime(end.toISOString());
-                const formatDateInput = (d: Date) => {
-                  const y = d.getFullYear();
-                  const m = String(d.getMonth() + 1).padStart(2, "0");
-                  const day = String(d.getDate()).padStart(2, "0");
-                  return `${y}-${m}-${day}`;
-                };
-                setCustomStart(formatDateInput(start));
-                setCustomEnd(formatDateInput(end));
-                setPage(1);
-              }}
-            >
-              Dieser Monat
-            </Button>
-            <Button
               variant="outline-secondary"
+              className="flex-shrink-0"
               onClick={() => {
                 setStartTime("");
                 setEndTime("");
@@ -226,52 +209,6 @@ export default function UserAppointmentsPage({
             >
               Zurücksetzen
             </Button>
-          </div>
-
-          <div className="row g-2 align-items-end">
-            <div className="col-md-4">
-              <Form.Label>Start (Datum)</Form.Label>
-              <Form.Control
-                type="date"
-                value={customStart}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setCustomStart(v);
-                  if (v) {
-                    const [y, m, day] = v
-                      .split("-")
-                      .map((x) => parseInt(x, 10));
-                    const dt = new Date(y, m - 1, day, 0, 0, 0, 0);
-                    setStartTime(dt.toISOString());
-                    setPage(1);
-                  } else {
-                    setStartTime("");
-                  }
-                }}
-              />
-            </div>
-            <div className="col-md-4">
-              <Form.Label>Ende (Datum)</Form.Label>
-              <Form.Control
-                type="date"
-                value={customEnd}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setCustomEnd(v);
-                  if (v) {
-                    const [y, m, day] = v
-                      .split("-")
-                      .map((x) => parseInt(x, 10));
-                    const dt = new Date(y, m - 1, day, 23, 59, 59, 999);
-                    setEndTime(dt.toISOString());
-                    setPage(1);
-                  } else {
-                    setEndTime("");
-                  }
-                }}
-              />
-            </div>
-            <div className="col-md-4 d-flex gap-2 align-items-end"></div>
           </div>
         </Card.Body>
       </Card>
