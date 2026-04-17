@@ -5,7 +5,7 @@
   
 }
 .rbc-today {
-  background-color: rgba(228, 76, 101, 0.08) !important;
+  background-color: rgba(197, 160, 89, 0.08) !important;
 }
 /* Sidebar: visible on desktop, hidden on mobile */
 
@@ -38,14 +38,14 @@
 
 /* Calendar Button (deeper blue) */
 .calendar-btn-deep {
-  background-color: #e44c65 !important;
+  background-color: #c5a059 !important;
   color: #fff !important;
   border: none !important;
 }
 
 /* Optional: hover effect for button */
 .calendar-btn-deep:hover {
-  background-color: #e13652 !important;
+  background-color: #a88747 !important;
 }
 
 /* Main content: flexible on desktop, full width on mobile */
@@ -85,15 +85,15 @@
 }
 
 .rbc-toolbar button:hover {
-  background-color: rgba(228, 76, 101, 0.35) !important;
+  background-color: rgba(197, 160, 89, 0.35) !important;
   color: #ffffff !important;
-  border-color: rgba(228, 76, 101, 0.65) !important;
+  border-color: rgba(197, 160, 89, 0.65) !important;
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #e44c65 !important;
+  background-color: #c5a059 !important;
   color: #ffffff !important;
-  border-color: #e44c65 !important;
+  border-color: #c5a059 !important;
 }
 
 .rbc-toolbar .rbc-toolbar-label {
@@ -118,34 +118,34 @@
 
 .sidebar .btn:hover,
 .sidebar a.btn:hover {
-  background-color: rgba(228, 76, 101, 0.35) !important;
+  background-color: rgba(197, 160, 89, 0.35) !important;
   color: #ffffff !important;
-  border-color: rgba(228, 76, 101, 0.65) !important;
+  border-color: rgba(197, 160, 89, 0.65) !important;
 }
 
 .sidebar .btn-primary,
 .sidebar a.btn-primary {
-  background-color: #e44c65 !important;
-  border-color: #e44c65 !important;
+  background-color: #c5a059 !important;
+  border-color: #c5a059 !important;
   color: #ffffff !important;
 }
 
 .sidebar .btn-primary:hover,
 .sidebar a.btn-primary:hover {
-  background-color: #e76278 !important;
-  border-color: #e76278 !important;
+  background-color: #d4b06e !important;
+  border-color: #d4b06e !important;
   color: #ffffff !important;
 }
 
 .sidebar .btn-danger {
-  background: rgba(220, 53, 69, 0.42) !important;
-  border-color: rgba(220, 53, 69, 0.55) !important;
+  background: rgba(197, 160, 89, 0.55) !important;
+  border-color: rgba(197, 160, 89, 0.75) !important;
   color: #ffffff !important;
 }
 
 .sidebar .btn-danger:hover {
-  background: rgba(220, 53, 69, 0.58) !important;
-  border-color: rgba(220, 53, 69, 0.72) !important;
+  background: rgba(197, 160, 89, 0.72) !important;
+  border-color: rgba(197, 160, 89, 0.9) !important;
   color: #ffffff !important;
 }
 

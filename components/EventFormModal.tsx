@@ -544,7 +544,7 @@ export default function EventFormModal({
                       ? (
                           <>
                             Neuer Termin für {" "}
-                            <span style={{ color: 'red' }}>
+                            <span style={{ color: '#c5a059' }}>
                               {formData.customerName} {formData.customerFamily || ""}
                             </span>
                           </>

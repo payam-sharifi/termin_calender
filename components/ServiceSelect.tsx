@@ -13,7 +13,7 @@ interface ServiceSelectProps {
 
 function getLabelColorByTitle(title: string): string {
   const lower = (title || "").toLowerCase();
-  if (lower.includes("damen")) return "#e44c65";
+  if (lower.includes("damen")) return "#c5a059";
   if (lower.includes("herren")) return "#5a6272";
   return "rgba(255,255,255,0.55)";
 }
@@ -145,7 +145,7 @@ export default function ServiceSelect({ services, value, onChange, disabled }: S
                       className="w-100"
                       onClick={() => handleSelect(service.id)}
                       style={{
-                        background: isActive ? "rgba(228, 76, 101, 0.15)" : "rgba(255,255,255,0.04)",
+                        background: isActive ? "rgba(197, 160, 89, 0.15)" : "rgba(255,255,255,0.04)",
                         border: "none",
                         borderTop: "1px solid rgba(255,255,255,0.08)",
                         padding: "12px 16px",

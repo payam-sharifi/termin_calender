@@ -68,7 +68,7 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
                   className="w-100"
                   onClick={() => handleSelect(customer)}
                   style={{
-                    background: isActive ? "rgba(228, 76, 101, 0.2)" : "rgba(255,255,255,0.04)",
+                    background: isActive ? "rgba(197, 160, 89, 0.2)" : "rgba(255,255,255,0.04)",
                     border: "none",
                     borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
                     padding: "12px 16px",

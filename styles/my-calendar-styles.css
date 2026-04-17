@@ -49,15 +49,15 @@
 }
 
 .rbc-toolbar button:hover {
-  background-color: rgba(228, 76, 101, 0.35);
+  background-color: rgba(197, 160, 89, 0.35);
   color: #ffffff;
-  border-color: rgba(228, 76, 101, 0.65);
+  border-color: rgba(197, 160, 89, 0.65);
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #e44c65;
+  background-color: #c5a059;
   color: #ffffff;
-  border-color: #e44c65;
+  border-color: #c5a059;
 }
 
 /* Center month/year label */
@@ -136,7 +136,7 @@
 }
 
 .rbc-event {
-  background-color: #e44c65;
+  background-color: #c5a059;
   border: none;
   border-radius: 4px;
   padding: 2px 4px;
@@ -157,7 +157,7 @@
 }
 
 .rbc-event:hover {
-  background-color: #e13652;
+  background-color: #a88747;
 }
 
 /* Today's date */
@@ -166,10 +166,10 @@
 /* Selected day (Day 8 in the image has a light blue background) */
 .rbc-day-bg.rbc-selected-cell,
 .rbc-day-bg.rbc-selected {
-  background-color: rgba(228, 76, 101, 0.12);
+  background-color: rgba(197, 160, 89, 0.12);
 }
 
-/* Selected slot (for new event creation) */
+/* Selected slot (drag range on time grid): keep legacy coral, not theme gold */
 .rbc-slot-selection {
   background-color: rgba(228, 76, 101, 0.2);
 }
@@ -197,7 +197,7 @@
 
 /* Current time indicator */
 .rbc-current-time-indicator {
-  background-color: #ea4335;
+  background-color: #c5a059;
   height: 2px;
 }
 
@@ -248,14 +248,14 @@
 
 /* Calendar Button (deeper blue) */
 .calendar-btn-deep {
-  background-color: #e44c65 !important;
+  background-color: #c5a059 !important;
   color: #fff !important;
   border: none !important;
 }
 
 /* Optional: hover effect for button */
 .calendar-btn-deep:hover {
-  background-color: #e13652 !important;
+  background-color: #a88747 !important;
 }
 
 /* Enable vertical scroll for the whole page on mobile */

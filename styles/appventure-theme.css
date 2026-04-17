@@ -8,9 +8,9 @@
   --av-bg: #1c1d26;
   --av-panel: #272833;
   --av-panel-2: #2e3140;
-  --av-accent: #e44c65;
-  --av-accent-hover: #e76278;
-  --av-accent-active: #e13652;
+  --av-accent: #c5a059;
+  --av-accent-hover: #d4b06e;
+  --av-accent-active: #a88747;
   --av-text: rgba(255, 255, 255, 0.75);
   --av-heading: #ffffff;
   --av-border: rgba(255, 255, 255, 0.12);
@@ -18,10 +18,10 @@
   --av-calendar-chrome: #323542;
 
   /* Bootstrap 5 bridge */
-  --bs-primary: #e44c65;
-  --bs-primary-rgb: 228, 76, 101;
-  --bs-link-color: #e44c65;
-  --bs-link-hover-color: #e76278;
+  --bs-primary: #c5a059;
+  --bs-primary-rgb: 197, 160, 89;
+  --bs-link-color: #c5a059;
+  --bs-link-hover-color: #d4b06e;
   --bs-body-bg: #1c1d26;
   --bs-body-color: rgba(255, 255, 255, 0.85);
   --bs-secondary-color: rgba(255, 255, 255, 0.55);
@@ -81,10 +81,10 @@ a:hover {
 .btn-outline-primary {
   --bs-btn-color: var(--av-accent);
   --bs-btn-border-color: rgba(255, 255, 255, 0.35);
-  --bs-btn-hover-bg: rgba(228, 76, 101, 0.15);
+  --bs-btn-hover-bg: rgba(197, 160, 89, 0.15);
   --bs-btn-hover-border-color: var(--av-accent);
   --bs-btn-hover-color: var(--av-accent-hover);
-  --bs-btn-active-bg: rgba(228, 76, 101, 0.25);
+  --bs-btn-active-bg: rgba(197, 160, 89, 0.25);
   --bs-btn-active-border-color: var(--av-accent);
 }
 
@@ -101,6 +101,12 @@ a:hover {
 }
 
 .btn-danger {
+  --bs-btn-bg: var(--av-accent);
+  --bs-btn-border-color: var(--av-accent);
+  --bs-btn-hover-bg: var(--av-accent-hover);
+  --bs-btn-hover-border-color: var(--av-accent-hover);
+  --bs-btn-active-bg: var(--av-accent-active);
+  --bs-btn-active-border-color: var(--av-accent-active);
   --bs-btn-color: #ffffff;
   --bs-btn-hover-color: #ffffff;
   --bs-btn-active-color: #ffffff;
@@ -125,9 +131,9 @@ a:hover {
 .form-control:focus,
 .form-select:focus {
   background-color: rgba(255, 255, 255, 0.09);
-  border-color: rgba(228, 76, 101, 0.5);
+  border-color: rgba(197, 160, 89, 0.5);
   color: var(--av-heading);
-  box-shadow: 0 0 0 0.2rem rgba(228, 76, 101, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(197, 160, 89, 0.2);
 }
 
 .form-label {
@@ -135,7 +141,11 @@ a:hover {
 }
 
 .invalid-feedback {
-  color: #f5a5ae;
+  color: #e8d5b5;
+}
+
+.text-danger {
+  color: var(--av-accent) !important;
 }
 
 .form-text {
@@ -288,9 +298,9 @@ a.button-landed.primary:hover {
 }
 
 .alert-danger {
-  --bs-alert-bg: rgba(220, 53, 69, 0.2);
-  --bs-alert-border-color: rgba(220, 53, 69, 0.45);
-  --bs-alert-color: #f8b4bd;
+  --bs-alert-bg: rgba(197, 160, 89, 0.18);
+  --bs-alert-border-color: rgba(197, 160, 89, 0.4);
+  --bs-alert-color: #e8d5b5;
 }
 
 .alert-success {
@@ -303,7 +313,7 @@ a.button-landed.primary:hover {
   --bs-dropdown-bg: var(--av-panel);
   --bs-dropdown-border-color: var(--av-border);
   --bs-dropdown-link-color: rgba(255, 255, 255, 0.88);
-  --bs-dropdown-link-hover-bg: rgba(228, 76, 101, 0.18);
+  --bs-dropdown-link-hover-bg: rgba(197, 160, 89, 0.18);
   --bs-dropdown-link-hover-color: #ffffff;
   --bs-dropdown-link-active-bg: var(--av-accent);
   --bs-dropdown-link-active-color: #ffffff;
@@ -320,7 +330,7 @@ a.button-landed.primary:hover {
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: rgba(228, 76, 101, 0.18);
+  background-color: rgba(197, 160, 89, 0.18);
   color: #ffffff;
 }
 
@@ -507,7 +517,7 @@ a.button-landed.primary:hover {
 }
 
 .react-datepicker__day:hover {
-  background-color: rgba(228, 76, 101, 0.25) !important;
+  background-color: rgba(197, 160, 89, 0.25) !important;
 }
 
 .react-datepicker__day--selected,
@@ -555,7 +565,7 @@ a.button-landed.primary:hover {
   .react-datepicker__time-box
   ul.react-datepicker__time-list
   li.react-datepicker__time-list-item:hover {
-  background-color: rgba(228, 76, 101, 0.28) !important;
+  background-color: rgba(197, 160, 89, 0.28) !important;
   color: #ffffff !important;
 }
 

@@ -210,7 +210,7 @@ const isPasswordValid = password.length > 0;
               required
                   style={{ borderRadius: 8, fontSize: 16 }}
             />
-                {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
+                {fieldErrors.phone && <div style={{ color: '#c5a059', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
           </div>
           <div className="mb-3">
                 <label htmlFor="password" className="form-label" style={{ fontWeight: 500 }}>Passwort</label>
@@ -223,7 +223,7 @@ const isPasswordValid = password.length > 0;
               required
                   style={{ borderRadius: 8, fontSize: 16 }}
             />
-                {fieldErrors.password && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.password}</div>}
+                {fieldErrors.password && <div style={{ color: '#c5a059', fontSize: 13, marginTop: 4 }}>{fieldErrors.password}</div>}
           </div>
               <button type="submit" className="btn btn-primary w-100" disabled={loading || !isPhoneValid || !isPasswordValid} style={{ borderRadius: 8, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
             {loading ? 'Einloggen...' : 'Login'}
@@ -251,7 +251,7 @@ const isPasswordValid = password.length > 0;
               disabled={codeSent}
                   style={{ borderRadius: 8, fontSize: 16 }}
             />
-                {fieldErrors.phone && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
+                {fieldErrors.phone && <div style={{ color: '#c5a059', fontSize: 13, marginTop: 4 }}>{fieldErrors.phone}</div>}
           </div>
           {!codeSent && (
                 <button type="submit" className="btn btn-primary w-100" 
@@ -281,7 +281,7 @@ const isPasswordValid = password.length > 0;
                   />
                 ))}
               </div>
-                  {fieldErrors.code && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 4, textAlign: 'center' }}>{fieldErrors.code}</div>}
+                  {fieldErrors.code && <div style={{ color: '#c5a059', fontSize: 13, marginTop: 4, textAlign: 'center' }}>{fieldErrors.code}</div>}
                   <button type="submit" className="btn btn-primary w-100" disabled={loading} style={{ borderRadius: 8, fontSize: 18, padding: '10px 0', marginTop: 8 }}>
                 {loading ? 'Überprüfe...' : 'Code überprüfen'}
               </button>

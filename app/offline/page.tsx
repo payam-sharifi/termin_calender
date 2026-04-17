@@ -114,7 +114,7 @@ export default function OfflinePage() {
             gap: "8px",
             marginBottom: "24px",
             padding: "12px",
-            background: isOnline ? "#dcfce7" : "#fee2e2",
+            background: isOnline ? "#dcfce7" : "#f1f5f9",
             borderRadius: "8px",
           }}
         >
@@ -123,7 +123,7 @@ export default function OfflinePage() {
               width: "12px",
               height: "12px",
               borderRadius: "50%",
-              background: isOnline ? "#22c55e" : "#ef4444",
+              background: isOnline ? "#22c55e" : "#64748b",
               animation: isOnline ? "pulse 2s infinite" : "none",
             }}
           />
@@ -131,7 +131,7 @@ export default function OfflinePage() {
             style={{
               fontSize: "14px",
               fontWeight: "500",
-              color: isOnline ? "#166534" : "#991b1b",
+              color: isOnline ? "#166534" : "#475569",
             }}
           >
             {isOnline ? "Online" : "Offline"}
@@ -155,7 +155,7 @@ export default function OfflinePage() {
               fontSize: "16px",
               fontWeight: "600",
               color: "white",
-              background: isOnline ? "#e44c65" : "#94a3b8",
+              background: isOnline ? "#c5a059" : "#94a3b8",
               border: "none",
               borderRadius: "8px",
               cursor: isOnline ? "pointer" : "not-allowed",
@@ -163,13 +163,13 @@ export default function OfflinePage() {
             }}
             onMouseEnter={(e) => {
               if (isOnline) {
-                e.currentTarget.style.background = "#e13652";
+                e.currentTarget.style.background = "#a88747";
                 e.currentTarget.style.transform = "scale(1.05)";
               }
             }}
             onMouseLeave={(e) => {
               if (isOnline) {
-                e.currentTarget.style.background = "#e44c65";
+                e.currentTarget.style.background = "#c5a059";
                 e.currentTarget.style.transform = "scale(1)";
               }
             }}
@@ -183,7 +183,7 @@ export default function OfflinePage() {
               padding: "12px 24px",
               fontSize: "16px",
               fontWeight: "600",
-              color: "#e44c65",
+              color: "#c5a059",
               background: "transparent",
               border: "2px solid rgba(255,255,255,0.35)",
               borderRadius: "8px",
@@ -191,7 +191,7 @@ export default function OfflinePage() {
               transition: "all 0.2s",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(228, 76, 101, 0.15)";
+              e.currentTarget.style.background = "rgba(197, 160, 89, 0.15)";
               e.currentTarget.style.transform = "scale(1.05)";
             }}
             onMouseLeave={(e) => {

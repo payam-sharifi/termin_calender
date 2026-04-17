@@ -49,9 +49,9 @@ export default function RootLayout({
       { name: "description", content: "Professional appointment booking and calendar management system" },
       { name: "format-detection", content: "telephone=no" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { name: "msapplication-TileColor", content: "#e44c65" },
+      { name: "msapplication-TileColor", content: "#c5a059" },
       { name: "msapplication-tap-highlight", content: "no" },
-      { name: "theme-color", content: "#e44c65" },
+      { name: "theme-color", content: "#c5a059" },
     ];
 
     const linkTags = [
@@ -131,9 +131,9 @@ export default function RootLayout({
         <meta name="description" content="Professional appointment booking and calendar management system" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#e44c65" />
+        <meta name="msapplication-TileColor" content="#c5a059" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#e44c65" />
+        <meta name="theme-color" content="#c5a059" />
         
         {/* PWA Icons */}
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
