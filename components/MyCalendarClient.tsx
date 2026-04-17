@@ -43,22 +43,8 @@ moment.locale("de");
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-// Add custom styles for weekend days
-const customStyles = `
-  .rbc-off-range-bg {
-    background: rgba(28, 29, 38, 0.45);
-  }
-  .rbc-today {
-    background-color: rgba(228, 76, 101, 0.1);
-  }
-  .rbc-day-sat, .rbc-day-sun {
-    color: #e76278;
-  }
-  .rbc-event {
-    background-color: #e44c65;
-    border: none;
-  }
-`;
+const SLOT_BG_DAMEN = "#c5a059";
+const SLOT_BG_HERREN = "#1c1d26";
 
 export default function MyCalendarClient({
   eventsObj,
@@ -307,15 +293,14 @@ export default function MyCalendarClient({
       const serviceTitle = event.service?.title || event.title || "";
       const isDamen = isDamenService(serviceTitle);
 
-      // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
+      // For self-reservation, use striped pattern; Damen/Herren use brand slot colors
       let backgroundStyle: React.CSSProperties = {
-        backgroundColor: isDamen ? "#c5a059" : "#5a6272",
+        backgroundColor: isDamen ? SLOT_BG_DAMEN : SLOT_BG_HERREN,
       };
 
       if (isSelfReservation) {
-        // Create diagonal pattern: thin gray diagonal lines (like / / /) with 4px spacing
-        const backgroundColor = "#FFFFFF"; // White background
-        const stripeColor = "rgba(128, 128, 128, 0.5)"; // Gray diagonal lines
+        const backgroundColor = "#FFFFFF";
+        const stripeColor = "rgba(128, 128, 128, 0.5)";
         backgroundStyle = {
           background: `repeating-linear-gradient(
           45deg,
@@ -329,8 +314,11 @@ export default function MyCalendarClient({
         };
       }
 
-      // Text color
-      const textColor = isSelfReservation ? "#000000" : "#FFFFFF"; // White text on colored background, black for self-reservation
+      const textColor = isSelfReservation
+        ? "#000000"
+        : isDamen
+          ? "#1c1d26"
+          : "rgba(255, 255, 255, 0.92)";
 
       return {
         style: {
@@ -457,8 +445,17 @@ export default function MyCalendarClient({
           )`,
             }
           : {
-              backgroundColor: isDamen ? "#e44c65" : "rgb(50, 79, 113)",
+              backgroundColor: isDamen ? SLOT_BG_DAMEN : SLOT_BG_HERREN,
             };
+
+        const labelColor = isSelfReservation
+          ? "#000000"
+          : isDamen
+            ? "#1c1d26"
+            : "rgba(255, 255, 255, 0.92)";
+        const dotRing = isDamen
+          ? "2px solid rgba(0, 0, 0, 0.2)"
+          : "2px solid rgba(255, 255, 255, 0.45)";
 
         return (
           <div
@@ -475,7 +472,7 @@ export default function MyCalendarClient({
               overflow: "hidden",
               textOverflow: "ellipsis",
               lineHeight: 1.1,
-              color: isSelfReservation ? "#000000" : "#FFFFFF", // White text on colored background, black for self-reservation
+              color: labelColor,
               fontWeight: isSelfReservation ? "bold" : "normal",
             }}
             title={`${isSelfReservation ? "Selbst" : `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""}`.trim()} - ${typedEvent.title || ""}`.trim()}
@@ -484,9 +481,11 @@ export default function MyCalendarClient({
               style={{
                 width: 12,
                 height: 12,
-                backgroundColor: typedEvent.color || "blue",
+                backgroundColor:
+                  typedEvent.color ||
+                  (isDamen ? SLOT_BG_DAMEN : SLOT_BG_HERREN),
                 borderRadius: "50%",
-                border: "2px solid white",
+                border: dotRing,
                 flexShrink: 0,
               }}
             />
@@ -516,8 +515,17 @@ rgba(165, 63, 63, 0.2) 5px,
           )`,
             }
           : {
-              backgroundColor: isDamen ? "#e44c65" : "rgb(50, 79, 113)",
+              backgroundColor: isDamen ? SLOT_BG_DAMEN : SLOT_BG_HERREN,
             };
+
+        const labelColorDay = isSelfReservation
+          ? "#000000"
+          : isDamen
+            ? "#1c1d26"
+            : "rgba(255, 255, 255, 0.92)";
+        const dotRingDay = isDamen
+          ? "2px solid rgba(0, 0, 0, 0.2)"
+          : "2px solid rgba(255, 255, 255, 0.45)";
 
         return (
           <div
@@ -530,7 +538,7 @@ rgba(165, 63, 63, 0.2) 5px,
               lineHeight: "1.2",
               width: "100%",
               height: "100%",
-              color: isSelfReservation ? "#000000" : "#FFFFFF", // White text on colored background, black for self-reservation
+              color: labelColorDay,
               fontWeight: isSelfReservation ? "bold" : "normal",
             }}
           >
@@ -589,9 +597,11 @@ rgba(165, 63, 63, 0.2) 5px,
                   style={{
                     width: "16px",
                     height: "16px",
-                    backgroundColor: typedEvent.color || "blue",
+                    backgroundColor:
+                      typedEvent.color ||
+                      (isDamen ? SLOT_BG_DAMEN : SLOT_BG_HERREN),
                     borderRadius: "50%",
-                    border: "2px solid white",
+                    border: dotRingDay,
                     flexShrink: 0,
                   }}
                 ></div>
