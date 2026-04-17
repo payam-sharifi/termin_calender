@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Dropdown, Form, Button } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 
@@ -10,88 +10,110 @@ interface CustomerSelectProps {
   selectedLabel?: string; // e.g. "Vorname Nachname"
   onChange: (customer: any) => void;
   disabled?: boolean;
+  /** e.g. „Für mich selbst“ — shown right of the „Kunden suchen“ title */
+  headerRight?: React.ReactNode;
 }
 
-export default function CustomerSelect({ value, selectedLabel, onChange, disabled }: CustomerSelectProps) {
-  const [open, setOpen] = useState(false);
+export default function CustomerSelect({ value, selectedLabel, onChange, disabled, headerRight }: CustomerSelectProps) {
   const [search, setSearch] = useState("");
 
   const debounced = useDebounce(search, 400);
-  const { data, isLoading } = useGetUsers(
-    debounced.trim().length >= 3 ? debounced : "",
-    10,
-    1,
-    "Customer"
-  );
+  const trimmed = debounced.trim();
+  const isFilteredSearch = trimmed.length >= 3;
+  const searchParam = isFilteredSearch ? trimmed : "";
+  const pageSize = isFilteredSearch ? 10 : 5;
+
+  const { data, isLoading } = useGetUsers(searchParam, pageSize, 1, "Customer");
 
   const customers: any[] = useMemo(() => data?.data || [], [data?.data]);
 
   const handleSelect = (customer: any) => {
     onChange(customer);
-    setOpen(false);
   };
 
   return (
-    <Dropdown show={open} onToggle={(next) => setOpen(!!next)}>
-      <Dropdown.Toggle variant="outline-secondary" id="customer-select" disabled={disabled} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ color: value ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.55)" }}>
-          {value ? (selectedLabel || "Kunde ausgewählt") : "Kunde auswählen"}
-        </span>
-      </Dropdown.Toggle>
-
-      <Dropdown.Menu style={{ width: 300, paddingTop: 8, paddingBottom: 8 }} align="start">
-        <div className="px-3 mb-2" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Form.Control
-            size="sm"
-            type="text"
-            placeholder="Kunden suchen (min. 3 Zeichen)"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ fontSize: '16px' }}
-          />
-          <Button size="sm" variant="primary" onClick={() => setOpen(false)}>
-            ✓
-          </Button>
+    <div>
+      {headerRight ? (
+        <div
+          className="d-flex align-items-center justify-content-between gap-2 mb-2"
+          style={{ flexWrap: "wrap" }}
+        >
+          <Form.Label className="mb-0" style={{ color: "#c5a059" }}>
+            Kunden suchen
+          </Form.Label>
+          {headerRight}
         </div>
-        <div style={{ maxHeight: 240, overflowY: "auto" }}>
-          {isLoading ? (
-            <div className="px-3 py-2 text-muted">Laden...</div>
-          ) : customers.length === 0 && debounced.trim().length >= 3 ? (
-            <div className="px-3 py-2 text-muted">Keine Kunden gefunden</div>
-          ) : (
-            customers.map((customer: any, idx: number) => {
-              const isActive = customer.id === value;
-              return (
-                <button
-                  key={customer.id}
-                  type="button"
-                  className="w-100"
-                  onClick={() => handleSelect(customer)}
-                  style={{
-                    background: isActive ? "rgba(197, 160, 89, 0.2)" : "rgba(255,255,255,0.04)",
-                    border: "none",
-                    borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
-                    padding: "12px 16px",
-                    display: "flex",
-                    alignItems: "center",
-                    width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  <span style={{ fontWeight: 500, flex: 1, minWidth: 0, overflow: "hidden" }}>
-                    {customer.name} {customer.family}
-                    <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: 8, fontSize: 12 }}>{customer.phone || customer.email}</span>
+      ) : (
+        <Form.Label className="mb-2" style={{ color: "#c5a059" }}>
+          Kunden suchen
+        </Form.Label>
+      )}
+      <Form.Control
+        type="text"
+        placeholder="Liste durchsuchen (ab 3 Zeichen eingrenzen)"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        disabled={disabled}
+        style={{ fontSize: 16 }}
+        autoComplete="off"
+      />
+    
+      {value && selectedLabel ? (
+        <div className="small mt-1 mb-2" style={{ color: "rgba(255,255,255,0.75)" }}>
+          Ausgewählt: <strong>{selectedLabel}</strong>
+        </div>
+      ) : null}
+      <div
+        className="mt-2 rounded customer-select-list"
+        style={{
+          border: "1px solid var(--av-border, rgba(255,255,255,0.12))",
+          minHeight: 140,
+          maxHeight: "min(50vh, 360px)",
+          overflowY: "auto",
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
+        }}
+      >
+        {isLoading ? (
+          <div className="px-3 py-3 text-muted">Laden…</div>
+        ) : customers.length === 0 ? (
+          <div className="px-3 py-3 text-muted">
+            {isFilteredSearch ? "Keine Kunden gefunden" : "Keine Kunden verfügbar"}
+          </div>
+        ) : (
+          customers.map((customer: any, idx: number) => {
+            const isActive = customer.id === value;
+            return (
+              <button
+                key={customer.id}
+                type="button"
+                className="w-100"
+                onClick={() => handleSelect(customer)}
+                style={{
+                  background: isActive ? "rgba(197, 160, 89, 0.2)" : "rgba(255,255,255,0.04)",
+                  border: "none",
+                  borderTop: idx === 0 ? "none" : "1px solid rgba(255,255,255,0.08)",
+                  padding: "12px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  color: "rgba(255,255,255,0.9)",
+                }}
+              >
+                <span style={{ fontWeight: 500, flex: 1, minWidth: 0, overflow: "hidden" }}>
+                  {customer.name} {customer.family}
+                  <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: 8, fontSize: 12 }}>
+                    {customer.phone || customer.email}
                   </span>
-                </button>
-              );
-            })
-          )}
-        </div>
-      </Dropdown.Menu>
-    </Dropdown>
+                </span>
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
   );
 }
-
-

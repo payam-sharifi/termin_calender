@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Geist, Geist_Mono } from "next/font/google";
+import "react-datepicker/dist/react-datepicker.css";
 import "@/resources/main.scss";
 import "@/styles/appventure-theme.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.scss";

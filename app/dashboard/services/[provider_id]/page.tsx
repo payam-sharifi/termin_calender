@@ -143,7 +143,7 @@ export default function ServicesPage({
           </button>
           <h2 className="fs-5 fs-md-2 mb-0">Dienstverwaltung</h2>
           <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => setShowNewServiceModal(true)}>
-            Neuer +
+             +
           </button>
         </div>
         

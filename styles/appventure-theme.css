@@ -100,13 +100,14 @@ a:hover {
   --bs-btn-active-color: #ffffff;
 }
 
+/* Delete / Löschen — coral red (distinct from primary gold) */
 .btn-danger {
-  --bs-btn-bg: var(--av-accent);
-  --bs-btn-border-color: var(--av-accent);
-  --bs-btn-hover-bg: var(--av-accent-hover);
-  --bs-btn-hover-border-color: var(--av-accent-hover);
-  --bs-btn-active-bg: var(--av-accent-active);
-  --bs-btn-active-border-color: var(--av-accent-active);
+  --bs-btn-bg: #e44c65;
+  --bs-btn-border-color: #e44c65;
+  --bs-btn-hover-bg: #e76278;
+  --bs-btn-hover-border-color: #e76278;
+  --bs-btn-active-bg: #e13652;
+  --bs-btn-active-border-color: #e13652;
   --bs-btn-color: #ffffff;
   --bs-btn-hover-color: #ffffff;
   --bs-btn-active-color: #ffffff;
@@ -489,12 +490,153 @@ a.button-landed.primary:hover {
   color: #ffffff;
 }
 
-/* react-datepicker popovers (often portaled to body) */
+/* Mobile / PWA: bottom sheets — full viewport width, slide up (does not affect .sidebar drawer) */
+@media (max-width: 767.98px) {
+  .modal.show {
+    display: flex !important;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 !important;
+    overflow-x: hidden;
+    overflow-y: hidden !important;
+  }
+
+  .modal.fade .modal-dialog {
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    transform: translate3d(0, 100%, 0) !important;
+  }
+
+  .modal.show .modal-dialog {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .modal-dialog {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .modal-dialog-centered {
+    min-height: auto !important;
+    align-items: flex-end !important;
+    display: flex !important;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100vw;
+    border-radius: 0.75rem 0.75rem 0 0;
+    max-height: min(92vh, 100dvh);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3rem);
+  }
+
+  .modal-header,
+  .modal-footer {
+    flex-shrink: 0;
+  }
+
+  .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .modal-50w-80h .modal-dialog {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  .modal-50w-80h .modal-content {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(92vh, 100dvh);
+    overflow: hidden;
+  }
+
+  /* SafeDeleteModal + custom overlays: same width & bottom alignment */
+  .termin-modal-overlay {
+    align-items: flex-end;
+    justify-content: stretch;
+    padding: 0;
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .termin-modal-panel {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 0.75rem 0.75rem 0 0;
+    max-height: min(92vh, 100dvh);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: termin-modal-sheet-in 0.38s cubic-bezier(0.32, 0.72, 0, 1) both;
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@keyframes termin-modal-sheet-in {
+  from {
+    transform: translate3d(0, 100%, 0);
+    opacity: 0.98;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+  .modal.fade .modal-dialog {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .modal.show .modal-dialog {
+    transform: none !important;
+  }
+
+  .termin-modal-panel {
+    animation: none !important;
+  }
+}
+
+/* Reservierungsart (step 1): width cap; height follows content (scroll inside body if needed) */
+.event-form-modal-reservierungsart.modal-dialog {
+  max-width: min(640px, 100vw - 1rem);
+}
+
+.event-form-modal-reservierungsart .modal-content {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+}
+
+.event-form-modal-reservierungsart .modal-body {
+  flex: 0 1 auto;
+}
+
+@media (max-width: 767.98px) {
+  .event-form-modal-reservierungsart .modal-content {
+    max-height: min(92vh, 100dvh);
+  }
+}
+
+/* react-datepicker popovers (often portaled to body).
+   Library CSS must load before this file (see layout.tsx). */
 .react-datepicker-popper {
   z-index: 1060 !important;
 }
 
-.react-datepicker {
+.react-datepicker,
+.react-datepicker-popper .react-datepicker {
   background-color: var(--av-panel) !important;
   border: 1px solid var(--av-border) !important;
   font-family: inherit !important;

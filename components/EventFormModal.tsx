@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import {
   ServiceRsDataType,
   serviceType,
@@ -527,8 +526,13 @@ export default function EventFormModal({
       <Modal
         show={isOpen}
         onHide={handleModalClose}
-        size={!isEditing && !isNewServiceModal && currentStep === 1 ? "sm" : "lg"}
+        size="lg"
         centered
+        dialogClassName={
+          !isEditing && !isNewServiceModal && currentStep === 1
+            ? "event-form-modal-reservierungsart"
+            : undefined
+        }
       >
         <Modal.Header closeButton>
           <Modal.Title>
@@ -821,28 +825,28 @@ export default function EventFormModal({
                   <Row>
                     <Col md={12}>
                       <Form.Group className="mb-3">
-                        <div className="mb-3">
-                          <Button
-                            variant={formData.is_self_reservation ? "primary" : "outline-primary"}
-                            onClick={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                is_self_reservation: true,
-                                customerName: "",
-                                customerFamily: "",
-                                customerEmail: "",
-                                customerPhone: "",
-                                customer_id: "",
-                                sex: "",
-                              }));
-                              setErrors((prev: any) => ({ ...prev, customerName: undefined }));
-                              setCurrentStep(2);
-                            }}
-                          >
-                            Für mich selbst
-                          </Button>
-                        </div>
                         <CustomerSelect
+                          headerRight={
+                            <Button
+                              variant={formData.is_self_reservation ? "primary" : "outline-primary"}
+                              onClick={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  is_self_reservation: true,
+                                  customerName: "",
+                                  customerFamily: "",
+                                  customerEmail: "",
+                                  customerPhone: "",
+                                  customer_id: "",
+                                  sex: "",
+                                }));
+                                setErrors((prev: any) => ({ ...prev, customerName: undefined }));
+                                setCurrentStep(2);
+                              }}
+                            >
+                              Für mich selbst
+                            </Button>
+                          }
                           value={formData.customer_id}
                           selectedLabel={`${formData.customerName} ${formData.customerFamily}`.trim()}
                           onChange={(customer) => {

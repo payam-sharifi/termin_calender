@@ -5,7 +5,6 @@ import DatePicker from "react-datepicker";
 import { InputGroup } from "react-bootstrap";
 import { registerLocale } from "react-datepicker";
 import { de } from "date-fns/locale/de";
-import "react-datepicker/dist/react-datepicker.css";
 
 // Register German locale
 registerLocale("de", de);

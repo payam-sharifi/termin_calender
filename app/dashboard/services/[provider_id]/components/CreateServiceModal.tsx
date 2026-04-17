@@ -122,30 +122,29 @@ export default function CreateServiceModal({
             </Col>
           </Row>
 
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Farbe</Form.Label>
-                <Form.Control
-                  type="color"
-                  value={newService.color}
-                  onChange={(e) => handleInputChange("color", e.target.value)}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Status</Form.Label>
-                <Form.Check
-                  type="switch"
-                  id="active-switch"
-                  label="Aktiv"
-                  checked={newService.is_active}
-                  onChange={(e) => handleInputChange("is_active", e.target.checked)}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
+          <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3">
+            <div className="d-flex align-items-center gap-2">
+              <Form.Label className="mb-0">Farbe</Form.Label>
+              <Form.Control
+                type="color"
+                value={newService.color}
+                onChange={(e) => handleInputChange("color", e.target.value)}
+                title="Farbe wählen"
+                style={{ width: "3rem", height: "2.5rem", cursor: "pointer", padding: 2 }}
+              />
+            </div>
+            <div className="d-flex align-items-center gap-3">
+              <Form.Label className="mb-0">Status</Form.Label>
+              <Form.Check
+                type="switch"
+                id="active-switch-create-service"
+                label="Aktiv"
+                checked={newService.is_active}
+                onChange={(e) => handleInputChange("is_active", e.target.checked)}
+                className="mb-0"
+              />
+            </div>
+          </div>
 
           <Form.Group className="mb-3">
             <Form.Label>Beschreibung</Form.Label>
