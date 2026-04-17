@@ -64,7 +64,7 @@
 .rbc-toolbar .rbc-toolbar-label {
   flex-grow: 1;
   text-align: center;
-  font-size: 1.25rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
 }

@@ -98,6 +98,7 @@
 
 .rbc-toolbar .rbc-toolbar-label {
   color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0.9375rem !important; /* ~15px — smaller than default heading scale */
 }
 
 /* Drawer / sidebar — same treatment as toolbar (white text, glass + coral) */

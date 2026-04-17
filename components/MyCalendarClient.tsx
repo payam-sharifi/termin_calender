@@ -66,21 +66,21 @@ export default function MyCalendarClient({
   onDateRangeChange,
   provider_id,
   userProfileData,
-  change
+  change,
 }: {
   eventsObj: any;
   services: ServiceRsDataType;
-  userProfileData?:UserRsDataType
+  userProfileData?: UserRsDataType;
   onDateRangeChange: (start: Date, end: Date, viewMode: string) => void;
   provider_id: string;
-  change:()=>void
+  change: () => void;
 }) {
   const initialEvents = useMemo(() => {
     return eventsObj || [];
   }, [eventsObj]);
-  
+
   const [events, setEvents] = useState<Event[]>(initialEvents);
-  const {logout} = useLogout()
+  const { logout } = useLogout();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [isNewServiceModalOpen, setIsNewServiceModalOpen] = useState(false);
@@ -89,7 +89,7 @@ export default function MyCalendarClient({
     end: Date;
   } | null>(null);
   const [selectedService, setSelectedService] = useState<serviceType | null>(
-    null
+    null,
   );
   const [currentView, setCurrentView] = useState<
     (typeof Views)[keyof typeof Views]
@@ -111,24 +111,24 @@ export default function MyCalendarClient({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const {mutate}=useUpdateTimeSlotDate()
-  
+  const { mutate } = useUpdateTimeSlotDate();
+
   // Use ref to track previous eventsObj to detect actual changes
   const prevEventsObjRef = useRef<any>(null);
-  
+
   // Only update events when we have valid new data
   useEffect(() => {
     // Skip if eventsObj hasn't actually changed (reference equality)
     if (eventsObj === prevEventsObjRef.current) {
       return;
     }
-    
+
     // If eventsObj is undefined/null, don't update - keep current events
     // This prevents clearing events during loading states
     if (eventsObj === undefined || eventsObj === null) {
       return;
     }
-    
+
     // Only update if we have an array (empty array is valid - means no events)
     if (Array.isArray(eventsObj)) {
       setEvents(eventsObj);
@@ -136,10 +136,7 @@ export default function MyCalendarClient({
     }
   }, [eventsObj]);
 
-
-
   const handleSelectSlot = useCallback((slotInfo: any) => {
-   
     setSelectedSlot({
       start: new Date(slotInfo.start),
       end: new Date(slotInfo.end),
@@ -164,36 +161,45 @@ export default function MyCalendarClient({
   }, []);
 
   // Conflict check function
-  const checkConflict = useCallback((eventData: any) => {
-    return events.some((existingEvent) => {
-      // Skip the current event if we're editing
-      if (isEditMode && selectedEvent && existingEvent.id === selectedEvent.id) {
-        return false;
-      }
-      
-      const newStart = new Date(eventData.start);
-      const newEnd = new Date(eventData.end);
-      const existingStart = new Date(existingEvent.start);
-      const existingEnd = new Date(existingEvent.end);
-      
-      // Check if the new event overlaps with existing event
-      // Overlap occurs when: newStart < existingEnd AND newEnd > existingStart
-      return newStart < existingEnd && newEnd > existingStart;
-    });
-  }, [events, isEditMode, selectedEvent]);
+  const checkConflict = useCallback(
+    (eventData: any) => {
+      return events.some((existingEvent) => {
+        // Skip the current event if we're editing
+        if (
+          isEditMode &&
+          selectedEvent &&
+          existingEvent.id === selectedEvent.id
+        ) {
+          return false;
+        }
+
+        const newStart = new Date(eventData.start);
+        const newEnd = new Date(eventData.end);
+        const existingStart = new Date(existingEvent.start);
+        const existingEnd = new Date(existingEvent.end);
+
+        // Check if the new event overlaps with existing event
+        // Overlap occurs when: newStart < existingEnd AND newEnd > existingStart
+        return newStart < existingEnd && newEnd > existingStart;
+      });
+    },
+    [events, isEditMode, selectedEvent],
+  );
 
   const handleEventSubmit = useCallback(
     async (eventData: any) => {
       try {
         // First refresh the backend data
         await change();
-        
+
         // Then update local state with the new event
         setEvents((prev) => {
           if (isEditMode && selectedEvent) {
             // Update existing event
             const updatedEvents = prev.map((event) =>
-              event.id === selectedEvent.id ? { ...event, ...eventData } : event
+              event.id === selectedEvent.id
+                ? { ...event, ...eventData }
+                : event,
             );
             return updatedEvents;
           } else {
@@ -205,7 +211,7 @@ export default function MyCalendarClient({
             return updatedEvents;
           }
         });
-        
+
         setSelectedService(null);
         setSelectedSlot(null);
         setIsEditMode(false);
@@ -213,23 +219,22 @@ export default function MyCalendarClient({
         toast.error("Fehler beim Erstellen des Termins");
       }
     },
-    [isEditMode, selectedEvent, change]
+    [isEditMode, selectedEvent, change],
   );
 
   const moveEvent = useCallback(
     ({ event, start, end }: any) => {
- 
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
       if (!existing || !existing?.slotId) return;
-      
+
       mutate(
         {
           id: existing.slotId,
           start_time: start,
           end_time: end,
           phone: typedEvent.customerPhone,
-          name: typedEvent.customerName
+          name: typedEvent.customerName,
         },
         {
           onSuccess: (res) => {
@@ -242,11 +247,11 @@ export default function MyCalendarClient({
           },
           onError: (error: any) => {
             toast.error(error?.message);
-          }
-        }
+          },
+        },
       );
     },
-    [events, mutate, change]
+    [events, mutate, change],
   );
 
   const resizeEvent = useCallback(
@@ -254,14 +259,14 @@ export default function MyCalendarClient({
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
       if (!existing || !existing?.slotId) return;
-      
+
       mutate(
         {
           id: existing.slotId,
           start_time: start,
           end_time: end,
           phone: typedEvent.customerPhone,
-          name: typedEvent.customerName
+          name: typedEvent.customerName,
         },
         {
           onSuccess: (res) => {
@@ -274,11 +279,11 @@ export default function MyCalendarClient({
           },
           onError: (error: any) => {
             toast.error(error?.message);
-          }
-        }
+          },
+        },
       );
     },
-    [events, mutate, change]
+    [events, mutate, change],
   );
 
   const handleEventClick = useCallback((event: CalendarEvent) => {
@@ -293,25 +298,26 @@ export default function MyCalendarClient({
     return lower.includes("damen");
   }, []);
 
-  const eventStyleGetter = useCallback((event: any) => {
-    // Check if it's a self-reservation
-    const isSelfReservation = event.isSelfReservation || false;
-    
-    // Determine service category
-    const serviceTitle = event.service?.title || event.title || '';
-    const isDamen = isDamenService(serviceTitle);
-    
-    // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
-    let backgroundStyle: React.CSSProperties = {
-      backgroundColor: isDamen ? '#c5a059' : '#5a6272',
-    };
-    
-    if (isSelfReservation) {
-      // Create diagonal pattern: thin gray diagonal lines (like / / /) with 4px spacing
-      const backgroundColor = '#FFFFFF'; // White background
-      const stripeColor = 'rgba(128, 128, 128, 0.5)'; // Gray diagonal lines
-      backgroundStyle = {
-        background: `repeating-linear-gradient(
+  const eventStyleGetter = useCallback(
+    (event: any) => {
+      // Check if it's a self-reservation
+      const isSelfReservation = event.isSelfReservation || false;
+
+      // Determine service category
+      const serviceTitle = event.service?.title || event.title || "";
+      const isDamen = isDamenService(serviceTitle);
+
+      // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
+      let backgroundStyle: React.CSSProperties = {
+        backgroundColor: isDamen ? "#c5a059" : "#5a6272",
+      };
+
+      if (isSelfReservation) {
+        // Create diagonal pattern: thin gray diagonal lines (like / / /) with 4px spacing
+        const backgroundColor = "#FFFFFF"; // White background
+        const stripeColor = "rgba(128, 128, 128, 0.5)"; // Gray diagonal lines
+        backgroundStyle = {
+          background: `repeating-linear-gradient(
           45deg,
           ${backgroundColor},
           ${backgroundColor} 3px,
@@ -320,28 +326,30 @@ export default function MyCalendarClient({
           ${backgroundColor} 4px,
           ${backgroundColor} 7px
         )`,
-      };
-    }
-    
-    // Text color
-    const textColor = isSelfReservation ? '#000000' : '#FFFFFF'; // White text on colored background, black for self-reservation
+        };
+      }
 
-    return {
-      style: {
-        ...backgroundStyle,
-        color: textColor,
-        borderRadius: "4px",
-        opacity: 0.9,
-        border: "0px",
-        display: "block",
-        padding: "2px 4px",
-        fontSize: "0.9em",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-      },
-    };
-  }, [isDamenService]);
+      // Text color
+      const textColor = isSelfReservation ? "#000000" : "#FFFFFF"; // White text on colored background, black for self-reservation
+
+      return {
+        style: {
+          ...backgroundStyle,
+          color: textColor,
+          borderRadius: "4px",
+          opacity: 0.9,
+          border: "0px",
+          display: "block",
+          padding: "2px 4px",
+          fontSize: "0.9em",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        },
+      };
+    },
+    [isDamenService],
+  );
 
   const handleDropFromOutside = useCallback(
     ({ start, end, allDay, allday, event }: any) => {
@@ -359,7 +367,7 @@ export default function MyCalendarClient({
         console.warn("Service not selected when dropping onto calendar.");
       }
     },
-    [selectedService]
+    [selectedService],
   );
 
   const handleDragStart = useCallback((service: serviceType) => {
@@ -400,7 +408,7 @@ export default function MyCalendarClient({
 
       onDateRangeChange(start, end, currentView);
     },
-    [currentView, onDateRangeChange]
+    [currentView, onDateRangeChange],
   );
 
   const handleViewChange = useCallback(
@@ -413,7 +421,7 @@ export default function MyCalendarClient({
       // Recalculate date range when view changes
       handleNavigate(currentDate);
     },
-    [currentDate, handleNavigate]
+    [currentDate, handleNavigate],
   );
 
   const components = {
@@ -422,18 +430,23 @@ export default function MyCalendarClient({
       const typedEvent = event as Event;
       const durationMinutes = Math.max(
         0,
-        Math.round((new Date(typedEvent.end).getTime() - new Date(typedEvent.start).getTime()) / 60000)
+        Math.round(
+          (new Date(typedEvent.end).getTime() -
+            new Date(typedEvent.start).getTime()) /
+            60000,
+        ),
       );
 
       // Determine service category
-      const serviceTitle = typedEvent.service?.title || typedEvent.title || '';
+      const serviceTitle = typedEvent.service?.title || typedEvent.title || "";
       const isDamen = isDamenService(serviceTitle);
       const isSelfReservation = (typedEvent as any).isSelfReservation || false;
 
       // Ultra-compact single-line view for 15-minute slots
       if (durationMinutes <= 15) {
-        const backgroundStyle = isSelfReservation ? {
-          background: `repeating-linear-gradient(
+        const backgroundStyle = isSelfReservation
+          ? {
+              background: `repeating-linear-gradient(
             45deg,
             #FFFFFF,
             #FFFFFF 3px,
@@ -442,10 +455,11 @@ export default function MyCalendarClient({
             #FFFFFF 4px,
             #FFFFFF 7px
           )`,
-        } : {
-          backgroundColor: isDamen ? '#e44c65' : 'rgb(50, 79, 113)',
-        };
-        
+            }
+          : {
+              backgroundColor: isDamen ? "#e44c65" : "rgb(50, 79, 113)",
+            };
+
         return (
           <div
             style={{
@@ -461,8 +475,8 @@ export default function MyCalendarClient({
               overflow: "hidden",
               textOverflow: "ellipsis",
               lineHeight: 1.1,
-              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
-              fontWeight: isSelfReservation ? 'bold' : 'normal',
+              color: isSelfReservation ? "#000000" : "#FFFFFF", // White text on colored background, black for self-reservation
+              fontWeight: isSelfReservation ? "bold" : "normal",
             }}
             title={`${isSelfReservation ? "Selbst" : `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""}`.trim()} - ${typedEvent.title || ""}`.trim()}
           >
@@ -477,11 +491,11 @@ export default function MyCalendarClient({
               }}
             />
             <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-              {(typedEvent as any).isSelfReservation 
+              {(typedEvent as any).isSelfReservation
                 ? `Selbst - ${typedEvent.title || ""}`.trim()
-                : (typedEvent.customerName || typedEvent.customerFamily)
+                : typedEvent.customerName || typedEvent.customerFamily
                   ? `${typedEvent.customerName || ""} ${typedEvent.customerFamily || ""} - ${typedEvent.title || ""}`.trim()
-                  : (typedEvent.title || "")}
+                  : typedEvent.title || ""}
             </span>
           </div>
         );
@@ -489,8 +503,9 @@ export default function MyCalendarClient({
 
       // Show more details in day view
       if (currentView === Views.DAY) {
-        const backgroundStyle = isSelfReservation ? {
-          background: `repeating-linear-gradient(
+        const backgroundStyle = isSelfReservation
+          ? {
+              background: `repeating-linear-gradient(
             45deg,
 rgb(255, 255, 255),
             #FFFFFF 3px,
@@ -499,32 +514,35 @@ rgb(255, 255, 255),
 rgba(165, 63, 63, 0.2) 5px,
             #FFFFFF 5px
           )`,
-        } : {
-          backgroundColor: isDamen ? '#e44c65' : 'rgb(50, 79, 113)',
-        };
-        
+            }
+          : {
+              backgroundColor: isDamen ? "#e44c65" : "rgb(50, 79, 113)",
+            };
+
         return (
           <div
             className="d-flex flex-column justify-content-start"
-            style={{ 
+            style={{
               ...backgroundStyle,
-              padding: "2px 4px", 
+              padding: "2px 4px",
               minHeight: "50px",
               fontSize: "12px",
               lineHeight: "1.2",
               width: "100%",
               height: "100%",
-              color: isSelfReservation ? '#000000' : '#FFFFFF', // White text on colored background, black for self-reservation
-              fontWeight: isSelfReservation ? 'bold' : 'normal',
+              color: isSelfReservation ? "#000000" : "#FFFFFF", // White text on colored background, black for self-reservation
+              fontWeight: isSelfReservation ? "bold" : "normal",
             }}
           >
             {/* Time on the left side */}
-            <div style={{ 
-              display: "flex", 
-              justifyContent: "flex-start", 
-              alignItems: "center",
-              marginBottom: "2px"
-            }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                marginBottom: "2px",
+              }}
+            >
               {/* <span style={{ 
                 fontWeight: "bold", 
                 fontSize: "11px",
@@ -533,25 +551,30 @@ rgba(165, 63, 63, 0.2) 5px,
                 {localizer.format(typedEvent.start, "HH:mm")}-{localizer.format(typedEvent.end, "HH:mm")}
               </span> */}
             </div>
-            
+
             {/* Event details below */}
-            <div style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              justifyContent: "flex-start",
-              flex: 1
-            }}>
-              <div style={{ 
-                fontWeight: "600", 
-                fontSize: "15px",
-                marginBottom: "4px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap"
-              }}>
-                 {typedEvent.customerName} {typedEvent.customerFamily}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                flex: 1,
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: "600",
+                  fontSize: "15px",
+                  marginBottom: "4px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {typedEvent.customerName} {typedEvent.customerFamily}
               </div>
-                              <div style={{ 
+              <div
+                style={{
                   fontSize: "15px",
                   marginBottom: "1px",
                   overflow: "hidden",
@@ -559,27 +582,32 @@ rgba(165, 63, 63, 0.2) 5px,
                   whiteSpace: "nowrap",
                   display: "flex",
                   alignItems: "center",
-                  gap: "6px"
-                }}>
-                  <div style={{
+                  gap: "6px",
+                }}
+              >
+                <div
+                  style={{
                     width: "16px",
                     height: "16px",
-                    backgroundColor: typedEvent.color || "blue" ,
+                    backgroundColor: typedEvent.color || "blue",
                     borderRadius: "50%",
                     border: "2px solid white",
-                    flexShrink: 0
-                  }}></div>
-                 
-                  {typedEvent.title}
-                </div>
+                    flexShrink: 0,
+                  }}
+                ></div>
+
+                {typedEvent.title}
+              </div>
               {typedEvent.description && (
-                <div style={{ 
-                  fontSize: "10px",
-                  fontStyle: "italic",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap"
-                }}>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    fontStyle: "italic",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {typedEvent.description}
                 </div>
               )}
@@ -590,23 +618,23 @@ rgba(165, 63, 63, 0.2) 5px,
 
       // Simple display for other views
       return (
-        <div style={{ 
-          padding: "2px 4px", 
-          fontSize: "12px",
-          minHeight: "25px",
-          display: "flex",
-          alignItems: "center",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis"
-        }}>
+        <div
+          style={{
+            padding: "2px 4px",
+            fontSize: "12px",
+            minHeight: "25px",
+            display: "flex",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           {typedEvent.title}
         </div>
       );
     },
   };
-
-
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -625,10 +653,12 @@ rgba(165, 63, 63, 0.2) 5px,
           queryClient.invalidateQueries({ queryKey: ["services"] });
         },
         onError(res) {
-          toast.error("Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält");
+          toast.error(
+            "Dieser Dienst konnte nicht gelöscht werden, da er Termine enthält",
+          );
           toast.error(res.message);
           setOpenDeleteModal(false);
-        }
+        },
       });
     }
   }, [deleteService, serviceToDelete, queryClient]);
@@ -638,48 +668,47 @@ rgba(165, 63, 63, 0.2) 5px,
       {/* Hamburger Menu Button */}
 
       <div className="calendar-container p-2 shadow">
-       
-          {/* SideBar Menu */}
-          <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
-         
-            <div
-              className="services-list"
-              style={{
-                
-                padding: "20px",
-                paddingTop: "40px",
-                maxHeight:'80vh',
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
+        {/* SideBar Menu */}
+        <section className={isSidebarOpen ? "sidebar" : "closed sidebar"}>
+          <div
+            className="services-list"
+            style={{
+              padding: "20px",
+              paddingTop: "40px",
+              maxHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <Link
+              href="/dashboard/users"
+              className="btn btn-primary text-white"
+              style={{ textDecoration: "none" }}
+            >
+              Kunden
+            </Link>
+            <Link
+              href={`/dashboard/services/${provider_id}`}
+              className="btn btn-primary text-white"
+              style={{ textDecoration: "none" }}
+            >
+              Dienste
+            </Link>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setIsNewServiceModalOpen(false);
+                setIsModalOpen(true);
               }}
             >
-           
-              <Link href="/dashboard/users" className="btn btn-primary text-white" style={{ textDecoration: "none" }}>
-               Kunden
-              </Link>
-              <Link href={`/dashboard/services/${provider_id}`} className="btn btn-primary text-white" style={{ textDecoration: "none" }}>
-              Dienste
-              </Link>
-
-            
-              <button 
-                className="btn btn-primary" 
-                onClick={() => {
-                  setIsNewServiceModalOpen(false);
-                  setIsModalOpen(true);
-                }}  
-              >
-                Nue Termin
-              </button>
-              <button 
-                onClick={() => logout()} 
-                className="btn btn-danger" 
-                
-              >
-                logout
-              </button>
-              {/* {Array.isArray(services) &&
+              Nue Termin
+            </button>
+            <button onClick={() => logout()} className="btn btn-danger">
+              logout
+            </button>
+            {/* {Array.isArray(services) &&
                 services.map((service) => (
                   <button
                     key={service.id}
@@ -721,13 +750,10 @@ rgba(165, 63, 63, 0.2) 5px,
                     />
                   </button>
                 ))} */}
-            
-            </div>
-      
-          
-          </section>
-          {/* Main Calendar Area */}
-          <main className="calendar-layout shadow">
+          </div>
+        </section>
+        {/* Main Calendar Area */}
+        <main className="calendar-layout shadow">
           <section
             className={
               isSidebarOpen
@@ -736,44 +762,42 @@ rgba(165, 63, 63, 0.2) 5px,
             }
           >
             <div className="d-flex align-items-center gap-2">
-
               <i
                 style={{ fontSize: "1.4rem", cursor: "pointer" }}
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="bi bi-grid"
               ></i>
-               <GermanDatePicker
-              selected={currentDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  setCurrentDate(date);
-                  handleNavigate(date);
-                }
-              }}
-              minDate={new Date()}
-              filterDate={(date: Date) => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return date >= today;
-              }}
-            />
-               <div
-                  className="h5"
-                  style={{
-                    fontStyle: "italic",
-                    fontWeight: "bold",
-                    fontFamily: "Times New Roman, Times, serif",
-                    color: "#c5a059",
-                  }}
-                >
-                  {userProfileData?.name}
-                </div>
-              
+              <GermanDatePicker
+                selected={currentDate}
+                onChange={(date: Date | null) => {
+                  if (date) {
+                    setCurrentDate(date);
+                    handleNavigate(date);
+                  }
+                }}
+                minDate={new Date()}
+                filterDate={(date: Date) => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date >= today;
+                }}
+              />
+              <div
+                className="h5"
+                style={{
+                  fontStyle: "italic",
+                  fontWeight: "bold",
+                  fontFamily: "Times New Roman, Times, serif",
+                  color: "#c5a059",
+                }}
+              >
+                {userProfileData?.name}
+              </div>
             </div>
 
-            <DndProvider 
-              backend={TouchBackend} 
-              options={{ 
+            <DndProvider
+              backend={TouchBackend}
+              options={{
                 enableMouseEvents: true,
                 enableTouchEvents: true,
                 enableKeyboardEvents: false,
@@ -783,61 +807,61 @@ rgba(165, 63, 63, 0.2) 5px,
                 ignoreContextMenu: true,
                 scrollAngleRanges: [
                   { start: 30, end: 150 },
-                  { start: 210, end: 330 }
-                ]
+                  { start: 210, end: 330 },
+                ],
               }}
             >
-            <DragAndDropCalendar
-              localizer={localizer}
-              defaultDate={new Date()}
-              min={new Date(0, 0, 0, 9, 0, 0)} // 8:00 AM
-              max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
-              formats={{
-                eventTimeRangeFormat: () => "", // Hide the default time display
-                timeGutterFormat: "HH:mm"
-              }}
-              events={events}
-              startAccessor={(event: any) => new Date(event.start)}
-              endAccessor={(event: any) => new Date(event.end)}
-              style={{ height: "90vh" }}
-              view={"day"}
-              date={currentDate}
-              onNavigate={handleNavigate}
-              onView={handleViewChange}
-              views={["day"]}
-              onEventDrop={moveEvent}
-              onEventResize={resizeEvent}
-              selectable
-              onSelectSlot={handleSelectSlot}
-              // onDropFromOutside={handleDropFromOutside}
-              resizable
-              step={15}
-              timeslots={2}
-              eventPropGetter={eventStyleGetter}
-              onSelectEvent={handleEventClick}
-              popup
-              messages={{
-                next: "Weiter",
-                previous: "Zurück",
-                today: "Heute",
-                //  month: "Monat",
-                //   week: "Woche",
-                //  day: "Tag",
-                //   agenda: "Agenda",
-                date: "Datum",
-                time: "Zeit",
-                event: "Termin",
-                noEventsInRange: "Keine Termine in diesem Zeitraum.",
-                //allDay: "Ganztägig",
-              }}
-              components={components}
-              dayPropGetter={(date) => ({
-                className:
-                  date.getDay() === 0 || date.getDay() === 6
-                    ? "weekend-day"
-                    : "",
-              })}
-            />
+              <DragAndDropCalendar
+                localizer={localizer}
+                defaultDate={new Date()}
+                min={new Date(0, 0, 0, 9, 0, 0)} // 8:00 AM
+                max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
+                formats={{
+                  eventTimeRangeFormat: () => "", // Hide the default time display
+                  timeGutterFormat: "HH:mm",
+                }}
+                events={events}
+                startAccessor={(event: any) => new Date(event.start)}
+                endAccessor={(event: any) => new Date(event.end)}
+                style={{ height: "90vh" }}
+                view={"day"}
+                date={currentDate}
+                onNavigate={handleNavigate}
+                onView={handleViewChange}
+                views={["day"]}
+                onEventDrop={moveEvent}
+                onEventResize={resizeEvent}
+                selectable
+                onSelectSlot={handleSelectSlot}
+                // onDropFromOutside={handleDropFromOutside}
+                resizable
+                step={15}
+                timeslots={2}
+                eventPropGetter={eventStyleGetter}
+                onSelectEvent={handleEventClick}
+                popup
+                messages={{
+                  next: "Weiter",
+                  previous: "Zurück",
+                  today: "Heute",
+                  //  month: "Monat",
+                  //   week: "Woche",
+                  //  day: "Tag",
+                  //   agenda: "Agenda",
+                  date: "Datum",
+                  time: "Zeit",
+                  event: "Termin",
+                  noEventsInRange: "Keine Termine in diesem Zeitraum.",
+                  //allDay: "Ganztägig",
+                }}
+                components={components}
+                dayPropGetter={(date) => ({
+                  className:
+                    date.getDay() === 0 || date.getDay() === 6
+                      ? "weekend-day"
+                      : "",
+                })}
+              />
             </DndProvider>
           </section>
         </main>
@@ -873,15 +897,15 @@ rgba(165, 63, 63, 0.2) 5px,
         onDelete={handleDeleteEvent}
       />
 
-<SafeDeleteModal
-     isOpen={openDeleteModal}
-     onClose={() => setOpenDeleteModal(false)}
-     onConfirm={handleConfirmDelete}
-     title="Service löschen"
-     message="Sind Sie sicher, dass Sie diesen Service löschen möchten?"
-     confirmText="Löschen"
-     cancelText="Abbrechen"
-    />
+      <SafeDeleteModal
+        isOpen={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Service löschen"
+        message="Sind Sie sicher, dass Sie diesen Service löschen möchten?"
+        confirmText="Löschen"
+        cancelText="Abbrechen"
+      />
     </>
   );
 }
