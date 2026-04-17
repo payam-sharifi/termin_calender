@@ -303,7 +303,7 @@ export default function MyCalendarClient({
     
     // For self-reservation, use striped pattern, otherwise use Damen/Herren colors
     let backgroundStyle: React.CSSProperties = {
-      backgroundColor: isDamen ? '#c5a059' : 'rgb(50, 79, 113)',
+      backgroundColor: isDamen ? '#c5a059' : '#5a6272',
     };
     
     if (isSelfReservation) {
@@ -443,7 +443,7 @@ export default function MyCalendarClient({
             #FFFFFF 7px
           )`,
         } : {
-          backgroundColor: isDamen ? '#c5a059' : '#5a6272',
+          backgroundColor: isDamen ? '#e44c65' : 'rgb(50, 79, 113)',
         };
         
         return (
@@ -500,7 +500,7 @@ rgba(165, 63, 63, 0.2) 5px,
             #FFFFFF 5px
           )`,
         } : {
-          backgroundColor: isDamen ? '#c5a059' : 'rgb(50, 79, 113)',
+          backgroundColor: isDamen ? '#e44c65' : 'rgb(50, 79, 113)',
         };
         
         return (
