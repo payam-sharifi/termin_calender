@@ -18,6 +18,7 @@ import React from "react";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import ServiceWorkerCleanup from "@/components/ServiceWorkerCleanup";
 import GlobalErrorLogger from "@/components/GlobalErrorLogger";
+import ChatWidget from "@/components/ChatWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -233,6 +234,7 @@ export default function RootLayout({
             <ServiceWorkerCleanup />
             <GlobalErrorLogger />
             <PWAUpdatePrompt />
+            <ChatWidget />
             <ToastContainer
               position="top-right"
               autoClose={3000}
