@@ -1,10 +1,14 @@
 "use client";
 
 import { useGetServicesByProviderId } from "@/services/hooks/serviices/useGetServices";
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useGetAllServices } from "@/services/hooks/serviices/useGetAllServices";
 import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
 import MyCalendarClient from "@/components/MyCalendarClient";
+import {
+  CALENDAR_APPOINTMENT_CREATED_EVENT,
+  type CalendarAppointmentCreatedDetail,
+} from "@/lib/calendarEvents";
 
 export default function ServicePage({
   params,
@@ -57,6 +61,29 @@ useEffect(()=>{
   setDateSizeChange(false)
 }
 },[dateSizeChange, currentRange, GetServices, provider_id])
+
+  const refetchCalendarForCurrentRange = useCallback(() => {
+    GetServices({
+      provider_id,
+      start_time: currentRange.start,
+      end_time: currentRange.end,
+    });
+  }, [GetServices, provider_id, currentRange.start, currentRange.end]);
+
+  useEffect(() => {
+    const onAppointmentCreated = (ev: Event) => {
+      const e = ev as CustomEvent<CalendarAppointmentCreatedDetail>;
+      const pid = e.detail?.providerId;
+      if (!pid || pid !== provider_id) return;
+      refetchCalendarForCurrentRange();
+    };
+    window.addEventListener(CALENDAR_APPOINTMENT_CREATED_EVENT, onAppointmentCreated);
+    return () =>
+      window.removeEventListener(
+        CALENDAR_APPOINTMENT_CREATED_EVENT,
+        onAppointmentCreated,
+      );
+  }, [provider_id, refetchCalendarForCurrentRange]);
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
     // Format date using local time, not UTC, to avoid timezone issues around midnight

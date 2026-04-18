@@ -10,9 +10,10 @@ import React, {
   useState,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllServices } from "@/services/servicesApi";
 import type { serviceType } from "@/services/servicesApi/Service.types";
+import { CALENDAR_APPOINTMENT_CREATED_EVENT } from "@/lib/calendarEvents";
 import styles from "./ChatWidget.module.css";
 
 type Role = "user" | "assistant";
@@ -111,6 +112,7 @@ function customerLabel(c: CustomerRow): string {
 }
 
 function ChatWidgetInner() {
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const chatProviderId = useMemo(() => {
     const fromUrl = resolveProviderIdFromUrlSearch(searchParams);
@@ -435,6 +437,16 @@ function ChatWidgetInner() {
           if (data.success === true) {
             setPendingDateTime(null);
             setReservationStep("complete");
+            if (typeof window !== "undefined" && chatProviderId) {
+              window.dispatchEvent(
+                new CustomEvent(CALENDAR_APPOINTMENT_CREATED_EVENT, {
+                  detail: { providerId: chatProviderId },
+                }),
+              );
+            }
+            void queryClient.invalidateQueries({ queryKey: ["getAppointments"] });
+            void queryClient.invalidateQueries({ queryKey: ["user-time-slots"] });
+            void queryClient.invalidateQueries({ queryKey: ["getSchedule"] });
           }
         } finally {
           setLoading(false);
@@ -702,6 +714,7 @@ function ChatWidgetInner() {
     fullServiceList,
     servicesQuery.isPending,
     servicesQuery.data,
+    queryClient,
   ]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
