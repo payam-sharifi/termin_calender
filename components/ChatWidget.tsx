@@ -157,6 +157,7 @@ function ChatWidgetInner() {
   const serviceBootstrapRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const servicesQuery = useQuery({
@@ -199,19 +200,31 @@ function ChatWidgetInner() {
     };
   }, [open]);
 
+  /** New calendar/provider context: clear session (closing the panel alone keeps messages and input). */
   useEffect(() => {
-    if (!open) {
-      setReservationStep("customer");
-      setSelectedCustomerId(null);
-      setSelectedServiceId(null);
-      setSelfReservation(false);
-      setPendingDateTime(null);
-      setInput("");
-      setMessages([]);
-      setCustomerPickList(null);
-      setServicePickList(null);
-      serviceBootstrapRef.current = false;
-    }
+    setReservationStep("customer");
+    setSelectedCustomerId(null);
+    setSelectedServiceId(null);
+    setSelfReservation(false);
+    setPendingDateTime(null);
+    setInput("");
+    setMessages([]);
+    setCustomerPickList(null);
+    setServicePickList(null);
+    serviceBootstrapRef.current = false;
+    setLoading(false);
+  }, [chatProviderId]);
+
+  /** Click outside the chat widget closes the panel but does not clear the conversation. */
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const el = rootRef.current;
+      if (!el || el.contains(e.target as Node)) return;
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
   /** When entering the service step, load the same list as GET /service/:providerId and show numbered options. */
@@ -801,7 +814,7 @@ function ChatWidgetInner() {
         : "Suche…";
 
   return (
-    <div className={styles.root} aria-live="polite">
+    <div ref={rootRef} className={styles.root} aria-live="polite">
       {panelVisible && (
         <div
           className={`${styles.panel} ${open ? styles.panelOpen : styles.panelClosed}`}
