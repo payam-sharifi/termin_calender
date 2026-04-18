@@ -121,6 +121,19 @@ function customerLabel(c: CustomerRow): string {
   return [c.name, c.family].filter(Boolean).join(" ").trim() || c.id;
 }
 
+/** One step back in the booking flow (German + English). */
+function isGoBackCommand(raw: string): boolean {
+  const t = raw.trim().toLowerCase();
+  return (
+    t === "back" ||
+    t === "zurück" ||
+    t === "zurueck" ||
+    t === "zuruck" ||
+    t === "previous" ||
+    t === "prev"
+  );
+}
+
 function ChatWidgetInner() {
   const queryClient = useQueryClient();
   const pathname = usePathname();
@@ -393,7 +406,21 @@ function ChatWidgetInner() {
 
   const send = useCallback(async () => {
     const trimmed = input.trim();
-    if (!trimmed || loading || reservationStep === "complete") return;
+    if (!trimmed) return;
+    if (loading && !isGoBackCommand(trimmed)) return;
+    if (reservationStep === "complete" && !isGoBackCommand(trimmed)) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: trimmed },
+        {
+          role: "assistant",
+          content:
+            "Die Buchung ist erledigt. Geben Sie **zurück** oder **back** ein, um eine neue Buchung zu starten.",
+        },
+      ]);
+      setInput("");
+      return;
+    }
 
     const replyText = (msg: unknown): string =>
       typeof msg === "string" && msg.trim() ? msg : FALLBACK_REPLY;
@@ -404,6 +431,119 @@ function ChatWidgetInner() {
       servicesQuery.isPending;
 
     if (serviceLoadingBlocking) return;
+
+    // ——— Go back one step (zurück / back) ———
+    if (isGoBackCommand(trimmed)) {
+      setLoading(false);
+      const userLine = { role: "user" as const, content: trimmed };
+      if (reservationStep === "complete") {
+        setMessages((prev) => [
+          ...prev,
+          userLine,
+          {
+            role: "assistant",
+            content:
+              "Neue Buchung: Geben Sie einen Kundennamen ein oder **selbst** für eine Selbstbuchung.",
+          },
+        ]);
+        setReservationStep("customer");
+        setSelectedCustomerId(null);
+        setSelectedServiceId(null);
+        setSelfReservation(false);
+        setPendingDateTime(null);
+        setCustomerPickList(null);
+        setServicePickList(null);
+        serviceBootstrapRef.current = false;
+        setInput("");
+        return;
+      }
+      if (reservationStep === "customer") {
+        setMessages((prev) => [
+          ...prev,
+          userLine,
+          {
+            role: "assistant",
+            content:
+              "Sie sind bereits beim ersten Schritt. Geben Sie einen Kundennamen ein oder **selbst**.",
+          },
+        ]);
+        setInput("");
+        return;
+      }
+      if (reservationStep === "confirm") {
+        setMessages((prev) => [
+          ...prev,
+          userLine,
+          {
+            role: "assistant",
+            content:
+              "Zurück zur Datumseingabe. Passen Sie Datum und Uhrzeit an und senden Sie erneut.",
+          },
+        ]);
+        setReservationStep("datetime");
+        setPendingDateTime(null);
+        setInput("");
+        return;
+      }
+      if (reservationStep === "datetime") {
+        if (selfReservation) {
+          setMessages((prev) => [
+            ...prev,
+            userLine,
+            {
+              role: "assistant",
+              content:
+                "Zurück zur Kundenauswahl. Geben Sie einen Namen ein oder **selbst** für eine Selbstbuchung.",
+            },
+          ]);
+          setReservationStep("customer");
+          setSelfReservation(false);
+          setSelectedCustomerId(null);
+          setSelectedServiceId(null);
+          setPendingDateTime(null);
+          setCustomerPickList(null);
+          setServicePickList(null);
+          serviceBootstrapRef.current = false;
+          setInput("");
+          return;
+        }
+        setMessages((prev) => [
+          ...prev,
+          userLine,
+          {
+            role: "assistant",
+            content:
+              "Zurück zur Dienstauswahl. Wählen Sie erneut einen Dienst oder filtern Sie die Liste.",
+          },
+        ]);
+        setReservationStep("service");
+        setSelectedServiceId(null);
+        setPendingDateTime(null);
+        setServicePickList(null);
+        serviceBootstrapRef.current = false;
+        setInput("");
+        return;
+      }
+      if (reservationStep === "service") {
+        setMessages((prev) => [
+          ...prev,
+          userLine,
+          {
+            role: "assistant",
+            content:
+              "Zurück zur Kundenauswahl. Geben Sie einen anderen Namen ein oder suchen Sie erneut.",
+          },
+        ]);
+        setReservationStep("customer");
+        setSelectedServiceId(null);
+        setServicePickList(null);
+        setSelectedCustomerId(null);
+        setCustomerPickList(null);
+        serviceBootstrapRef.current = false;
+        setInput("");
+        return;
+      }
+    }
 
     // ——— Selbstbuchung: skip Kunde und Dienst ———
     if (
@@ -782,19 +922,22 @@ function ChatWidgetInner() {
     }
   };
 
-  let placeholder = "Kundenname oder **selbst**…";
+  let placeholder = "Kundenname, **selbst** oder **zurück**…";
   if (reservationStep === "confirm") {
-    placeholder = "Zur Bestätigung **ja** eingeben, oder neues Datum/Zeit";
+    placeholder = "**ja** zur Bestätigung, neues Datum oder **zurück**";
   } else if (reservationStep === "datetime") {
-    placeholder = "z. B. 2026-04-21 10:00 00:30 · 2026-05-20 10:30 · 15 4 10:00";
+    placeholder =
+      "Datum/Uhrzeit oder **zurück** — z. B. 2026-04-21 10:00 00:30";
   } else if (reservationStep === "service") {
     if (servicePickList?.length) {
-      placeholder = `1–${servicePickList.length} wählen oder filtern…`;
+      placeholder = `1–${servicePickList.length} wählen oder **zurück**…`;
     } else {
-      placeholder = "Suchwörter für Dienste…";
+      placeholder = "Suchwörter oder **zurück**…";
     }
   } else if (customerPickList?.length) {
-    placeholder = `1–${customerPickList.length} wählen oder neuer Name…`;
+    placeholder = `1–${customerPickList.length} wählen oder **zurück**…`;
+  } else if (reservationStep === "complete") {
+    placeholder = "**zurück** für neue Buchung…";
   }
 
   const showTyping =
@@ -850,7 +993,8 @@ function ChatWidgetInner() {
               <div className={`${styles.row} ${styles.rowBot}`}>
                 <div className={`${styles.bubble} ${styles.bubbleBot}`}>
                   Kunde suchen, Dienst wählen, Datum/Uhrzeit — oder **selbst** / **0** für Selbstbuchung
-                  (wie im Kalender). Bestätigung mit **ja**.
+                  (wie im Kalender). Bestätigung mit **ja**. Mit **zurück** oder **back** einen Schritt
+                  zurück.
                 </div>
               </div>
             )}
@@ -898,7 +1042,6 @@ function ChatWidgetInner() {
                 value={input}
                 disabled={
                   loading ||
-                  reservationStep === "complete" ||
                   (reservationStep === "service" &&
                     Boolean(chatProviderId) &&
                     servicesQuery.isPending)
@@ -913,7 +1056,6 @@ function ChatWidgetInner() {
                 onClick={() => void send()}
                 disabled={
                   loading ||
-                  reservationStep === "complete" ||
                   !input.trim() ||
                   (reservationStep === "service" &&
                     Boolean(chatProviderId) &&
