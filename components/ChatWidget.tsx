@@ -85,9 +85,11 @@ function formatServiceLine(s: serviceType): string {
   return `${s.title} (${s.duration} min.) — ${s.price}€`;
 }
 
-const DATETIME_INSTRUCTION = `Geben Sie Termin **Datum und Uhrzeit** exakt so ein:
-JJJJ-MM-TT HH:mm
-24-Stunden-Format (Europe/Berlin). Beispiel: 2026-08-12 14:00`;
+const DATETIME_INSTRUCTION = `**Datum/Uhrzeit** (24 h, lokale System-Zeit):
+• Vollständig: JJJJ-MM-TT HH:mm (z. B. 2026-08-12 14:00)
+• Nur Datum: JJJJ-MM-TT (dann 09:00)
+• Kurz: **eine Zahl** = nur Tag (Monat/Jahr vom System) · **zwei Zahlen** = Tag und Monat (Jahr vom System), z. B. \`18\`, \`15 4\`, \`15.4\`
+• Optional Uhrzeit am Ende: \`18 14:30\` oder \`15 4 10:00\``;
 
 function parseCustomers(raw: unknown): CustomerRow[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null;
@@ -728,7 +730,7 @@ function ChatWidgetInner() {
   if (reservationStep === "confirm") {
     placeholder = "Zur Bestätigung **ja** eingeben, oder neues Datum/Zeit";
   } else if (reservationStep === "datetime") {
-    placeholder = "JJJJ-MM-TT HH:mm — z. B. 2026-05-20 10:30";
+    placeholder = "z. B. 2026-05-20 10:30 · 18 · 15 4 · 15.4 14:00";
   } else if (reservationStep === "service") {
     if (servicePickList?.length) {
       placeholder = `1–${servicePickList.length} wählen oder filtern…`;
