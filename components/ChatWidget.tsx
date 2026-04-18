@@ -141,6 +141,7 @@ function ChatWidgetInner() {
   );
   const serviceBootstrapRef = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const servicesQuery = useQuery({
@@ -259,6 +260,21 @@ function ChatWidgetInner() {
   useLayoutEffect(() => {
     scrollToBottom();
   }, [messages, loading, open, scrollToBottom, servicesQuery.isPending]);
+
+  const inputFocusBlocked =
+    loading ||
+    reservationStep === "complete" ||
+    (reservationStep === "service" &&
+      Boolean(chatProviderId) &&
+      servicesQuery.isPending);
+
+  useEffect(() => {
+    if (!open || !panelVisible || inputFocusBlocked) return;
+    const id = requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [open, panelVisible, inputFocusBlocked, messages.length]);
 
   const beginDatetimeStep = useCallback(
     (serviceId: string) => {
@@ -801,6 +817,7 @@ function ChatWidgetInner() {
           <div className={styles.footer}>
             <div className={styles.form}>
               <input
+                ref={inputRef}
                 id="chat-widget-input"
                 className={styles.input}
                 type="text"
