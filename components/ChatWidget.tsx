@@ -140,6 +140,8 @@ function ChatWidgetInner() {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     null,
   );
+  /** Selbstbuchung (provider blocks time for themselves), same as calendar “Selbst”. */
+  const [selfReservation, setSelfReservation] = useState(false);
   /** Last accepted date/time string (same format sent on confirm). */
   const [pendingDateTime, setPendingDateTime] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -181,7 +183,7 @@ function ChatWidgetInner() {
 
   useEffect(() => {
     serviceBootstrapRef.current = false;
-  }, [chatProviderId]);
+  }, [chatProviderId, selfReservation]);
 
   useEffect(() => {
     if (open) {
@@ -202,6 +204,7 @@ function ChatWidgetInner() {
       setReservationStep("customer");
       setSelectedCustomerId(null);
       setSelectedServiceId(null);
+      setSelfReservation(false);
       setPendingDateTime(null);
       setInput("");
       setMessages([]);
@@ -213,7 +216,8 @@ function ChatWidgetInner() {
 
   /** When entering the service step, load the same list as GET /service/:providerId and show numbered options. */
   useEffect(() => {
-    if (!open || reservationStep !== "service" || !chatProviderId) return;
+    if (!open || reservationStep !== "service" || !chatProviderId || selfReservation)
+      return;
     if (servicesQuery.isPending) return;
     if (servicesQuery.isError) {
       if (!serviceBootstrapRef.current) {
@@ -261,6 +265,7 @@ function ChatWidgetInner() {
     open,
     reservationStep,
     chatProviderId,
+    selfReservation,
     servicesQuery.isPending,
     servicesQuery.isError,
     fullServiceList,
@@ -315,7 +320,8 @@ function ChatWidgetInner() {
 
   const runDateTimeCheck = useCallback(
     async (value: string) => {
-      if (!selectedServiceId || !chatProviderId) return;
+      if (!chatProviderId) return;
+      if (!selfReservation && !selectedServiceId) return;
       setLoading(true);
       try {
         const res = await fetch("/api/chat", {
@@ -323,8 +329,10 @@ function ChatWidgetInner() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             dateTime: value,
-            serviceId: selectedServiceId,
             providerId: chatProviderId,
+            ...(selfReservation
+              ? { selfReservation: true }
+              : { serviceId: selectedServiceId }),
           }),
         });
         let data: {
@@ -367,7 +375,7 @@ function ChatWidgetInner() {
         setLoading(false);
       }
     },
-    [selectedServiceId, chatProviderId],
+    [selectedServiceId, chatProviderId, selfReservation],
   );
 
   const send = useCallback(async () => {
@@ -384,12 +392,35 @@ function ChatWidgetInner() {
 
     if (serviceLoadingBlocking) return;
 
+    // ——— Selbstbuchung: skip Kunde und Dienst ———
+    if (
+      reservationStep === "customer" &&
+      chatProviderId &&
+      /^(selbst|selbstbuchung|0|self)$/i.test(trimmed)
+    ) {
+      setSelfReservation(true);
+      setSelectedCustomerId(chatProviderId);
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: trimmed },
+        {
+          role: "assistant",
+          content:
+            "Selbstbuchung — Sie blockieren die Zeit für sich selbst (wie im Kalender). Geben Sie nun Datum und Uhrzeit ein.",
+        },
+        { role: "assistant", content: DATETIME_INSTRUCTION },
+      ]);
+      setInput("");
+      setReservationStep("datetime");
+      return;
+    }
+
     // ——— Confirm booking ———
     if (
       reservationStep === "confirm" &&
       pendingDateTime &&
       chatProviderId &&
-      selectedServiceId
+      (selfReservation || selectedServiceId)
     ) {
       const t = trimmed.toLowerCase();
       if (
@@ -422,9 +453,11 @@ function ChatWidgetInner() {
             body: JSON.stringify({
               confirmBooking: true,
               dateTime: pendingDateTime,
-              serviceId: selectedServiceId,
-              customerId: selectedCustomerId,
               providerId: chatProviderId,
+              customerId: selectedCustomerId,
+              ...(selfReservation
+                ? { selfReservation: true }
+                : { serviceId: selectedServiceId }),
             }),
           });
           let data: { message?: string; success?: boolean } = {};
@@ -475,8 +508,8 @@ function ChatWidgetInner() {
     // ——— Check date/time ———
     if (
       reservationStep === "datetime" &&
-      selectedServiceId &&
-      chatProviderId
+      chatProviderId &&
+      (selfReservation || selectedServiceId)
     ) {
       setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
       setInput("");
@@ -726,6 +759,7 @@ function ChatWidgetInner() {
     servicesQuery.isPending,
     servicesQuery.data,
     queryClient,
+    selfReservation,
   ]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -735,7 +769,7 @@ function ChatWidgetInner() {
     }
   };
 
-  let placeholder = "Kundenname…";
+  let placeholder = "Kundenname oder **selbst**…";
   if (reservationStep === "confirm") {
     placeholder = "Zur Bestätigung **ja** eingeben, oder neues Datum/Zeit";
   } else if (reservationStep === "datetime") {
@@ -802,8 +836,8 @@ function ChatWidgetInner() {
             {messages.length === 0 && !showTyping && (
               <div className={`${styles.row} ${styles.rowBot}`}>
                 <div className={`${styles.bubble} ${styles.bubbleBot}`}>
-                  Kunde suchen, Dienst wählen, dann Datum und Uhrzeit (JJJJ-MM-TT HH:mm). Zur
-                  Bestätigung auf **ja** antworten.
+                  Kunde suchen, Dienst wählen, Datum/Uhrzeit — oder **selbst** / **0** für Selbstbuchung
+                  (wie im Kalender). Bestätigung mit **ja**.
                 </div>
               </div>
             )}

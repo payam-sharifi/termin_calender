@@ -19,6 +19,7 @@ type AgentBody = {
   serviceId?: unknown;
   confirmBooking?: unknown;
   customerId?: unknown;
+  selfReservation?: unknown;
 };
 
 function isNonEmptyString(v: unknown): v is string {
@@ -53,26 +54,40 @@ export async function POST(request: Request) {
   if (
     obj.confirmBooking === true &&
     typeof obj.dateTime === "string" &&
-    isNonEmptyString(obj.serviceId) &&
-    obj.customerId &&
-    obj.providerId
+    isNonEmptyString(obj.providerId) &&
+    (obj.selfReservation === true
+      ? true
+      : isNonEmptyString(obj.serviceId) && obj.customerId)
   ) {
     payload = {
       confirmBooking: true,
       dateTime: obj.dateTime.trim(),
-      serviceId: String(obj.serviceId).trim(),
-      customerId: String(obj.customerId).trim(),
       providerId: String(obj.providerId).trim(),
+      ...(obj.selfReservation === true
+        ? {
+            selfReservation: true,
+            ...(obj.customerId !== undefined && String(obj.customerId).trim()
+              ? { customerId: String(obj.customerId).trim() }
+              : {}),
+          }
+        : {
+            serviceId: String(obj.serviceId).trim(),
+            customerId: String(obj.customerId).trim(),
+          }),
     };
   } else if (
     typeof obj.dateTime === "string" &&
-    isNonEmptyString(obj.serviceId) &&
-    isNonEmptyString(obj.providerId)
+    isNonEmptyString(obj.providerId) &&
+    (obj.selfReservation === true
+      ? true
+      : isNonEmptyString(obj.serviceId))
   ) {
     payload = {
       dateTime: obj.dateTime,
-      serviceId: String(obj.serviceId).trim(),
       providerId: String(obj.providerId).trim(),
+      ...(obj.selfReservation === true
+        ? { selfReservation: true }
+        : { serviceId: String(obj.serviceId).trim() }),
     };
   } else if (typeof obj.serviceQuery === "string") {
     payload = { serviceQuery: obj.serviceQuery };
@@ -91,7 +106,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Erwartet: customerName, serviceQuery, dateTime mit serviceId und providerId, oder confirmBooking mit dateTime, serviceId, customerId, providerId.",
+          "Erwartet: customerName, serviceQuery, dateTime (mit serviceId oder Selbstbuchung selfReservation), oder confirmBooking mit den passenden Feldern.",
         success: false,
       },
       { status: 400 },
