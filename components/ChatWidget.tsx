@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllServices } from "@/services/servicesApi";
 import type { serviceType } from "@/services/servicesApi/Service.types";
@@ -60,10 +60,19 @@ function resolveProviderIdFromUrlSearch(search: URLSearchParams): string {
   return "";
 }
 
-function envChatProviderId(): string {
-  return typeof process !== "undefined"
-    ? (process.env.NEXT_PUBLIC_CHAT_PROVIDER_ID?.trim() ?? "")
-    : "";
+/**
+ * Provider id from route: `/dashboard/service/:provider_id` (calendar) or
+ * `/dashboard/services/:provider_id` (service list). Segment after `service` / `services`.
+ */
+function resolveProviderIdFromPathname(pathname: string | null): string {
+  if (!pathname) return "";
+  const segments = pathname.split("/").filter(Boolean);
+  for (const marker of ["service", "services"] as const) {
+    const i = segments.indexOf(marker);
+    const id = segments[i + 1]?.trim();
+    if (i !== -1 && id) return id;
+  }
+  return "";
 }
 
 /** GET /service/:id returns either an array or { message, data: [] } when empty. */
@@ -114,12 +123,13 @@ function customerLabel(c: CustomerRow): string {
 
 function ChatWidgetInner() {
   const queryClient = useQueryClient();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const chatProviderId = useMemo(() => {
-    const fromUrl = resolveProviderIdFromUrlSearch(searchParams);
-    if (fromUrl) return fromUrl;
-    return envChatProviderId();
-  }, [searchParams]);
+    const fromPath = resolveProviderIdFromPathname(pathname);
+    if (fromPath) return fromPath;
+    return resolveProviderIdFromUrlSearch(searchParams);
+  }, [pathname, searchParams]);
 
   const [open, setOpen] = useState(false);
   const [reservationStep, setReservationStep] =
@@ -213,7 +223,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Dienste konnten nicht geladen werden. Bitte ggf. anmelden oder ?providerId=… / NEXT_PUBLIC_CHAT_PROVIDER_ID prüfen.",
+              "Dienste konnten nicht geladen werden. Bitte ggf. anmelden oder /dashboard/service/… bzw. ?providerId=… prüfen.",
           },
         ]);
       }
@@ -288,7 +298,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Kein Kalender-Anbieter gesetzt. Bitte ?providerId=… in der URL oder NEXT_PUBLIC_CHAT_PROVIDER_ID in .env.local eintragen.",
+              "Kein Kalender-Anbieter in der URL. Seite unter /dashboard/service/ mit Anbieter-ID öffnen oder ?providerId=… anhängen.",
           },
         ]);
         setReservationStep("complete");
@@ -551,7 +561,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Bitte zuerst den Anbieter setzen (?providerId=… oder NEXT_PUBLIC_CHAT_PROVIDER_ID).",
+              "Bitte zuerst /dashboard/service/… aufrufen oder ?providerId=… setzen.",
           },
         ]);
         setInput("");
