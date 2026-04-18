@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { message: "Invalid JSON body", success: false },
+      { message: "Ungültiger JSON-Text.", success: false },
       { status: 400 },
     );
   }
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
   } else if (obj.customerName !== undefined) {
     if (!isNonEmptyString(obj.customerName)) {
       return NextResponse.json(
-        { message: "Customer name cannot be empty.", success: false },
+        { message: "Der Kundenname darf nicht leer sein.", success: false },
         { status: 400 },
       );
     }
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Send customerName, serviceQuery, dateTime+serviceId+providerId, or confirmBooking with dateTime, serviceId, customerId, providerId.",
+          "Erwartet: customerName, serviceQuery, dateTime mit serviceId und providerId, oder confirmBooking mit dateTime, serviceId, customerId, providerId.",
         success: false,
       },
       { status: 400 },
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           message:
-            "The booking service returned an unexpected response. Please try again shortly.",
+            "Der Buchungsservice hat eine unerwartete Antwort geliefert. Bitte versuchen Sie es später erneut.",
           success: false,
         },
         { status: 502 },
@@ -125,8 +125,8 @@ export async function POST(request: Request) {
     const message =
       extractMessage(raw) ||
       (res.ok
-        ? "OK"
-        : "The booking assistant could not complete this request.");
+        ? "Erfolg."
+        : "Die Buchungsanfrage konnte nicht abgeschlossen werden.");
 
     const success = raw.success === true;
     const found = raw.found === true;
@@ -176,7 +176,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "We could not reach the booking assistant. Check your connection and try again.",
+          "Der Buchungsassistent ist nicht erreichbar. Bitte Verbindung prüfen und erneut versuchen.",
         success: false,
       },
       { status: 503 },

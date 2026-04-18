@@ -43,7 +43,7 @@ type ReservationStep =
   | "complete";
 
 const FALLBACK_REPLY =
-  "Something went wrong while contacting the assistant. Please try again in a moment.";
+  "Beim Kontakt zum Assistenten ist ein Fehler aufgetreten. Bitte versuchen Sie es gleich noch einmal.";
 
 const PROVIDER_ID_URL_KEYS = [
   "providerId",
@@ -84,9 +84,9 @@ function formatServiceLine(s: serviceType): string {
   return `${s.title} (${s.duration} min.) — ${s.price}€`;
 }
 
-const DATETIME_INSTRUCTION = `Now enter the appointment date and time using exactly:
-YYYY-MM-DD HH:mm
-Use 24-hour time (Europe/Berlin). Example: 2026-08-12 14:00`;
+const DATETIME_INSTRUCTION = `Geben Sie Termin **Datum und Uhrzeit** exakt so ein:
+JJJJ-MM-TT HH:mm
+24-Stunden-Format (Europe/Berlin). Beispiel: 2026-08-12 14:00`;
 
 function parseCustomers(raw: unknown): CustomerRow[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null;
@@ -209,7 +209,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Could not load services from the server. Log in if required, or check ?providerId=… / NEXT_PUBLIC_CHAT_PROVIDER_ID.",
+              "Dienste konnten nicht geladen werden. Bitte ggf. anmelden oder ?providerId=… / NEXT_PUBLIC_CHAT_PROVIDER_ID prüfen.",
           },
         ]);
       }
@@ -225,7 +225,7 @@ function ChatWidgetInner() {
         {
           role: "assistant",
           content:
-            "No services are registered for this provider yet (same source as the calendar).",
+            "Für diesen Anbieter sind noch keine Dienste hinterlegt (gleiche Quelle wie der Kalender).",
         },
       ]);
       setServicePickList(null);
@@ -238,8 +238,8 @@ function ChatWidgetInner() {
         role: "assistant",
         content:
           rows.length === 1
-            ? "One service is available. Type **1** to continue, or type words to filter."
-            : `Services (same list as after login, in order) — reply with a number **1–${rows.length}**, or type words to filter.`,
+            ? "Ein Dienst ist verfügbar. Geben Sie **1** ein, oder filtern Sie mit Suchworten."
+            : `Dienste (gleiche Reihenfolge wie nach der Anmeldung) — antworten Sie mit **1–${rows.length}**, oder filtern Sie mit Suchworten.`,
         alternatives: rows.map((r) => r.line),
       },
     ]);
@@ -269,7 +269,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Calendar provider is not set. Add ?providerId=… to the URL or NEXT_PUBLIC_CHAT_PROVIDER_ID in .env.local.",
+              "Kein Kalender-Anbieter gesetzt. Bitte ?providerId=… in der URL oder NEXT_PUBLIC_CHAT_PROVIDER_ID in .env.local eintragen.",
           },
         ]);
         setReservationStep("complete");
@@ -363,13 +363,22 @@ function ChatWidgetInner() {
       selectedServiceId
     ) {
       const t = trimmed.toLowerCase();
-      if (t === "yes" || t === "y" || t === "ja" || t === "ok") {
+      if (
+        t === "yes" ||
+        t === "y" ||
+        t === "ja" ||
+        t === "ok" ||
+        t === "j" ||
+        t === "bestätigen" ||
+        t === "bestaetigen"
+      ) {
         if (!selectedCustomerId) {
           setMessages((prev) => [
             ...prev,
             {
               role: "assistant",
-              content: "Missing customer for booking. Please start again.",
+              content:
+                "Für die Buchung fehlt der Kunde. Bitte starten Sie die Abfrage erneut.",
             },
           ]);
           return;
@@ -447,7 +456,7 @@ function ChatWidgetInner() {
             { role: "user", content: trimmed },
             {
               role: "assistant",
-              content: `You selected service ${n}. We will use this service for the booking.`,
+              content: `Sie haben Dienst ${n} gewählt. Dieser Dienst wird für die Buchung verwendet.`,
             },
           ]);
           setInput("");
@@ -460,7 +469,7 @@ function ChatWidgetInner() {
           { role: "user", content: trimmed },
           {
             role: "assistant",
-            content: `Please enter a number between 1 and ${servicePickList.length}, or type words to filter.`,
+            content: `Bitte eine Zahl zwischen 1 und ${servicePickList.length} eingeben, oder Suchwörter zum Filtern.`,
           },
         ]);
         setInput("");
@@ -481,7 +490,7 @@ function ChatWidgetInner() {
             { role: "user", content: trimmed },
             {
               role: "assistant",
-              content: `You selected customer ${n}: ${customerLabel(selected)}. Loading services…`,
+              content: `Sie haben Kunde ${n} gewählt: ${customerLabel(selected)}. Dienste werden geladen…`,
             },
           ]);
           setInput("");
@@ -495,7 +504,7 @@ function ChatWidgetInner() {
           { role: "user", content: trimmed },
           {
             role: "assistant",
-            content: `Please enter a number between 1 and ${customerPickList.length}, or type a new name to search again.`,
+            content: `Bitte eine Zahl zwischen 1 und ${customerPickList.length} eingeben, oder einen neuen Namen suchen.`,
           },
         ]);
         setInput("");
@@ -513,7 +522,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "Set the provider first (?providerId=… or NEXT_PUBLIC_CHAT_PROVIDER_ID).",
+              "Bitte zuerst den Anbieter setzen (?providerId=… oder NEXT_PUBLIC_CHAT_PROVIDER_ID).",
           },
         ]);
         setInput("");
@@ -527,8 +536,8 @@ function ChatWidgetInner() {
             role: "assistant",
             content:
               servicesQuery.isPending || !servicesQuery.data
-                ? "Services are still loading…"
-                : "No services available for this provider yet.",
+                ? "Dienste werden geladen…"
+                : "Für diesen Anbieter sind noch keine Dienste verfügbar.",
           },
         ]);
         setInput("");
@@ -558,7 +567,7 @@ function ChatWidgetInner() {
           {
             role: "assistant",
             content:
-              "No service matches that search. Try different words, or fewer words.",
+              "Kein Dienst passt zur Suche. Andere oder weniger Suchwörter versuchen.",
           },
         ]);
         return;
@@ -570,8 +579,8 @@ function ChatWidgetInner() {
           role: "assistant",
           content:
             filtered.length === 1
-              ? "One match — type **1** to choose, or refine your search."
-              : `Matching services — reply with **1–${filtered.length}**, or type new words.`,
+              ? "Ein Treffer — **1** zum Wählen, oder Suche verfeinern."
+              : `Passende Dienste — antworten Sie mit **1–${filtered.length}**, oder neue Wörter eingeben.`,
           alternatives: filtered.map((r) => r.line),
         },
       ]);
@@ -686,19 +695,19 @@ function ChatWidgetInner() {
     }
   };
 
-  let placeholder = "Customer name…";
+  let placeholder = "Kundenname…";
   if (reservationStep === "confirm") {
-    placeholder = "Type yes to confirm, or a new date/time to change";
+    placeholder = "Zur Bestätigung **ja** eingeben, oder neues Datum/Zeit";
   } else if (reservationStep === "datetime") {
-    placeholder = "YYYY-MM-DD HH:mm — e.g. 2026-05-20 10:30";
+    placeholder = "JJJJ-MM-TT HH:mm — z. B. 2026-05-20 10:30";
   } else if (reservationStep === "service") {
     if (servicePickList?.length) {
-      placeholder = `1–${servicePickList.length} to pick, or words to filter…`;
+      placeholder = `1–${servicePickList.length} wählen oder filtern…`;
     } else {
-      placeholder = "Words to filter services…";
+      placeholder = "Suchwörter für Dienste…";
     }
   } else if (customerPickList?.length) {
-    placeholder = `1–${customerPickList.length} to pick, or new name…`;
+    placeholder = `1–${customerPickList.length} wählen oder neuer Name…`;
   }
 
   const showTyping =
@@ -711,11 +720,11 @@ function ChatWidgetInner() {
     reservationStep === "service" &&
     Boolean(chatProviderId) &&
     servicesQuery.isPending
-      ? "Loading services…"
+      ? "Dienste werden geladen…"
       : loading &&
           (reservationStep === "datetime" || reservationStep === "confirm")
-        ? "Checking…"
-        : "Searching…";
+        ? "Bitte warten…"
+        : "Suche…";
 
   return (
     <div className={styles.root} aria-live="polite">
@@ -724,15 +733,15 @@ function ChatWidgetInner() {
           className={`${styles.panel} ${open ? styles.panelOpen : styles.panelClosed}`}
           role="dialog"
           aria-modal="false"
-          aria-label="Reservation assistant chat"
+          aria-label="Termin-Chat"
         >
           <header className={styles.header}>
-            <h2 className={styles.title}>Reservation Assistant</h2>
+            <h2 className={styles.title}>Termin-Assistent</h2>
             <button
               type="button"
               className={styles.closeBtn}
               onClick={() => setOpen(false)}
-              aria-label="Close chat"
+              aria-label="Chat schließen"
             >
               <svg
                 width="18"
@@ -753,9 +762,8 @@ function ChatWidgetInner() {
             {messages.length === 0 && !showTyping && (
               <div className={`${styles.row} ${styles.rowBot}`}>
                 <div className={`${styles.bubble} ${styles.bubbleBot}`}>
-                  Find a customer, choose a service (list from your calendar
-                  API), then date & time (YYYY-MM-DD HH:mm). Confirm with yes
-                  when asked.
+                  Kunde suchen, Dienst wählen, dann Datum und Uhrzeit (JJJJ-MM-TT HH:mm). Zur
+                  Bestätigung auf **ja** antworten.
                 </div>
               </div>
             )}
@@ -809,7 +817,7 @@ function ChatWidgetInner() {
                 }
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                aria-label="Chat input"
+                aria-label="Chat-Eingabe"
               />
               <button
                 type="button"
@@ -824,7 +832,7 @@ function ChatWidgetInner() {
                     servicesQuery.isPending)
                 }
               >
-                {reservationStep === "complete" ? "Done" : "Send"}
+                {reservationStep === "complete" ? "Fertig" : "Senden"}
               </button>
             </div>
           </div>
@@ -836,7 +844,9 @@ function ChatWidgetInner() {
         className={styles.toggleBtn}
         onClick={toggleOpen}
         aria-expanded={open}
-        aria-label={open ? "Close reservation chat" : "Open reservation chat"}
+        aria-label={
+          open ? "Termin-Chat schließen" : "Termin-Chat öffnen"
+        }
       >
         <svg
           className={styles.toggleIcon}
