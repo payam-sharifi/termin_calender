@@ -122,6 +122,15 @@
   font-size: 0.9375rem !important; /* ~15px — smaller than default heading scale */
 }
 
+.rbc-toolbar .rbc-toolbar-label.rbc-toolbar-label--open-datepicker {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.rbc-toolbar .rbc-toolbar-label.rbc-toolbar-label--open-datepicker:hover {
+  color: #c5a059 !important;
+}
+
 /* Drawer / sidebar — same treatment as toolbar (white text, glass + coral) */
 .sidebar .btn,
 .sidebar a.btn {

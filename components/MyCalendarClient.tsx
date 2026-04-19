@@ -5,8 +5,9 @@ import {
   Calendar,
   Views,
   Event as CalendarEvent,
-  Components,
+  Navigate,
 } from "react-big-calendar";
+import type { ToolbarProps } from "react-big-calendar";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import EventFormModal from "./EventFormModal";
 import EventDetailsModal from "./EventDetailsModal";
@@ -16,7 +17,9 @@ import {
   ServiceRsDataType,
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
-import GermanDatePicker from "./Datapicker";
+import GermanDatePicker, {
+  type GermanDatePickerHandle,
+} from "./Datapicker";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -90,6 +93,7 @@ export default function MyCalendarClient({
     return Views.DAY;
   });
   const [currentDate, setCurrentDate] = useState(new Date());
+  const germanDatePickerRef = useRef<GermanDatePickerHandle | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -412,6 +416,68 @@ export default function MyCalendarClient({
     [currentDate, handleNavigate],
   );
 
+  const CalendarToolbar = useCallback(function CalendarToolbar(
+    props: ToolbarProps,
+  ) {
+    const { label, localizer, onNavigate, onView, view, views } = props;
+    const messages = localizer.messages;
+    const viewList = Array.isArray(views) ? views : [];
+    return (
+      <div className="rbc-toolbar">
+        <span className="rbc-btn-group">
+          <button
+            type="button"
+            onClick={() => onNavigate(Navigate.TODAY)}
+          >
+            {messages.today}
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate(Navigate.PREVIOUS)}
+          >
+            {messages.previous}
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigate(Navigate.NEXT)}
+          >
+            {messages.next}
+          </button>
+        </span>
+        <span
+          className="rbc-toolbar-label rbc-toolbar-label--open-datepicker"
+          role="button"
+          tabIndex={0}
+          onClick={() => germanDatePickerRef.current?.open()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              germanDatePickerRef.current?.open();
+            }
+          }}
+          title="Datum wählen"
+        >
+          {label}
+        </span>
+        <span className="rbc-btn-group">
+          {viewList.length > 1
+            ? viewList.map((name) => (
+                <button
+                  type="button"
+                  key={String(name)}
+                  className={view === name ? "rbc-active" : undefined}
+                  onClick={() => onView(name)}
+                >
+                  {(messages as Record<string, string | undefined>)[String(name)] ??
+                    String(name)}
+                </button>
+              ))
+            : null}
+        </span>
+      </div>
+    );
+  }, []);
+
   const components = {
     event: ({ event }: { event: CalendarEvent }) => {
       if (!event) return null;
@@ -644,6 +710,7 @@ rgba(165, 63, 63, 0.2) 5px,
         </div>
       );
     },
+    toolbar: CalendarToolbar,
   };
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
@@ -778,6 +845,7 @@ rgba(165, 63, 63, 0.2) 5px,
                 className="bi bi-grid"
               ></i>
               <GermanDatePicker
+                ref={germanDatePickerRef}
                 selected={currentDate}
                 onChange={(date: Date | null) => {
                   if (date) {
