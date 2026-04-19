@@ -195,6 +195,32 @@ function ChatWidgetInner() {
     });
   }, []);
 
+  /** Full reset — new conversation when reopening after close/outside dismiss. */
+  const resetChatSession = useCallback(() => {
+    setReservationStep("customer");
+    setSelectedCustomerId(null);
+    setSelectedServiceId(null);
+    setSelfReservation(false);
+    setPendingDateTime(null);
+    setInput("");
+    setMessages([]);
+    setCustomerPickList(null);
+    setServicePickList(null);
+    serviceBootstrapRef.current = false;
+    setLoading(false);
+  }, []);
+
+  /** Hide panel; keep messages and flow state (like −). */
+  const minimizeChat = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  /** Hide panel and discard conversation (like ✕ or outside click). */
+  const closeAndClearChat = useCallback(() => {
+    resetChatSession();
+    setOpen(false);
+  }, [resetChatSession]);
+
   useEffect(() => {
     serviceBootstrapRef.current = false;
   }, [chatProviderId, selfReservation]);
@@ -213,32 +239,22 @@ function ChatWidgetInner() {
     };
   }, [open]);
 
-  /** New calendar/provider context: clear session (closing the panel alone keeps messages and input). */
+  /** New calendar/provider context: clear session. */
   useEffect(() => {
-    setReservationStep("customer");
-    setSelectedCustomerId(null);
-    setSelectedServiceId(null);
-    setSelfReservation(false);
-    setPendingDateTime(null);
-    setInput("");
-    setMessages([]);
-    setCustomerPickList(null);
-    setServicePickList(null);
-    serviceBootstrapRef.current = false;
-    setLoading(false);
-  }, [chatProviderId]);
+    resetChatSession();
+  }, [chatProviderId, resetChatSession]);
 
-  /** Click outside the chat widget closes the panel but does not clear the conversation. */
+  /** Click outside the widget = minimize (same as −, conversation stays). */
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
       const el = rootRef.current;
       if (!el || el.contains(e.target as Node)) return;
-      setOpen(false);
+      minimizeChat();
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [open]);
+  }, [open, minimizeChat]);
 
   /** When entering the service step, load the same list as GET /service/:providerId and show numbered options. */
   useEffect(() => {
@@ -967,25 +983,48 @@ function ChatWidgetInner() {
         >
           <header className={styles.header}>
             <h2 className={styles.title}>Termin-Assistent</h2>
-            <button
-              type="button"
-              className={styles.closeBtn}
-              onClick={() => setOpen(false)}
-              aria-label="Chat schließen"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                aria-hidden
+            <div className={styles.headerActions}>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={minimizeChat}
+                aria-label="Einklappen (Chat bleibt gespeichert)"
+                title="Minimieren"
               >
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M5 12h14" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={closeAndClearChat}
+                aria-label="Schließen und Chat löschen"
+                title="Schließen"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </header>
 
           <div className={styles.messages}>
@@ -1075,7 +1114,9 @@ function ChatWidgetInner() {
         onClick={toggleOpen}
         aria-expanded={open}
         aria-label={
-          open ? "Termin-Chat schließen" : "Termin-Chat öffnen"
+          open
+            ? "Termin-Chat einklappen (Inhalt bleibt)"
+            : "Termin-Chat öffnen"
         }
       >
         <svg

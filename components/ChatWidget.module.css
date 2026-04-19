@@ -106,6 +106,12 @@
   letter-spacing: 0.02em;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .closeBtn {
   width: 36px;
   height: 36px;
