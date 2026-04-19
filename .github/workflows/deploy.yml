@@ -2,7 +2,7 @@ name: Deploy Next.js to Server
 
 on:
   push:
-    branches: [style]
+    branches: [mockai]
 
 jobs:
   deploy:
