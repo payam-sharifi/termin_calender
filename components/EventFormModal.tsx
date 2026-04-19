@@ -22,6 +22,10 @@ import React from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import ServiceSelect from "./ServiceSelect";
 import CustomerSelect from "./CustomerSelect";
+import {
+  getCalendarDayClassName,
+  getCalendarWeekDayClassName,
+} from "@/lib/calendarDayClassName";
 
 moment.locale("de");
 
@@ -740,6 +744,8 @@ export default function EventFormModal({
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
+                      dayClassName={getCalendarDayClassName}
+                      weekDayClassName={getCalendarWeekDayClassName}
                       required
                     />
                     {errors.start && <div className="invalid-feedback d-block">{errors.start}</div>}
@@ -760,6 +766,8 @@ export default function EventFormModal({
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
+                      dayClassName={getCalendarDayClassName}
+                      weekDayClassName={getCalendarWeekDayClassName}
                       required
                     />
                     {errors.end && <div className="invalid-feedback d-block">{errors.end}</div>}

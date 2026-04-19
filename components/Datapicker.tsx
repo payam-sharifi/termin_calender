@@ -5,17 +5,13 @@ import DatePicker from "react-datepicker";
 import { InputGroup } from "react-bootstrap";
 import { registerLocale } from "react-datepicker";
 import { de } from "date-fns/locale/de";
+import {
+  getCalendarDayClassName,
+  getCalendarWeekDayClassName,
+} from "@/lib/calendarDayClassName";
 
 // Register German locale
 registerLocale("de", de);
-
-function dayClassNameForPast(date: Date): string {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d < today ? "german-datepicker-day--past" : "";
-}
 
 type Props = {
   selected: Date | null;
@@ -78,7 +74,8 @@ export default function GermanDatePicker({
             minDate={minDate}
             filterDate={filterDate}
             className="mobile-datepicker"
-            dayClassName={dayClassNameForPast}
+            dayClassName={getCalendarDayClassName}
+            weekDayClassName={getCalendarWeekDayClassName}
           />
         </div>
       )}

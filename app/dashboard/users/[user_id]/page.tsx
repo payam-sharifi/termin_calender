@@ -15,6 +15,10 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { useGetUserTimeSlots } from "@/services/hooks/timeSlots/useGetUserTimeSlots";
+import {
+  getCalendarDayClassName,
+  getCalendarWeekDayClassName,
+} from "@/lib/calendarDayClassName";
 
 registerLocale("de", de);
 
@@ -104,6 +108,8 @@ function CenteredKundenDatePicker({
               inline
               locale="de"
               calendarStartDay={1}
+              dayClassName={getCalendarDayClassName}
+              weekDayClassName={getCalendarWeekDayClassName}
             />
             <Button
               type="button"

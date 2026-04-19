@@ -458,6 +458,42 @@
   opacity: 1 !important;
 }
 
+/* Sonntag: rot (Wochentag „So“ + alle Sonntags-Zellen) */
+.mobile-datepicker-container .react-datepicker__day-name.german-datepicker-weekday--sunday,
+.kunden-termin-datepicker-panel .react-datepicker__day-name.german-datepicker-weekday--sunday,
+.modal .react-datepicker__day-name.german-datepicker-weekday--sunday {
+  color: #e53935 !important;
+}
+
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--sunday:not(
+    .react-datepicker__day--selected
+  ):not(.react-datepicker__day--keyboard-selected),
+.kunden-termin-datepicker-panel
+  .react-datepicker__day.german-datepicker-day--sunday:not(
+    .react-datepicker__day--selected
+  ):not(.react-datepicker__day--keyboard-selected),
+.modal
+  .react-datepicker__day.german-datepicker-day--sunday:not(
+    .react-datepicker__day--selected
+  ):not(.react-datepicker__day--keyboard-selected) {
+  color: #e53935 !important;
+}
+
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--selected,
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--keyboard-selected,
+.kunden-termin-datepicker-panel
+  .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--selected,
+.kunden-termin-datepicker-panel
+  .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--keyboard-selected,
+.modal .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--selected,
+.modal
+  .react-datepicker__day.german-datepicker-day--sunday.react-datepicker__day--keyboard-selected {
+  color: #b71c1c !important;
+}
+
 /* Increase height of time slots */
 .rbc-time-slot {
   height: 33px !important; /* reduced from 60px */
