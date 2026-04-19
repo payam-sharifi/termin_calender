@@ -436,6 +436,28 @@
   }
 }
 
+/* GermanDatePicker (Datapicker): mute past days vs today / future */
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--past:not(
+    .react-datepicker__day--selected
+  ):not(.react-datepicker__day--keyboard-selected) {
+  opacity: 0.45 !important;
+}
+
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--past.react-datepicker__day--outside-month:not(
+    .react-datepicker__day--selected
+  ):not(.react-datepicker__day--keyboard-selected) {
+  opacity: 0.3 !important;
+}
+
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--past.react-datepicker__day--selected,
+.mobile-datepicker-container
+  .react-datepicker__day.german-datepicker-day--past.react-datepicker__day--keyboard-selected {
+  opacity: 1 !important;
+}
+
 /* Increase height of time slots */
 .rbc-time-slot {
   height: 33px !important; /* reduced from 60px */
