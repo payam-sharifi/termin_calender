@@ -170,14 +170,14 @@ export default function EventFormModal({
       setFormData((prev) => ({
         ...prev,
         service: selectedService,
-        title: selectedService.title,
+        title: prev.is_self_reservation ? prev.title : selectedService.title,
       }));
     } else if (services && services.length > 0) {
       // Set first service as default if no service is selected
       setFormData((prev) => ({
         ...prev,
         service: services[0],
-        title: services[0].title,
+        title: prev.is_self_reservation ? prev.title : services[0].title,
       }));
     }
   }, [selectedSlot, selectedService, services]);
@@ -833,6 +833,7 @@ export default function EventFormModal({
                                 setFormData((prev) => ({
                                   ...prev,
                                   is_self_reservation: true,
+                                  title: "",
                                   customerName: "",
                                   customerFamily: "",
                                   customerEmail: "",
@@ -859,6 +860,10 @@ export default function EventFormModal({
                               customerPhone: customer.phone,
                               customer_id: customer.id,
                               sex: customer.sex || "",
+                              title:
+                                prev.is_self_reservation && !prev.title.trim()
+                                  ? prev.service?.title ?? ""
+                                  : prev.title,
                             }));
                             setErrors((prev: any) => ({ ...prev, customerName: undefined }));
                             setCurrentStep(2);
