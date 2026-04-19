@@ -25,7 +25,6 @@ import CustomerSelect from "./CustomerSelect";
 
 moment.locale("de");
 
-// Add custom styles for weekend days
 const customStyles = `
   .react-datepicker__day--disabled {
     color: #ccc !important;
@@ -482,24 +481,6 @@ export default function EventFormModal({
     customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Function to check if a date is a weekend (only Sunday is disabled)
-  const isWeekend = (date: Date) => {
-    const day = date.getDay();
-    return day === 0; // 0 is Sunday
-  };
-
-  // Function to check if a date is in the past
-  const isPastDate = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
-  };
-
-  // Custom day class for DatePicker (removed since only Sunday is disabled)
-  const dayClassName = (date: Date) => {
-    return "";
-  };
-
   // Helper to reset user fields
   const resetUserFields = () => {
     setFormData((prev) => ({
@@ -759,10 +740,6 @@ export default function EventFormModal({
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
-                      filterDate={(date) =>
-                        !isWeekend(date) && !isPastDate(date)
-                      }
-                      dayClassName={dayClassName}
                       required
                     />
                     {errors.start && <div className="invalid-feedback d-block">{errors.start}</div>}
@@ -783,10 +760,6 @@ export default function EventFormModal({
                       timeIntervals={15}
                       dateFormat="dd.MM.yyyy HH:mm"
                       className="form-control"
-                      filterDate={(date) =>
-                        !isWeekend(date) && !isPastDate(date)
-                      }
-                      dayClassName={dayClassName}
                       required
                     />
                     {errors.end && <div className="invalid-feedback d-block">{errors.end}</div>}

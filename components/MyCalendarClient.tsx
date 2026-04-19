@@ -785,12 +785,6 @@ rgba(165, 63, 63, 0.2) 5px,
                     handleNavigate(date);
                   }
                 }}
-                minDate={new Date()}
-                filterDate={(date: Date) => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  return date >= today;
-                }}
               />
               <div
                 className="h5"
