@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const backendUrl = `${getBackendBaseUrl()}/api/chat`;
+  const backendUrl = `${getBackendBaseUrl()}/chat`;
 
   try {
     const res = await fetch(backendUrl, {
