@@ -94,10 +94,11 @@ function formatServiceLine(s: serviceType): string {
   return `${s.title} (${s.duration} min.) — ${s.price}€`;
 }
 
-const DATETIME_INSTRUCTION = `**Datum/Uhrzeit** (24 h, lokale System-Zeit):
-• Vollständig: JJJJ-MM-TT HH:mm — optional **Dauer** dahinter als HH:mm (z. B. \`2026-04-21 10:00 00:30\` = 30 Min.; sonst gilt die Dienst-Dauer)
-• Nur Datum: JJJJ-MM-TT (dann 09:00)
-• Kurz: eine Zahl = Tag · zwei Zahlen = Tag und Monat — optional Start **und** Dauer: \`15 4 10:00 00:45\``;
+const DATETIME_INSTRUCTION = `**Datum/Uhrzeit** — Ortszeit **Europe/Berlin** (wie im Kalender), optional wie **API**:
+• Wie Formular: \`2026-04-26T08:00:00.000Z\` (= exakt derselbe UTC-Moment wie beim Anlegen im Kalender)
+• Oder: JJJJ-MM-TT HH:mm — optional **Dauer** als HH:mm (z. B. \`2026-04-21 10:00 00:30\` = 30 Min.; sonst Dienst-Dauer)
+• Nur Datum: JJJJ-MM-TT (dann 09:00 Berlin)
+• Kurz: eine Zahl = Tag · zwei Zahlen = Tag/Monat — optional Start **und** Dauer: \`15 4 10:00 00:45\``;
 
 function parseCustomers(raw: unknown): CustomerRow[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null;
