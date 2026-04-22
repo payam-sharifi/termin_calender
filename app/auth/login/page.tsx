@@ -25,6 +25,7 @@ const {mutate: sendOtp, isPending:otpPending }=useSendOtp()
  useEffect(()=>{
  if(userId){
    router.push(`/dashboard/service/${userId}`)
+   localStorage.setItem('provider_id', userId);
  }
  },[userId])
 

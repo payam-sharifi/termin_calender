@@ -759,7 +759,7 @@ rgba(165, 63, 63, 0.2) 5px,
             }}
           >
             <Link
-              href="/dashboard/users"
+              href={`/dashboard/users?provider_id=${encodeURIComponent(provider_id)}`}
               className="btn btn-primary text-white"
               style={{ textDecoration: "none" }}
             >

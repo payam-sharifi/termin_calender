@@ -31,10 +31,12 @@ export default function UsersPage() {
 
   const apiSearchTerm = debouncedSearchTerm.length >= 3 ? formatForApiSearch(debouncedSearchTerm) : "";
 
+  const provider_id = localStorage.getItem('provider_id') || "";
   const { data, isLoading,refetch} = useGetUsers(
     apiSearchTerm,
     limit,
-    page
+    page,
+    provider_id
   );
   const users = data?.data || [];
   
@@ -101,6 +103,7 @@ export default function UsersPage() {
       sex: newUser.sex as SEX,
       role: newUser.role as ROLE,
       password: "1234567",
+      provider_id: localStorage.getItem('provider_id'),
     };
 
     // Conditionally remove email if it's empty

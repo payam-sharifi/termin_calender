@@ -13,6 +13,7 @@ export enum SEX {
 
 export interface UserRsDataType {
   created_at: string;
+  provider_id: string;
   email: string;
   family: string;
   id: string;

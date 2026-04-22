@@ -13,14 +13,15 @@ export const getAllUser = async (
   search: string,
   limit?: number,
   page?: number,
+  provider_id?: string,
   role?: string,
 ): Promise<getAllUserRsDataType> => {
   const params = new URLSearchParams();
   if (search) params.append('search', search);
   if (limit) params.append('limit', limit.toString());
   if (page) params.append('page', page.toString());
-  if (role) params.append('role', role);
-
+  if (provider_id) params.append('provider_id', provider_id);
+  if (role) params.append('role', role);  
   const response = await api.get(`user?${params.toString()}`);
   return response.data;
 };
