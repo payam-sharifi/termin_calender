@@ -96,6 +96,7 @@ export default function EventFormModal({
     apiSearchTerm,
     5,
     currentPage,
+    provider_id,
     "Customer"
   );
 
@@ -474,7 +475,7 @@ export default function EventFormModal({
       }
       
       // Check if we have more data
-      setHasMore(customersList.data.length === 10);
+      setHasMore(customersList.data.length === 5);
     }
   }, [customersList?.data, currentPage]);
 
@@ -807,6 +808,7 @@ export default function EventFormModal({
                     <Col md={12}>
                       <Form.Group className="mb-3">
                         <CustomerSelect
+                          provider_id={provider_id}
                           headerRight={
                             <Button
                               variant={formData.is_self_reservation ? "primary" : "outline-primary"}

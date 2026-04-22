@@ -6,6 +6,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
 
 interface CustomerSelectProps {
+  /** Scope customers to this provider (required for API filter). */
+  provider_id: string;
   value?: string; // customer id
   selectedLabel?: string; // e.g. "Vorname Nachname"
   onChange: (customer: any) => void;
@@ -14,7 +16,7 @@ interface CustomerSelectProps {
   headerRight?: React.ReactNode;
 }
 
-export default function CustomerSelect({ value, selectedLabel, onChange, disabled, headerRight }: CustomerSelectProps) {
+export default function CustomerSelect({ provider_id, value, selectedLabel, onChange, disabled, headerRight }: CustomerSelectProps) {
   const [search, setSearch] = useState("");
 
   const debounced = useDebounce(search, 400);
@@ -23,7 +25,7 @@ export default function CustomerSelect({ value, selectedLabel, onChange, disable
   const searchParam = isFilteredSearch ? trimmed : "";
   const pageSize = isFilteredSearch ? 10 : 5;
 
-  const { data, isLoading } = useGetUsers(searchParam, pageSize, 1, "Customer");
+  const { data, isLoading } = useGetUsers(searchParam, pageSize, 1, provider_id, "Customer");
 
   const customers: any[] = useMemo(() => data?.data || [], [data?.data]);
 
