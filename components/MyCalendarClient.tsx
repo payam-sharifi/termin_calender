@@ -772,6 +772,13 @@ rgba(165, 63, 63, 0.2) 5px,
             >
               Dienste
             </Link>
+            <Link
+              href={`/dashboard/profile/${provider_id}`}
+              className="btn btn-primary text-white"
+              style={{ textDecoration: "none" }}
+            >
+              Mein Profil
+            </Link>
 
             <button
               className="btn btn-primary"
@@ -854,17 +861,19 @@ rgba(165, 63, 63, 0.2) 5px,
                   }
                 }}
               />
-              <div
-                className="h5"
+              <Link
+                href={`/dashboard/profile/${provider_id}`}
+                className="h5 text-decoration-none termin-provider-name-link"
                 style={{
                   fontStyle: "italic",
                   fontWeight: "bold",
                   fontFamily: "Times New Roman, Times, serif",
                   color: "#c5a059",
                 }}
+                title="Mein Profil"
               >
                 {userProfileData?.name}
-              </div>
+              </Link>
             </div>
 
             <DndProvider

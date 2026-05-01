@@ -179,6 +179,48 @@ a:hover {
   opacity: 1;
 }
 
+/* Provider profile: page chrome matches calendar; form panel matches react-bootstrap modals */
+.termin-profile-surface {
+  min-height: 100vh;
+  background-color: var(--av-panel);
+  color: var(--av-text);
+}
+
+.termin-profile-surface h1 {
+  color: var(--av-heading) !important;
+}
+
+.termin-profile-card {
+  background-color: var(--av-panel);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--av-border);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+/* Same body text / muted helper as .modal-body */
+.termin-profile-card .text-muted {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.termin-profile-card hr {
+  border-color: var(--av-border);
+  opacity: 1;
+}
+
+.termin-profile-surface .termin-profile-card .invalid-feedback {
+  color: #e8d5b5;
+}
+
+/* Calendar toolbar: provider name → profile */
+a.termin-provider-name-link {
+  cursor: pointer;
+}
+
+a.termin-provider-name-link:hover {
+  color: var(--av-accent-hover) !important;
+  text-decoration: underline !important;
+}
+
 /* Cards & tables */
 .card {
   background-color: var(--av-panel);
@@ -733,6 +775,10 @@ a.button-landed.primary:hover {
 
 .termin-loading-screen .termin-loading-text {
   color: var(--av-accent);
+}
+
+.termin-profile-surface.termin-loading-screen {
+  background: var(--av-panel);
 }
 
 /* Kunden-Termine: centered day picker overlay (replaces native date input popup) */
