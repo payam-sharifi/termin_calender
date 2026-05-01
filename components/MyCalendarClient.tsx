@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+  type ReactElement,
+} from "react";
 import {
   Calendar,
   Views,
@@ -17,9 +25,7 @@ import {
   ServiceRsDataType,
 } from "@/services/servicesApi/Service.types";
 import { Event } from "../types/event";
-import GermanDatePicker, {
-  type GermanDatePickerHandle,
-} from "./Datapicker";
+import GermanDatePicker, { type GermanDatePickerHandle } from "./Datapicker";
 import { momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "moment-timezone";
@@ -45,6 +51,25 @@ import { UserRsDataType } from "@/services/userApi/user.types";
 moment.locale("de");
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
+
+/** Match calendar mobile layout (see styles) */
+const MOBILE_VIEWPORT_MQ = "(max-width: 768px)";
+/** TouchBackend: hold before drag starts (reduces accidental drags while scrolling). */
+const MOBILE_TOUCH_DRAG_DELAY_MS = 300;
+/** Show “picked up” styling slightly before drag activates */
+const MOBILE_HOLD_HIGHLIGHT_MS = 220;
+
+function subscribeViewportMobile(cb: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia(MOBILE_VIEWPORT_MQ);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getViewportMobileSnapshot() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia(MOBILE_VIEWPORT_MQ).matches;
+}
 
 const SLOT_BG_DAMEN = "#c5a059";
 const SLOT_BG_HERREN = "#1c1d26";
@@ -102,6 +127,71 @@ export default function MyCalendarClient({
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { mutate } = useUpdateTimeSlotDate();
+
+  const viewportMobile = useSyncExternalStore(
+    subscribeViewportMobile,
+    getViewportMobileSnapshot,
+    () => false,
+  );
+  const mobilePressTimerRef = useRef<number | null>(null);
+  const mobilePressStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [mobileHeldEventKey, setMobileHeldEventKey] = useState<string | null>(
+    null,
+  );
+
+  const clearMobileHoldTimer = useCallback(() => {
+    if (mobilePressTimerRef.current != null) {
+      clearTimeout(mobilePressTimerRef.current);
+      mobilePressTimerRef.current = null;
+    }
+  }, []);
+
+  const handleMobileTouchStart = useCallback(
+    (e: React.TouchEvent, typedEvent: Event) => {
+      if (!viewportMobile) return;
+      if ((typedEvent as { isDraggable?: boolean }).isDraggable === false) {
+        return;
+      }
+      clearMobileHoldTimer();
+      const t0 = e.touches[0];
+      if (!t0) return;
+      mobilePressStartRef.current = { x: t0.clientX, y: t0.clientY };
+      const key = String(typedEvent.id);
+      mobilePressTimerRef.current = window.setTimeout(() => {
+        setMobileHeldEventKey(key);
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          try {
+            navigator.vibrate(18);
+          } catch {
+            /* ignore */
+          }
+        }
+      }, MOBILE_HOLD_HIGHLIGHT_MS);
+    },
+    [viewportMobile, clearMobileHoldTimer],
+  );
+
+  const handleMobileTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      const start = mobilePressStartRef.current;
+      const t0 = e.touches[0];
+      if (!start || !t0) return;
+      const dx = t0.clientX - start.x;
+      const dy = t0.clientY - start.y;
+      if (dx * dx + dy * dy > 14 * 14) {
+        clearMobileHoldTimer();
+        setMobileHeldEventKey(null);
+        mobilePressStartRef.current = null;
+      }
+    },
+    [clearMobileHoldTimer],
+  );
+
+  const handleMobileTouchEnd = useCallback(() => {
+    clearMobileHoldTimer();
+    mobilePressStartRef.current = null;
+    window.setTimeout(() => setMobileHeldEventKey(null), MOBILE_TOUCH_DRAG_DELAY_MS + 120);
+  }, [clearMobileHoldTimer]);
 
   // Use ref to track previous eventsObj to detect actual changes
   const prevEventsObjRef = useRef<any>(null);
@@ -214,6 +304,7 @@ export default function MyCalendarClient({
 
   const moveEvent = useCallback(
     ({ event, start, end }: any) => {
+      setMobileHeldEventKey(null);
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
       if (!existing || !existing?.slotId) return;
@@ -246,6 +337,7 @@ export default function MyCalendarClient({
 
   const resizeEvent = useCallback(
     ({ event, start, end }: any) => {
+      setMobileHeldEventKey(null);
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
       if (!existing || !existing?.slotId) return;
@@ -288,6 +380,39 @@ export default function MyCalendarClient({
     return lower.includes("damen");
   }, []);
 
+  const mobileTouchWrap = useCallback(
+    (inner: ReactElement, typedEvent: Event): ReactElement => {
+      if (!viewportMobile) return inner;
+      if ((typedEvent as { isDraggable?: boolean }).isDraggable === false) {
+        return inner;
+      }
+      const key = String(typedEvent.id);
+      return (
+        <div
+          className={
+            mobileHeldEventKey === key
+              ? "rbc-calendar-event-mobile-hold-inner"
+              : undefined
+          }
+          style={{ width: "100%", height: "100%", minHeight: "100%" }}
+          onTouchStart={(e) => handleMobileTouchStart(e, typedEvent)}
+          onTouchMove={handleMobileTouchMove}
+          onTouchEnd={handleMobileTouchEnd}
+          onTouchCancel={handleMobileTouchEnd}
+        >
+          {inner}
+        </div>
+      );
+    },
+    [
+      viewportMobile,
+      mobileHeldEventKey,
+      handleMobileTouchStart,
+      handleMobileTouchMove,
+      handleMobileTouchEnd,
+    ],
+  );
+
   const eventStyleGetter = useCallback(
     (event: any) => {
       // Check if it's a self-reservation
@@ -296,6 +421,10 @@ export default function MyCalendarClient({
       // Determine service category
       const serviceTitle = event.service?.title || event.title || "";
       const isDamen = isDamenService(serviceTitle);
+      const mobilePrep =
+        viewportMobile &&
+        mobileHeldEventKey !== null &&
+        String(event?.id) === mobileHeldEventKey;
 
       // For self-reservation, use striped pattern; Damen/Herren use brand slot colors
       let backgroundStyle: React.CSSProperties = {
@@ -329,18 +458,27 @@ export default function MyCalendarClient({
           ...backgroundStyle,
           color: textColor,
           borderRadius: "4px",
-          opacity: 0.9,
-          border: "0px",
+          opacity: mobilePrep ? 1 : 0.9,
+          border: mobilePrep ? "2px solid rgba(197, 160, 89, 0.95)" : "0px",
           display: "block",
           padding: "2px 4px",
           fontSize: "0.9em",
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
+          ...(mobilePrep
+            ? ({
+                transform: "scale(1.04)",
+                boxShadow:
+                  "0 0 0 2px rgba(197,160,89,0.9), 0 12px 28px rgba(0,0,0,0.38)",
+                zIndex: 40,
+                transition: "transform 0.12s ease, box-shadow 0.12s ease",
+              } as const)
+            : {}),
         },
       };
     },
-    [isDamenService],
+    [isDamenService, viewportMobile, mobileHeldEventKey],
   );
 
   const handleDropFromOutside = useCallback(
@@ -425,22 +563,13 @@ export default function MyCalendarClient({
     return (
       <div className="rbc-toolbar">
         <span className="rbc-btn-group">
-          <button
-            type="button"
-            onClick={() => onNavigate(Navigate.TODAY)}
-          >
+          <button type="button" onClick={() => onNavigate(Navigate.TODAY)}>
             {messages.today}
           </button>
-          <button
-            type="button"
-            onClick={() => onNavigate(Navigate.PREVIOUS)}
-          >
+          <button type="button" onClick={() => onNavigate(Navigate.PREVIOUS)}>
             {messages.previous}
           </button>
-          <button
-            type="button"
-            onClick={() => onNavigate(Navigate.NEXT)}
-          >
+          <button type="button" onClick={() => onNavigate(Navigate.NEXT)}>
             {messages.next}
           </button>
         </span>
@@ -468,8 +597,9 @@ export default function MyCalendarClient({
                   className={view === name ? "rbc-active" : undefined}
                   onClick={() => onView(name)}
                 >
-                  {(messages as Record<string, string | undefined>)[String(name)] ??
-                    String(name)}
+                  {(messages as Record<string, string | undefined>)[
+                    String(name)
+                  ] ?? String(name)}
                 </button>
               ))
             : null}
@@ -523,7 +653,8 @@ export default function MyCalendarClient({
           ? "2px solid rgba(0, 0, 0, 0.2)"
           : "2px solid rgba(255, 255, 255, 0.45)";
 
-        return (
+        return mobileTouchWrap(
+          (
           <div
             style={{
               ...backgroundStyle,
@@ -563,6 +694,8 @@ export default function MyCalendarClient({
                   : typedEvent.title || ""}
             </span>
           </div>
+          ),
+          typedEvent,
         );
       }
 
@@ -593,7 +726,8 @@ rgba(165, 63, 63, 0.2) 5px,
           ? "2px solid rgba(0, 0, 0, 0.2)"
           : "2px solid rgba(255, 255, 255, 0.45)";
 
-        return (
+        return mobileTouchWrap(
+          (
           <div
             className="d-flex flex-column justify-content-start"
             style={{
@@ -689,11 +823,14 @@ rgba(165, 63, 63, 0.2) 5px,
               )}
             </div>
           </div>
+        ),
+        typedEvent,
         );
       }
 
       // Simple display for other views
-      return (
+      return mobileTouchWrap(
+        (
         <div
           style={{
             padding: "2px 4px",
@@ -708,10 +845,29 @@ rgba(165, 63, 63, 0.2) 5px,
         >
           {typedEvent.title}
         </div>
+        ),
+        typedEvent,
       );
     },
     toolbar: CalendarToolbar,
   };
+
+  const touchBackendOptions = useMemo(
+    () => ({
+      enableMouseEvents: true,
+      enableTouchEvents: true,
+      enableKeyboardEvents: false,
+      delay: 0,
+      delayTouchStart: viewportMobile ? MOBILE_TOUCH_DRAG_DELAY_MS : 0,
+      touchSlop: viewportMobile ? 14 : 8,
+      ignoreContextMenu: true,
+      scrollAngleRanges: [
+        { start: 30, end: 150 },
+        { start: 210, end: 330 },
+      ],
+    }),
+    [viewportMobile],
+  );
 
   const handleDeleteService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -876,22 +1032,7 @@ rgba(165, 63, 63, 0.2) 5px,
               </Link>
             </div>
 
-            <DndProvider
-              backend={TouchBackend}
-              options={{
-                enableMouseEvents: true,
-                enableTouchEvents: true,
-                enableKeyboardEvents: false,
-                delay: 0,
-                delayTouchStart: 0,
-                touchSlop: 8,
-                ignoreContextMenu: true,
-                scrollAngleRanges: [
-                  { start: 30, end: 150 },
-                  { start: 210, end: 330 },
-                ],
-              }}
-            >
+            <DndProvider backend={TouchBackend} options={touchBackendOptions}>
               <DragAndDropCalendar
                 localizer={localizer}
                 defaultDate={new Date()}
