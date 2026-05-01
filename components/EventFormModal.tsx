@@ -410,8 +410,9 @@ export default function EventFormModal({
     e.preventDefault();
     console.log("Submitting service with color:", newServiceFormData.color);
     createNewServiceMutation(newServiceFormData, {
-      onSuccess: (res) => {
-        toast.success(res.message);
+      onSuccess: (res: unknown) => {
+        const payload = res as { message?: string } | undefined;
+        toast.success(payload?.message ?? "Dienst wurde erstellt.");
         setIsNewServiceModalOpen(false);
         // Reset form
         setNewServiceFormData({
