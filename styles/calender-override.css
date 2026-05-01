@@ -617,6 +617,11 @@
 
 /* Mobile: termin slot “armed” for touch-drag (hold ~300ms) — extra affordance on inner content */
 @media (max-width: 768px) {
+  /* Let parent handle pan; avoids time grid stealing vertical scroll during slot drag prep */
+  .rbc-calendar-event-touch-wrap {
+    touch-action: none;
+  }
+
   .rbc-calendar-event-mobile-hold-inner {
     border-radius: 6px;
     box-shadow: inset 0 0 0 2px rgba(197, 160, 89, 0.55);

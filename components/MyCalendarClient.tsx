@@ -135,6 +135,7 @@ export default function MyCalendarClient({
   );
   const mobilePressTimerRef = useRef<number | null>(null);
   const mobilePressStartRef = useRef<{ x: number; y: number } | null>(null);
+  const mobileDragArmRef = useRef(false);
   const [mobileHeldEventKey, setMobileHeldEventKey] = useState<string | null>(
     null,
   );
@@ -152,12 +153,14 @@ export default function MyCalendarClient({
       if ((typedEvent as { isDraggable?: boolean }).isDraggable === false) {
         return;
       }
+      mobileDragArmRef.current = false;
       clearMobileHoldTimer();
       const t0 = e.touches[0];
       if (!t0) return;
       mobilePressStartRef.current = { x: t0.clientX, y: t0.clientY };
       const key = String(typedEvent.id);
       mobilePressTimerRef.current = window.setTimeout(() => {
+        mobileDragArmRef.current = true;
         setMobileHeldEventKey(key);
         if (typeof navigator !== "undefined" && navigator.vibrate) {
           try {
@@ -176,11 +179,15 @@ export default function MyCalendarClient({
       const start = mobilePressStartRef.current;
       const t0 = e.touches[0];
       if (!start || !t0) return;
+
+      if (mobileDragArmRef.current) return;
+
       const dx = t0.clientX - start.x;
       const dy = t0.clientY - start.y;
-      if (dx * dx + dy * dy > 14 * 14) {
+      const movedFar = dx * dx + dy * dy > 14 * 14;
+
+      if (movedFar) {
         clearMobileHoldTimer();
-        setMobileHeldEventKey(null);
         mobilePressStartRef.current = null;
       }
     },
@@ -189,6 +196,7 @@ export default function MyCalendarClient({
 
   const handleMobileTouchEnd = useCallback(() => {
     clearMobileHoldTimer();
+    mobileDragArmRef.current = false;
     mobilePressStartRef.current = null;
     window.setTimeout(() => setMobileHeldEventKey(null), MOBILE_TOUCH_DRAG_DELAY_MS + 120);
   }, [clearMobileHoldTimer]);
@@ -304,6 +312,7 @@ export default function MyCalendarClient({
 
   const moveEvent = useCallback(
     ({ event, start, end }: any) => {
+      mobileDragArmRef.current = false;
       setMobileHeldEventKey(null);
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
@@ -337,6 +346,7 @@ export default function MyCalendarClient({
 
   const resizeEvent = useCallback(
     ({ event, start, end }: any) => {
+      mobileDragArmRef.current = false;
       setMobileHeldEventKey(null);
       const typedEvent = event as any;
       const existing = events.find((ev) => ev.id === typedEvent.id);
@@ -389,11 +399,14 @@ export default function MyCalendarClient({
       const key = String(typedEvent.id);
       return (
         <div
-          className={
+          className={[
+            "rbc-calendar-event-touch-wrap",
             mobileHeldEventKey === key
               ? "rbc-calendar-event-mobile-hold-inner"
-              : undefined
-          }
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           style={{ width: "100%", height: "100%", minHeight: "100%" }}
           onTouchStart={(e) => handleMobileTouchStart(e, typedEvent)}
           onTouchMove={handleMobileTouchMove}
