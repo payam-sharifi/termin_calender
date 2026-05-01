@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllUser } from "../../userApi";
 import { ROLE } from "../../userApi/user.types";
 
-export const useGetProvidersAndAdmins = () => {
+export const useGetProvidersAndAdmins = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["providers-and-admins"],
     queryFn: async () => {
@@ -17,5 +17,6 @@ export const useGetProvidersAndAdmins = () => {
       
       return providersAndAdmins;
     },
+    enabled: options?.enabled ?? true,
   });
 }; 

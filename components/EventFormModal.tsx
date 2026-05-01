@@ -13,7 +13,6 @@ import { useCreateTimeSlot } from "@/services/hooks/timeSlots/useCreateTimeSlot"
 import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeSlotDate";
 import { useCreateNewService } from "@/services/hooks/serviices/useCreateNewService";
 import { ChromePicker, ColorResult } from "react-color";
-import { useQueryClient } from "@tanstack/react-query";
 import moment from "moment";
 import "moment/locale/de";
 import { useGetUsers } from "@/services/hooks/user/useGetUsers";
@@ -72,7 +71,6 @@ export default function EventFormModal({
   isNewServiceModal = false,
   checkConflict,
 }: EventFormModalProps) {
-  const queryClient = useQueryClient();
   const isEditing = !!initialData;
   const [currentStep, setCurrentStep] = useState<number>(isEditing || isNewServiceModal ? 2 : 1);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -414,9 +412,6 @@ export default function EventFormModal({
     createNewServiceMutation(newServiceFormData, {
       onSuccess: (res) => {
         toast.success(res.message);
-        // Invalidate and refetch services to ensure all devices have the latest data
-        queryClient.invalidateQueries({ queryKey: ["getServices"] });
-        queryClient.refetchQueries({ queryKey: ["getServices"] });
         setIsNewServiceModalOpen(false);
         // Reset form
         setNewServiceFormData({

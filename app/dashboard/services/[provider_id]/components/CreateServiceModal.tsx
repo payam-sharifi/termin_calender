@@ -3,16 +3,18 @@
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { createNewService } from "@/services/servicesApi/Service.types";
 import { useGetProvidersAndAdmins } from "@/services/hooks/user/useGetProvidersAndAdmins";
+import { useGetOneUser } from "@/services/hooks/user/useGetOneuser";
 import { UserRsDataType } from "@/services/userApi/user.types";
-import { useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
 
 interface CreateServiceModalProps {
   show: boolean;
   onHide: () => void;
   newService: createNewService;
-  onServiceChange: (service: createNewService) => void;
+  onServiceChange: Dispatch<SetStateAction<createNewService>>;
   onCreate: () => void;
+  /** When set, Anbieter is fixed to this provider (no full directory dropdown). */
+  scopedProviderId?: string;
 }
 
 export default function CreateServiceModal({
@@ -21,29 +23,28 @@ export default function CreateServiceModal({
   newService,
   onServiceChange,
   onCreate,
+  scopedProviderId,
 }: CreateServiceModalProps) {
-  const { data: providersAndAdmins, isLoading: isLoadingProviders } = useGetProvidersAndAdmins();
+  const isScoped = Boolean(scopedProviderId);
+  const { data: providersAndAdmins, isLoading: isLoadingProviders } = useGetProvidersAndAdmins({
+    enabled: !isScoped,
+  });
+  const { data: scopedProviderRes, isLoading: isLoadingScopedProvider } = useGetOneUser({
+    id: scopedProviderId ?? "",
+  });
 
-  // Set current user as default provider when modal opens
   useEffect(() => {
-    if (show && !newService.provider_id) {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('termin-token') : null;
-      if (token) {
-        try {
-          const decoded = jwtDecode<{ id: string }>(token);
-          handleInputChange("provider_id", decoded.id);
-        } catch (error) {
-          console.error('Error decoding token:', error);
-        }
-      }
-    }
-  }, [show, newService.provider_id]);
+    if (!show || !scopedProviderId) return;
+    onServiceChange((prev) =>
+      prev.provider_id === scopedProviderId ? prev : { ...prev, provider_id: scopedProviderId },
+    );
+  }, [show, scopedProviderId, onServiceChange]);
 
   const handleInputChange = (field: keyof createNewService, value: any) => {
-    onServiceChange({
-      ...newService,
+    onServiceChange((prev) => ({
+      ...prev,
       [field]: value,
-    });
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,23 +74,43 @@ export default function CreateServiceModal({
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Anbieter *</Form.Label>
-                <Form.Select
-                  value={newService.provider_id}
-                  onChange={(e) => handleInputChange("provider_id", e.target.value)}
-                  required
-                  disabled={isLoadingProviders}
-                >
-                  <option value="">Anbieter auswählen...</option>
-                  {providersAndAdmins?.map((user: UserRsDataType) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name} {user.family} ({user.role})
-                    </option>
-                  ))}
-                </Form.Select>
-                {isLoadingProviders && (
-                  <Form.Text className="text-muted">
-                    Lade Anbieter...
-                  </Form.Text>
+                {isScoped ? (
+                  <>
+                    <Form.Control
+                      type="text"
+                      readOnly
+                      disabled
+                      value={
+                        isLoadingScopedProvider
+                          ? "Laden…"
+                          : [scopedProviderRes?.data?.name, scopedProviderRes?.data?.family]
+                              .filter(Boolean)
+                              .join(" ") || scopedProviderId
+                      }
+                    />
+                    <Form.Text className="text-muted">
+                      Dienst wird für den Anbieter dieser Seite erstellt.
+                    </Form.Text>
+                  </>
+                ) : (
+                  <>
+                    <Form.Select
+                      value={newService.provider_id}
+                      onChange={(e) => handleInputChange("provider_id", e.target.value)}
+                      required
+                      disabled={isLoadingProviders}
+                    >
+                      <option value="">Anbieter auswählen...</option>
+                      {providersAndAdmins?.map((user: UserRsDataType) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} {user.family} ({user.role})
+                        </option>
+                      ))}
+                    </Form.Select>
+                    {isLoadingProviders && (
+                      <Form.Text className="text-muted">Lade Anbieter...</Form.Text>
+                    )}
+                  </>
                 )}
               </Form.Group>
             </Col>

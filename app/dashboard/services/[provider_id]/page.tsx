@@ -33,7 +33,7 @@ export default function ServicesPage({
   const filteredServices = services.filter((service: serviceType) =>
     service.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
     service.description?.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-    service.user?.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    (service.user?.name ?? "").toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
   );
   
   // Modal states
@@ -92,9 +92,8 @@ export default function ServicesPage({
   const handleCreateService = () => {
     createMutated(newService, {
       onSuccess: (res: any) => {
-        toast.success(res.message);
-        queryClient.invalidateQueries({ queryKey: ["getServices"] });
-        refetch();
+        toast.success(res?.message ?? "Dienst wurde erstellt.");
+        setPage(1);
         handleNewServiceClose();
       },
       onError: (error: any) => {
@@ -142,7 +141,13 @@ export default function ServicesPage({
             Zurück
           </button>
           <h2 className="fs-5 fs-md-2 mb-0">Dienstverwaltung</h2>
-          <button className="btn btn-outline-primary me-md-2 m-1" onClick={() => setShowNewServiceModal(true)}>
+          <button
+            className="btn btn-outline-primary me-md-2 m-1"
+            onClick={() => {
+              setNewService((prev) => ({ ...prev, provider_id }));
+              setShowNewServiceModal(true);
+            }}
+          >
              +
           </button>
         </div>
@@ -184,6 +189,7 @@ export default function ServicesPage({
         newService={newService}
         onServiceChange={setNewService}
         onCreate={handleCreateService}
+        scopedProviderId={provider_id}
       />
 
       <SafeDeleteModal
