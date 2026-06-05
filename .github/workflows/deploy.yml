@@ -2,7 +2,7 @@ name: Deploy Next.js to Server
 
 on:
   push:
-    branches: [mockAi]
+    branches: [front-hengameh]
 
 jobs:
   deploy:
