@@ -41,6 +41,10 @@ import { useUpdateTimeSlotDate } from "@/services/hooks/timeSlots/useUpdateTimeS
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserRsDataType } from "@/services/userApi/user.types";
+import {
+  calendarDateToIso,
+  nowCalendarDate,
+} from "@/lib/appTimezone";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -92,7 +96,7 @@ export default function MyCalendarClient({
     }
     return Views.DAY;
   });
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => nowCalendarDate());
   const germanDatePickerRef = useRef<GermanDatePickerHandle | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -221,8 +225,8 @@ export default function MyCalendarClient({
       mutate(
         {
           id: existing.slotId,
-          start_time: start,
-          end_time: end,
+          start_time: calendarDateToIso(start),
+          end_time: calendarDateToIso(end),
           phone: typedEvent.customerPhone,
           name: typedEvent.customerName,
         },
@@ -253,8 +257,8 @@ export default function MyCalendarClient({
       mutate(
         {
           id: existing.slotId,
-          start_time: start,
-          end_time: end,
+          start_time: calendarDateToIso(start),
+          end_time: calendarDateToIso(end),
           phone: typedEvent.customerPhone,
           name: typedEvent.customerName,
         },
@@ -885,7 +889,7 @@ rgba(165, 63, 63, 0.2) 5px,
             >
               <DragAndDropCalendar
                 localizer={localizer}
-                defaultDate={new Date()}
+                defaultDate={nowCalendarDate()}
                 min={new Date(0, 0, 0, 9, 0, 0)} // 8:00 AM
                 max={new Date(0, 0, 0, 20, 0, 0)} // 6:00 PM
                 formats={{

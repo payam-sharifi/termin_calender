@@ -19,6 +19,13 @@ import {
   getCalendarDayClassName,
   getCalendarWeekDayClassName,
 } from "@/lib/calendarDayClassName";
+import {
+  dayEndIsoInAppTimezone,
+  dayStartIsoInAppTimezone,
+  formatAppDate,
+  formatAppTime,
+  todayYmdInAppTimezone,
+} from "@/lib/appTimezone";
 
 registerLocale("de", de);
 
@@ -180,33 +187,34 @@ export default function UserAppointmentsPage({
   const upcoming = items.filter((a: any) => a.start_time >= nowIso);
   const past = items.filter((a: any) => a.start_time < nowIso);
 
-  const formatDateInput = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
   const displayStart =
-    customStart || (startTime ? formatDateInput(new Date(startTime)) : "");
+    customStart ||
+    (startTime
+      ? formatAppDate(startTime, {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "");
   const displayEnd =
-    customEnd || (endTime ? formatDateInput(new Date(endTime)) : "");
+    customEnd ||
+    (endTime
+      ? formatAppDate(endTime, {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+      : "");
 
   const formatRowDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("de-DE", {
+    formatAppDate(iso, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
 
-  const formatRowTimeRange = (startIso: string, endIso: string) => {
-    const start = new Date(startIso);
-    const end = new Date(endIso);
-    const opts: Intl.DateTimeFormatOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return `${start.toLocaleTimeString("de-DE", opts)} – ${end.toLocaleTimeString("de-DE", opts)}`;
-  };
+  const formatRowTimeRange = (startIso: string, endIso: string) =>
+    `${formatAppTime(startIso)} – ${formatAppTime(endIso)}`;
 
   return (
     <Container className="py-4">
@@ -237,16 +245,7 @@ export default function UserAppointmentsPage({
                 const day = String(date.getDate()).padStart(2, "0");
                 const ymd = `${y}-${m}-${day}`;
                 setCustomStart(ymd);
-                const dt = new Date(
-                  date.getFullYear(),
-                  date.getMonth(),
-                  date.getDate(),
-                  0,
-                  0,
-                  0,
-                  0,
-                );
-                setStartTime(dt.toISOString());
+                setStartTime(dayStartIsoInAppTimezone(ymd));
                 setPage(1);
               }}
             />
@@ -260,16 +259,7 @@ export default function UserAppointmentsPage({
                 const day = String(date.getDate()).padStart(2, "0");
                 const ymd = `${y}-${m}-${day}`;
                 setCustomEnd(ymd);
-                const dt = new Date(
-                  date.getFullYear(),
-                  date.getMonth(),
-                  date.getDate(),
-                  23,
-                  59,
-                  59,
-                  999,
-                );
-                setEndTime(dt.toISOString());
+                setEndTime(dayEndIsoInAppTimezone(ymd));
                 setPage(1);
               }}
             />
@@ -280,31 +270,11 @@ export default function UserAppointmentsPage({
               variant="outline-primary"
               className="flex-shrink-0"
               onClick={() => {
-                const today = new Date();
-                const start = new Date(
-                  today.getFullYear(),
-                  today.getMonth(),
-                  today.getDate(),
-                );
-                const end = new Date(
-                  today.getFullYear(),
-                  today.getMonth(),
-                  today.getDate(),
-                  23,
-                  59,
-                  59,
-                  999,
-                );
-                setStartTime(start.toISOString());
-                setEndTime(end.toISOString());
-                const formatDateInput = (d: Date) => {
-                  const y = d.getFullYear();
-                  const m = String(d.getMonth() + 1).padStart(2, "0");
-                  const day = String(d.getDate()).padStart(2, "0");
-                  return `${y}-${m}-${day}`;
-                };
-                setCustomStart(formatDateInput(start));
-                setCustomEnd(formatDateInput(end));
+                const todayYmd = todayYmdInAppTimezone();
+                setStartTime(dayStartIsoInAppTimezone(todayYmd));
+                setEndTime(dayEndIsoInAppTimezone(todayYmd));
+                setCustomStart(todayYmd);
+                setCustomEnd(todayYmd);
                 setPage(1);
               }}
             >

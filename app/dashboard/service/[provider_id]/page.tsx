@@ -9,6 +9,11 @@ import {
   CALENDAR_APPOINTMENT_CREATED_EVENT,
   type CalendarAppointmentCreatedDetail,
 } from "@/lib/calendarEvents";
+import {
+  isoToCalendarDate,
+  todayYmdInAppTimezone,
+  toYmdInAppTimezone,
+} from "@/lib/appTimezone";
 
 export default function ServicePage({
   params,
@@ -19,15 +24,7 @@ export default function ServicePage({
   const {data:userData}=useGetOneUser( {id:provider_id})
 const [dateSizeChange,setDateSizeChange]=useState<boolean>(false)
 
-// Track the currently viewed date range to refetch accurately after mutations
-// Use local date, not UTC, to avoid timezone issues around midnight
-const getLocalDateString = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-const today = getLocalDateString(new Date());
+const today = todayYmdInAppTimezone();
 const [currentRange, setCurrentRange] = useState<{start:string,end:string}>({start: today, end: today})
   const {
     data: onlyServiceData,
@@ -86,16 +83,8 @@ useEffect(()=>{
   }, [provider_id, refetchCalendarForCurrentRange]);
 
   const handleDateRangeChange = (newStart: Date, newEnd: Date) => {
-    // Format date using local time, not UTC, to avoid timezone issues around midnight
-    const formatDate = (date: Date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    const start_time = formatDate(newStart);
-    const end_time = formatDate(newEnd);
+    const start_time = toYmdInAppTimezone(newStart);
+    const end_time = toYmdInAppTimezone(newEnd);
     GetServices({
       provider_id,
       start_time,
@@ -117,8 +106,8 @@ useEffect(()=>{
         const eventColor = isSelfReservationService ? "#9B59B6" : service.color;
         
         return {
-          start: new Date(slot.start_time),
-          end: new Date(slot.end_time),
+          start: isoToCalendarDate(slot.start_time),
+          end: isoToCalendarDate(slot.end_time),
           id: `${serviceIndex}-${slotIndex}`,
           slotId: slot.id,
           isDraggable: true,

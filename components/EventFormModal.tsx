@@ -26,6 +26,10 @@ import {
   getCalendarDayClassName,
   getCalendarWeekDayClassName,
 } from "@/lib/calendarDayClassName";
+import {
+  calendarDateToIso,
+  nowCalendarDate,
+} from "@/lib/appTimezone";
 
 moment.locale("de");
 
@@ -123,8 +127,8 @@ export default function EventFormModal({
   }>({
     title: initialData?.title || "",
     description: initialData?.description || "",
-    start: initialData?.start || selectedSlot?.start || new Date(),
-    end: initialData?.end || selectedSlot?.end || new Date(),
+    start: initialData?.start || selectedSlot?.start || nowCalendarDate(),
+    end: initialData?.end || selectedSlot?.end || nowCalendarDate(),
     service: initialData?.service || selectedService || (services && services.length > 0 ? services[0] : undefined),
     customerName: initialData?.customerName || "",
     customerFamily: initialData?.customerFamily || "",
@@ -327,8 +331,8 @@ export default function EventFormModal({
         updateSlotApi(
           {
             id: slotId,
-            start_time: formData.start.toISOString(),
-            end_time: formData.end.toISOString(),
+            start_time: calendarDateToIso(formData.start),
+            end_time: calendarDateToIso(formData.end),
             phone: isSelfReservation ? "self" : formData.customerPhone, // Backend route requires phone but doesn't use it for update
             name: isSelfReservation ? undefined : formData.customerName,
             service_id: isSelfReservation ? undefined : formData.service?.id, // Don't update service_id for self-reservations
@@ -353,8 +357,8 @@ export default function EventFormModal({
           email: formData.is_self_reservation ? undefined : formData.customerEmail,
           phone: formData.is_self_reservation ? undefined : formData.customerPhone,
           customer_id: formData.is_self_reservation ? undefined : formData.customer_id,
-          start_time: formData.start.toISOString(),
-          end_time: formData.end.toISOString(),
+          start_time: calendarDateToIso(formData.start),
+          end_time: calendarDateToIso(formData.end),
           service_id: formData.is_self_reservation ? undefined : formData.service?.id, // Will be handled by backend for self-reservation
           sex: formData.is_self_reservation ? undefined : formData.sex,
           status: "Available",

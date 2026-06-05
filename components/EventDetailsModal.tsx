@@ -6,6 +6,10 @@ import { useDeleteTimeSlotById } from "@/services/hooks/timeSlots/useDeleteTimeS
 import { toast } from "react-toastify";
 import SafeDeleteModal from "./SafeDeleteModal";
 import { useState } from "react";
+import {
+  formatCalendarDate,
+  formatCalendarTime,
+} from "@/lib/appTimezone";
 
 
 
@@ -29,24 +33,6 @@ export default function EventDetailsModal({
   if (!event) {
     return null;
   }
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString('de-DE', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('de-DE', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-
-
   const handleDelete = () => {
     const isSelfReservation = (event as any).isSelfReservation;
     // For self-reservations, customerPhone is empty, but we still need slotId to delete
@@ -80,11 +66,11 @@ export default function EventDetailsModal({
       <Modal.Body>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Datum:</Col>
-          <Col md={8}>{formatDate(event.start)}</Col>
+          <Col md={8}>{formatCalendarDate(event.start)}</Col>
         </Row>
         <Row className="mb-3">
           <Col md={4} className="fw-bold">Zeit:</Col>
-          <Col md={8}>{formatTime(event.start)} - {formatTime(event.end)}</Col>
+          <Col md={8}>{formatCalendarTime(event.start)} - {formatCalendarTime(event.end)}</Col>
         </Row>
         {/* <Row className="mb-3">
           <Col md={4} className="fw-bold">Service:</Col>
