@@ -8,6 +8,7 @@
     "start": "next start -p 7500",
     "lint": "next lint",
     "generate-icons": "node scripts/generate-icons.js",
+    "generate-blank-icons": "node scripts/generate-blank-pwa-icons.js",
     "create-placeholder-icon": "node scripts/create-placeholder-icon.js"
   },
   "dependencies": {

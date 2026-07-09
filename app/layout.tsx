@@ -42,7 +42,6 @@ export default function RootLayout({
 }>) {
   // Add PWA meta tags via useEffect since this is a client component
   useEffect(() => {
-    // Add PWA meta tags to head
     const metaTags = [
       { name: "application-name", content: "Termin Calendar" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -55,30 +54,16 @@ export default function RootLayout({
       },
       { name: "format-detection", content: "telephone=no" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { name: "msapplication-TileColor", content: "#c5a059" },
+      { name: "msapplication-TileColor", content: "#1c1d26" },
       { name: "msapplication-tap-highlight", content: "no" },
       { name: "theme-color", content: "#c5a059" },
     ];
 
     const linkTags = [
-      { rel: "apple-touch-icon", href: "/icons/icon-192x192.png" },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "192x192",
-        href: "/icons/icon-192x192.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "512x512",
-        href: "/icons/icon-512x512.png",
-      },
       { rel: "manifest", href: "/manifest.json" },
-      { rel: "shortcut icon", href: "/icons/icon-192x192.png" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192x192.png" },
     ];
 
-    // Add meta tags
     metaTags.forEach((tag) => {
       let element = document.querySelector(`meta[name="${tag.name}"]`);
       if (!element) {
@@ -89,7 +74,6 @@ export default function RootLayout({
       element.setAttribute("content", tag.content);
     });
 
-    // Add link tags
     linkTags.forEach((tag) => {
       const selector =
         tag.rel === "manifest"
@@ -98,73 +82,17 @@ export default function RootLayout({
       let element = document.querySelector(selector);
       if (!element) {
         element = document.createElement("link");
-        Object.entries(tag).forEach(([key, value]) => {
-          if (key !== "rel" || value !== "shortcut icon") {
-            if (element) {
-              element.setAttribute(key, value as string);
-            }
-          }
-        });
-        if (tag.rel === "shortcut icon" && element) {
-          element.setAttribute("rel", "icon");
-        }
-        if (element) {
-          document.head.appendChild(element);
-        }
-      }
-    });
-
-    // Add Apple touch startup images for iOS
-    const appleTouchStartupImages = [
-      {
-        media:
-          "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
-        href: "/icons/apple-splash-640-1136.png",
-      },
-      {
-        media:
-          "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)",
-        href: "/icons/apple-splash-750-1334.png",
-      },
-      {
-        media:
-          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)",
-        href: "/icons/apple-splash-828-1792.png",
-      },
-      {
-        media:
-          "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)",
-        href: "/icons/apple-splash-1125-2436.png",
-      },
-      {
-        media:
-          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)",
-        href: "/icons/apple-splash-1242-2688.png",
-      },
-      {
-        media:
-          "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
-        href: "/icons/apple-splash-1170-2532.png",
-      },
-      {
-        media:
-          "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
-        href: "/icons/apple-splash-1284-2778.png",
-      },
-    ];
-
-    appleTouchStartupImages.forEach((img) => {
-      let element = document.querySelector(
-        `link[rel="apple-touch-startup-image"][media="${img.media}"]`,
-      );
-      if (!element) {
-        element = document.createElement("link");
-        element.setAttribute("rel", "apple-touch-startup-image");
-        element.setAttribute("media", img.media);
-        element.setAttribute("href", img.href);
+        element.setAttribute("rel", tag.rel);
+        element.setAttribute("href", tag.href);
         document.head.appendChild(element);
       }
     });
+
+    document
+      .querySelectorAll(
+        'link[rel="apple-touch-startup-image"], link[rel="icon"], link[rel="shortcut icon"]',
+      )
+      .forEach((element) => element.remove());
   }, []);
 
   return (
@@ -181,26 +109,12 @@ export default function RootLayout({
         />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#c5a059" />
+        <meta name="msapplication-TileColor" content="#1c1d26" />
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="theme-color" content="#c5a059" />
 
-        {/* PWA Icons */}
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="192x192"
-          href="/icons/icon-192x192.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="512x512"
-          href="/icons/icon-512x512.png"
-        />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="shortcut icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
         <style jsx global>{`
           html,

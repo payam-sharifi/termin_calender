@@ -92,25 +92,13 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Go to dashboard",
-      "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/dashboard"
     },
     {
       "name": "Services",
       "short_name": "Services",
       "description": "View services",
-      "url": "/dashboard/services",
-      "icons": [
-        {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/dashboard/services"
     }
   ],
   "share_target": {
