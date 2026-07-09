@@ -1,5 +1,6 @@
 // lib/api.ts
 import axios from 'axios';
+import { getToken, clearToken } from '@/lib/authToken';
 
 // Get base URL dynamically based on current hostname
 // Lazy-loaded to avoid SSR issues
@@ -50,11 +51,7 @@ if (typeof window !== 'undefined') {
 }
 
 api.interceptors.request.use((config) => {
-  let token = '';
-
-  if (typeof window !== 'undefined') {
-    token = localStorage.getItem('termin-token') || '';
-  }
+  const token = getToken();
   if (token) {
     config.headers = config.headers || {};
     config.headers['Authorization'] = `Bearer ${token}`;
@@ -63,10 +60,12 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      clearToken();
+      window.location.href = '/auth/login';
+    }
     return Promise.reject(error);
   }
 );

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { jwtDecode } from 'jwt-decode';
 import { useSendOtp } from '@/services/hooks/auth/useSendOtp';
 import { useRouter } from 'next/navigation';
+import { setToken } from '@/lib/authToken';
 export default function LoginPage() {
   const router=useRouter()
   const [loginMethod, setLoginMethod] = useState<'password' | 'sms'>('password');
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId,setUserId]=useState('')
+  const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
 
  const { mutate: login, isPending } = useLogin();
 
@@ -28,14 +30,19 @@ const {mutate: sendOtp, isPending:otpPending }=useSendOtp()
  }
  },[userId])
 
-const jwtToken= (tokenrq:string)=>{
+ useEffect(() => {
+   setPassword('');
+   setCode('');
+   setCodeDigits(['', '', '', '']);
+ }, []);
+
+const jwtToken = (tokenrq: string) => {
   const token = typeof tokenrq === 'string' ? tokenrq : tokenrq;
   const decoded = jwtDecode<{ id: string }>(token);
-          localStorage.setItem('termin-token', token);
-          document.cookie = `termin-token=${token}; path=/; max-age=2592000`;
-          setUserId(decoded.id)
-          router.push(`/dashboard/service/${decoded.id}`);
-}
+  setToken(token);
+  setUserId(decoded.id);
+  router.push(`/dashboard/service/${decoded.id}`);
+};
 
 const [fieldErrors, setFieldErrors] = useState<{ phone?: string; password?: string; code?: string }>({});
 
@@ -80,8 +87,9 @@ const handleLogin = async (e: React.FormEvent) => {
           toast.success(res.message);
           jwtToken(res.data)
       },
-      onError: (error: any) => {
+      onError: () => {
         toast.error("Login fehlgeschlagen");
+        setPassword('');
       },
     }
   );
@@ -101,7 +109,6 @@ const handleSendCode = async (e: React.FormEvent) => {
         toast.success(res.message);
         setCodeSent(true);
         setLoading(false);
-        jwtToken(res.data)
       },
       onError: (error: any) => {
         toast.error("Fehler beim Senden des Codes");
@@ -138,9 +145,8 @@ const handleTabChange = (method: 'password' | 'sms') => {
   setCodeSent(false);
   setPassword('');
   setCode('');
+  setCodeDigits(['', '', '', '']);
 };
-
-const [codeDigits, setCodeDigits] = useState(['', '', '', '']);
 
 const handleCodeChange = (index: number, value: string) => {
   if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
@@ -218,8 +224,10 @@ const isPasswordValid = password.length > 0;
               type="password"
               className="form-control"
               id="password"
+              name="password"
               value={password}
-                  onChange={e => { setPassword(e.target.value); clearFieldError('password'); }}
+              onChange={e => { setPassword(e.target.value); clearFieldError('password'); }}
+              autoComplete="new-password"
               required
                   style={{ borderRadius: 8, fontSize: 16 }}
             />

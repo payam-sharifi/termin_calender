@@ -10,10 +10,10 @@ import { queryClient } from "@/services/queryClient";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import useDecoder from "@/hooks/useDecoder";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
+import { getToken, clearToken } from "@/lib/authToken";
 
 
 
@@ -33,23 +33,28 @@ export default function Layout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // Check token synchronously on mount
-    const t = typeof window !== 'undefined' ? localStorage.getItem('termin-token') : null;
+    const t = getToken();
     setToken(t);
     setIsChecking(false);
 
-    if (!t && pathname !== "/auth/login" && !pathname.startsWith("/auth/")) {
+    if (!t) {
       router.push("/auth/login");
-    } else if (t && pathname === "/dashboard") {
-      try {
-        const decoded = jwtDecode<{ id: string }>(t);
-        router.push(`/dashboard/service/${decoded.id}`);
-      } catch (error) {
-        // Invalid token
-        console.error("Invalid token:", error);
-        localStorage.removeItem('termin-token');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<{ id: string; exp?: number }>(t);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        clearToken();
         router.push("/auth/login");
+        return;
       }
+      if (pathname === "/dashboard") {
+        router.push(`/dashboard/service/${decoded.id}`);
+      }
+    } catch {
+      clearToken();
+      router.push("/auth/login");
     }
   }, [pathname, router]);
 

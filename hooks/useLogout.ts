@@ -1,17 +1,13 @@
 // hooks/useLogout.ts
 
 import { useRouter } from "next/navigation";
-
+import { clearToken } from "@/lib/authToken";
 
 const useLogout = () => {
   const router = useRouter();
 
   const logout = () => {
-  
-    localStorage.removeItem('termin-token');
-  
-    document.cookie = 'termin-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-   
+    clearToken();
     router.push('/auth/login');
   };
 

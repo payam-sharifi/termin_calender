@@ -6,6 +6,7 @@ import { useGetProvidersAndAdmins } from "@/services/hooks/user/useGetProvidersA
 import { UserRsDataType } from "@/services/userApi/user.types";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { getToken } from "@/lib/authToken";
 
 interface CreateServiceModalProps {
   show: boolean;
@@ -27,7 +28,7 @@ export default function CreateServiceModal({
   // Set current user as default provider when modal opens
   useEffect(() => {
     if (show && !newService.provider_id) {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('termin-token') : null;
+      const token = getToken();
       if (token) {
         try {
           const decoded = jwtDecode<{ id: string }>(token);

@@ -18,20 +18,22 @@ export function middleware(request: NextRequest) {
   if (!token && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
-  
-  // If token exists and trying to access login/register, redirect to dashboard
-  if (token && (pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register'))) {
+
+  if (token && pathname.startsWith('/dashboard')) {
     try {
-      const decoded = jwtDecode<{ id: string }>(token);
-      return NextResponse.redirect(new URL(`/dashboard/service/${decoded.id}`, request.url));
-    } catch (error) {
-      // Invalid token, clear it and allow access to auth pages
-      const response = NextResponse.next();
+      const decoded = jwtDecode<{ exp?: number }>(token);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        const response = NextResponse.redirect(new URL('/auth/login', request.url));
+        response.cookies.delete('termin-token');
+        return response;
+      }
+    } catch {
+      const response = NextResponse.redirect(new URL('/auth/login', request.url));
       response.cookies.delete('termin-token');
       return response;
     }
   }
-  
+
   return NextResponse.next();
 }
 
