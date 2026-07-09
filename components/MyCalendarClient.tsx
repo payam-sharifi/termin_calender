@@ -45,6 +45,11 @@ import {
   calendarDateToIso,
   nowCalendarDate,
 } from "@/lib/appTimezone";
+import {
+  clampToNavigableCalendarDay,
+  earliestVisiblePastCalendarDate,
+  isCalendarDayNavigable,
+} from "@/lib/appointmentVisibility";
 
 moment.locale("de");
 const localizer = momentLocalizer(moment);
@@ -372,36 +377,10 @@ export default function MyCalendarClient({
 
   const handleNavigate = useCallback(
     (newDate: Date) => {
-      setCurrentDate(newDate);
-      // Calculate the start and end of the current view
-      let start = new Date(newDate);
-      let end = new Date(newDate);
-
-      // switch (currentView) {
-      //   case Views.MONTH:
-      //     start.setDate(1);
-      //     end.setMonth(end.getMonth() + 1);
-      //     end.setDate(0);
-      //     break;
-      //   case Views.WEEK:
-      //     start.setDate(start.getDate() - start.getDay());
-      //     end.setDate(start.getDate() + 6);
-      //     break;
-      //   case Views.DAY:
-      //     // For day view, start and end are the same
-      //     break;
-      //   default:
-      //     break;
-      // }
-
-      // Format dates to YYYY-MM-DD
-      // const formatDate = (date: Date) => {
-      //   const year = date.getFullYear();
-      //   const month = String(date.getMonth() + 1).padStart(2, '0');
-      //   const day = String(date.getDate()).padStart(2, '0');
-      //   return `${year}-${month}-${day}`;
-      // };
-
+      const navigableDate = clampToNavigableCalendarDay(newDate);
+      setCurrentDate(navigableDate);
+      const start = new Date(navigableDate);
+      const end = new Date(navigableDate);
       onDateRangeChange(start, end, currentView);
     },
     [currentView, onDateRangeChange],
@@ -851,10 +830,13 @@ rgba(165, 63, 63, 0.2) 5px,
               <GermanDatePicker
                 ref={germanDatePickerRef}
                 selected={currentDate}
+                minDate={earliestVisiblePastCalendarDate()}
+                filterDate={isCalendarDayNavigable}
                 onChange={(date: Date | null) => {
                   if (date) {
-                    setCurrentDate(date);
-                    handleNavigate(date);
+                    const navigableDate = clampToNavigableCalendarDay(date);
+                    setCurrentDate(navigableDate);
+                    handleNavigate(navigableDate);
                   }
                 }}
               />

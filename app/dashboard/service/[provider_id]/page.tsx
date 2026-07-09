@@ -14,6 +14,7 @@ import {
   todayYmdInAppTimezone,
   toYmdInAppTimezone,
 } from "@/lib/appTimezone";
+import { isPastAppointmentVisible } from "@/lib/appointmentVisibility";
 
 export default function ServicePage({
   params,
@@ -133,7 +134,7 @@ useEffect(()=>{
           isSelfReservation: isSelfReservationService,
         };
       })
-      )
+      ).filter((event) => isPastAppointmentVisible(event.start))
     : undefined; // Pass undefined during loading, not empty array
   
   const adjEvents1 = transformedData 

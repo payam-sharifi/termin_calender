@@ -26,6 +26,7 @@ import {
   formatAppTime,
   todayYmdInAppTimezone,
 } from "@/lib/appTimezone";
+import { isPastAppointmentVisible } from "@/lib/appointmentVisibility";
 
 registerLocale("de", de);
 
@@ -185,7 +186,9 @@ export default function UserAppointmentsPage({
   const pagination = resp.pagination;
   const nowIso = new Date().toISOString();
   const upcoming = items.filter((a: any) => a.start_time >= nowIso);
-  const past = items.filter((a: any) => a.start_time < nowIso);
+  const past = items.filter(
+    (a: any) => a.start_time < nowIso && isPastAppointmentVisible(a.start_time),
+  );
 
   const displayStart =
     customStart ||
