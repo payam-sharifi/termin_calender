@@ -54,22 +54,27 @@ const maskableSizes = [
   { size: 512, name: 'icon-maskable-512x512.png', safeZone: 0.8 },
 ];
 
-// Source icon path
-const sourceIcon = path.join(iconsDir, 'source-icon.png');
+// Source icon: CLI arg > SOURCE_ICON env > palm.png > source-icon.png
+const sourceCandidates = [
+  process.argv[2],
+  process.env.SOURCE_ICON,
+  path.join(iconsDir, 'palm.png'),
+  path.join(iconsDir, 'source-icon.png'),
+].filter(Boolean);
 
-// Check if source icon exists
-if (!fs.existsSync(sourceIcon)) {
+const sourceIcon = sourceCandidates.find((candidate) => fs.existsSync(candidate));
+
+if (!sourceIcon) {
   console.error('❌ Error: Source icon not found!');
-  console.error(`   Expected location: ${sourceIcon}`);
   console.error('\n📝 Instructions:');
-  console.error('   1. Create a square icon image (1024x1024px recommended)');
-  console.error('   2. Save it as: public/icons/source-icon.png');
+  console.error('   1. Add a square icon (e.g. public/icons/palm.png)');
+  console.error('   2. Or pass a path: node scripts/generate-icons.js public/icons/palm.png');
   console.error('   3. Run this script again');
   process.exit(1);
 }
 
 async function generateIcons() {
-  console.log('🎨 Generating PWA icons...\n');
+  console.log(`🎨 Generating PWA icons from: ${path.basename(sourceIcon)}\n`);
 
   try {
     // Generate regular icons
@@ -122,6 +127,13 @@ async function generateIcons() {
         .toFile(outputPath);
       console.log(`   ✓ Generated ${icon.name}`);
     }
+
+  // Generate favicon
+    const faviconPath = path.join(iconsDir, 'favicon.ico');
+    await sharp(sourceIcon)
+      .resize(32, 32, { fit: 'cover', position: 'center' })
+      .toFile(faviconPath);
+    console.log('\n🌐 Generated favicon.ico');
 
     console.log('\n✅ All icons generated successfully!');
     console.log(`\n📁 Icons location: ${iconsDir}`);
