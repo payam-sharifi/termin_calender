@@ -46,14 +46,14 @@ const jwtToken = (tokenrq: string) => {
 
 const [fieldErrors, setFieldErrors] = useState<{ phone?: string; password?: string; code?: string }>({});
 
-// German mobile validation
-const isValidGermanMobile = (num: string) => /^\+49[1-9][0-9]{9,13}$/.test(num);
+// Phone validation: international format with country code
+const isValidPhone = (num: string) => /^\+\d{7,15}$/.test(num);
 
 // Validate fields
 const validateFields = (fields: { phone?: string; password?: string; code?: string }, method: 'password' | 'sms', codeSent: boolean) => {
   const errors: { phone?: string; password?: string; code?: string } = {};
-  if (!fields.phone || !isValidGermanMobile(fields.phone)) {
-    errors.phone = 'Bitte geben Sie eine gültige deutsche Handynummer mit +49 ein';
+  if (!fields.phone || !isValidPhone(fields.phone)) {
+    errors.phone = 'Bitte geben Sie eine gültige Telefonnummer mit Ländercode ein (z.B. +49...)';
   }
   if (method === 'password') {
     if (!fields.password) {
@@ -172,7 +172,7 @@ const handleCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
 };
 
 // Add computed variable for phone validity
-const isPhoneValid = isValidGermanMobile(phone);
+const isPhoneValid = isValidPhone(phone);
 const isPasswordValid = password.length > 0;
 
   return (
@@ -206,12 +206,8 @@ const isPasswordValid = password.length > 0;
               id="phone"
               value={phone}
               onChange={e => {
-                let val = e.target.value.replace(/^0+/, '');
-                if (!val.startsWith('+49')) {
-                  val = '+49' + val.replace(/^\+*/, '');
-                }
-                setPhone(val);
-                    clearFieldError('phone');
+                setPhone(e.target.value);
+                clearFieldError('phone');
               }}
               required
                   style={{ borderRadius: 8, fontSize: 16 }}
@@ -248,12 +244,8 @@ const isPasswordValid = password.length > 0;
               id="phone"
               value={phone}
               onChange={e => {
-                let val = e.target.value.replace(/^0+/, '');
-                if (!val.startsWith('+49')) {
-                  val = '+49' + val.replace(/^\+*/, '');
-                }
-                setPhone(val);
-                    clearFieldError('phone');
+                setPhone(e.target.value);
+                clearFieldError('phone');
               }}
               required
               disabled={codeSent}
